@@ -4,5 +4,4 @@
 # Generated / local-only
 .context/gain.ndjson
 .context/usage.json
-.mcp.json
 node_modules/
