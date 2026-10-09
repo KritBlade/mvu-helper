@@ -2,6 +2,7 @@
 
 **Development Features**
 
+- [What is Tavern Helper, ST-Prompt-Template and MVU](doc/st_extensions/README.md)
 - [Development Environment and Dev Loops](doc/dev_env/README.md)
 - [MVU Squad](doc/mvu_squad/README.md)
 - [What is GameLogic Engine](doc/gamelogic_engine/README.md)
