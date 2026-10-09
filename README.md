@@ -21,8 +21,8 @@
 
 ## What is MVU Helper
 
-MVU Helper is a SillyTavern extension that lets you build a game inside a character card. Not a bot, a game.
-
+MVU Helper is a SillyTavern extension that lets you build a game inside a character card. Not a bot, a game.  Only 3 functions are end users facing as the table above shown,  the rest of the extenion is mainly for development use.  **If you are normal users, please click the "User Facing Features above"**.
+ 
 I built it to close a gap. I want a vibe coder to be able to build their own game engine and put 3 things right into the character card:
 
 - **Game logic.** Rules that turn stats into results. A warrior with 50 STR hits the same goblin for the same damage every single time.
@@ -57,7 +57,8 @@ So MVU Helper goes hybrid. The AI does the writing, code does the math. Each one
 
 ### Why build on top of MVU Helper instead of coding my own extension?
 
-You could code your own extension. But if you want to open a restaurant, you buy an oven. You don't build one from scratch. Your job is the food.
+You could code your own extension. It just happen that using the MVU Helper could grant you all the following functions without coding 1 single line of code.
+
 
 **State and stats tracking comes with it.** MVU Helper rides on MVU, so tracking every stat and every state change is already done. That's a LOT less coding and debugging before you even get to your game.
 
@@ -75,11 +76,13 @@ Think of a relay race. Every runner knows who they hand the baton to, and nobody
 
 Plugins and event packs work like mods for a PC game. The modders never needed the original developer to change a line. Basically, the end user can download a plugin or an event pack from some other 3rd party content creator and install it right inside MVU Helper, that's it.
 
-**Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and Tavern Helper, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables.
+**Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and ST-Prompt-Template, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables. The game logic engine is heavily locked down.
 
-The logic engine inherits NOTHING from the parent page except the chat and the MVU variables. No `fetch`, no `XMLHttpRequest`, no `WebSocket`, no reading or writing SillyTavern's settings files.
+The logic engine inherits NOTHING from the parent page except the chat and the MVU variables. It has no network access at all. No `fetch`, no `XMLHttpRequest`, no `WebSocket`, no `import()`, no reading or writing SillyTavern's settings files.
 
-JavaScript functions are on an allowlist too. Plain JavaScript still works (Math, JSON, Date, arrays and so on), but pretty much everything else is blocked except `console.*` and `crypto.*`. That sounds limiting, but ArtificKoi, as complicated as it is, was built without any other exotic JavaScript functions.
+JavaScript functions are on an allowlist too. Plain JavaScript still works (Math, JSON, Date, arrays and so on), plus a few pure helpers like `structuredClone`, `atob` and `btoa`. Pretty much everything else is blocked except `console.*` and `crypto.*`. That sounds limiting, but ArtificKoi, as complicated as it is, was built without any other exotic JavaScript functions. If your engine needs another pure helper, just ask. Network, storage and DOM will never be allowed.
+
+Even the schema a pack installs is filtered. The schema runs on the page as a Tavern Helper script, so before it installs, MVU Helper cuts it down to an allowlist. It can declare a Zod schema and register it, nothing else. Anything else in it is removed, and a toast tells you which lines.
 
 Therefore, you only build the part that makes your game different. Everything else is already there. Sounds good?
 
@@ -93,13 +96,13 @@ You can't prose your character into kissing a stranger walking by and expect it 
 
 A lot of people ALWAYS get this wrong. They think having rules means the AI can't prose freely. That's just not the case. Rules keep the *game logic* consistent, and the prose stays completely free.
 
-Here's the difference. Say you try to kiss her, and the engine says no because her Affection is too low. The AI is completely free in how she turns you down. She laughs it off. She steps back and changes the subject. She slaps you. She pretends she didn't hear. Every one of those is fine. The only thing the AI can't write is her kissing you back.
+Here's the difference. Say you try to kiss her, and the engine says no because her Affection is too low. The AI is completely free in how she turns you down. She laughs it off. She steps back and changes the subject. She slaps you. She pretends she didn't hear. Every one of those is fine. The only thing the AI can't write is her kissing you back.  We just want to set the boundary that AI shouldn't do something stupid and not logical at all.  Most console game works the same way.
 
 Think of a football match. The commentator can describe a goal any way they like, but if the scoreboard says 2-1, they can't call it 3-1. The AI is the commentator. The logic engine is the scoreboard.
 
 ### The AI is only the observer
 
-The AI never updates points and never does arithmetic. At the end of each reply, it reports what it just wrote as a short structured command.
+The AI never updates points and never does arithmetic. At the end of each reply, it reports what it just wrote as a short structured command.  Therefore, your story will write exactly the same as without the engine.  The only boundary is the stats of NPC will make the story meaningful.  You can't kiss someone who hate you.  You can't defeat the final boss at level 1.  On the other hand,  you will always defeat the same boss if your stats is high enough, every single time.  At the end of the day, we make the logic deterministic.
 
 Every action becomes an `/Intent`, and that goes to the logic engine. Even if you type "I kissed her", that doesn't make it really happen, unlike a regular SillyTavern character card. Everything you write is an intention. Whether it succeeds or fails is up to the logic engine.
 
