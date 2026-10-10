@@ -31,6 +31,8 @@ ArtificKoi's own entries, as examples:
 | `[POST] Story_Analysis_Detail` | the POST call |
 | `[llmshare] Classmate_Roster` | both PRE and POST |
 
+The entry file format is on [Entries](entries.md).
+
 ## Example: buying lunch in ArtificKoi
 
 ### 1. The entry shows the narrator the wallet
@@ -135,7 +137,21 @@ Watch out for a few things:
 - **One reply, one call.** A regenerate or a swipe is a new reply and gets its own call. A PRE patch, a plugin write or a status menu button doesn't call `resolveTurn` at all.
 - **If it throws, the reply isn't resolved.** MVU Helper logs the error and shows a toast.
 
-The other 2 hooks, `preAssemblyPatch` and `pickSameRoundEvent`, are on [What is GameLogic Engine](README.md#the-hooks).
+The other 2 hooks, `preAssemblyPatch` and `pickSameRoundEvent`, and the fine print of these 2, are on [The hooks in detail](hooks.md).
+
+## The technical pages
+
+Read them in this order, or jump to the one you need:
+
+1. [What's in a GameLogic Pack](pack.md) > the folder, `pack.json`, the checks, the smallest pack that works.
+2. [The hooks in detail](hooks.md) > the declarations and all 4 hooks.
+3. [Where the engine runs](runtime.md) > the sandbox, calling the engine from EJS, logging, dice, an engine in several files.
+4. [Entries](entries.md) > the entry file format, and what install does to it.
+5. [Schema](schema.md) > the Zod schema, its allowlist and keeping the root open.
+6. [Regex](regex.md) > hiding and restyling text, and regexes that change what the model reads.
+7. [State corrections](state.md) > fixing values in saves that already exist.
+8. [Exposes](exposes.md) > telling plugins where things live in your game.
+9. [Import, install and uninstall](install.md) > the library, the dev loop, and what install writes and never touches.
 
 Basically, your entries tell the models what to look at and what to report, and `resolveTurn` and `resolvePostRelay` turn those reports into the game.
 
