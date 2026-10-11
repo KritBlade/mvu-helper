@@ -1,5 +1,7 @@
 # Regex
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 Your pack's regexes are Tavern Helper regex objects, installed on the card. A GameLogic regex hides or restyles text. That's all it's allowed to do.
 
 ## An example from ArtificKoi

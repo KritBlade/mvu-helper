@@ -1,5 +1,7 @@
 # Entries
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 Entries are the lorebook entries your pack writes onto the card. They're what the models read.
 
 Who reads which entry, and how an entry feeds the engine, is on [How a GameLogic Engine works](technical.md#who-reads-which-entry). This page is the file format.

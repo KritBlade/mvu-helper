@@ -99,7 +99,7 @@ Here's a concrete one. Say you made a Weather plugin. It picks the weather based
 
 The narrator reads PRE's output, so it knows it's a sunny day without doing any calculation or judgment. PRE already did all the dirty work and handed the answer to the narrator on a silver plate.
 
-And the best part: you write the plugin once, and it works on *any* card built on top of MVU Helper that can tell it the month. It asks the card where the month lives (through `exposes`), so it never hard-codes one game's paths. More on the [What is GameLogic Plugin](../gamelogic_plugin/README.md) page.
+And the best part: you write the plugin once, and it works on *any* card built on top of MVU Helper that exposes a clock. It asks the card for `clock@1` through `exposes`, reads the month from its `Date`, and never hard-codes one game's paths. ArtificKoi exposes one. More on the [What is GameLogic Plugin](../gamelogic_plugin/README.md) page.
 
 So pick by how long it needs to live. Only needed for this one prompt, write a note. Needed by the engine, by EJS or by a later turn, write a patch. If the sunny day has to last all day, the Weather plugin writes it as a patch, and every reply that day reads the same weather.
 

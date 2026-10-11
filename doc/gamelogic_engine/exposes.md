@@ -1,5 +1,7 @@
 # Exposes
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 `exposes` tells plugins where things live in your game.
 
 A plugin is written once and should work on many games. But every game names its things differently. Your cast might live in `Classmate`, another game's in `Party`. `exposes` is the translation.
@@ -13,8 +15,15 @@ It's like a mall directory. Every shopper asks for "restrooms", and every mall's
 ```json
 {
   "id": "school-v4",
-  "version": "5.127.2",
-  "exposes": { "cast@1": "Classmate", "player@1": "Mainchar" }
+  "version": "5.132.0",
+  "exposes": {
+    "cast@1": "Classmate",
+    "player@1": "Mainchar",
+    "location@1": "World.Location",
+    "landmarks@1": "WorldRecord.Locations",
+    "chronicle@1": "WorldRecord.Events",
+    "clock@1": "World"
+  }
 }
 ```
 
@@ -43,18 +52,45 @@ The install records your map on the card, so it still works after the library co
 | --- | --- | --- |
 | `cast@1` | a map of id > object with at least `Name` | the recurring people: classmates, party, partners |
 | `player@1` | an object with at least `Name` | who the story is about |
-| `places@1` | a map of id > object with at least `Label` | maps, travel, "have I been here" |
+| `location@1` | the id of the place the scene is in now | "where are we", travel |
+| `landmarks@1` | a map of id > object with at least `Label`. An id is the same string `location@1` holds while the scene is there | the places the game has named: a map of them, a travel menu |
 | `chronicle@1` | a map of id > object with at least `summary` | recaps and memory |
-| `clock@1` | an object with at least a day counter | anything scheduled: cooldowns, deadlines, "next week" |
+| `clock@1` | an object with at least `Date` (`yyyy-mm-dd`) and `Time` (`HH:MM`) | anything scheduled: cooldowns, deadlines, "next week" |
 | `locale@1` | a language tag | the plugin translates its own output |
 
-`cast@1` and `player@1` are published today, by ArtificKoi. The other 4 are proposed. Nothing publishes them yet, so a plugin that `requires` one is refused everywhere for now.
+ArtificKoi publishes the first 6, as in the `pack.json` above. `locale@1` is proposed. Nothing publishes it yet, so a plugin that `requires` it is refused everywhere for now.
 
-## Rules
+What a plugin has to know:
+
+- **`landmarks@1` isn't every place in the world.** A game can list only the places found during play, so the scene can be somewhere with no landmark. No landmark means no label, not nowhere. ArtificKoi keeps its base map in a lorebook entry, so there it happens a lot.
+- **A value can come as MVU's `[value, description]` pair.** Read the first item when it's a pair: `Array.isArray(v) ? v[0] : v`. ArtificKoi writes every value that way: `Name` is `["Mitsuki Tachibana", "Name"]`, and `World.Location` is `["Town_BusStop", "Location"]`.
+- **Time doesn't only move forward, and records don't always stay.** A game can rewind its clock or delete old records, so a cooldown counted by date difference can go negative. Check for that instead of trusting it. ArtificKoi does both: a time leap resets the date to `2026-04-08` and deletes the chronicle entries that aren't kept across it, and the player can trim the log too.
+
+## Rules for exposing
 
 - **A name promises a shape, never a place.** You can move your cast to a new root tomorrow by changing one line in `exposes`, and every plugin keeps working. Changing the shape breaks every plugin, so a new shape gets a new name, `cast@2`, published next to `cast@1` until plugins move over.
 - **Don't expose your report channels** (ArtificKoi's `Intent`). That hands plugins a way to write into your game by accident.
-- **Don't expose mid-turn handoff slots** (ArtificKoi's `PendingState`), where one part sets a value and another clears it.
+- **Don't expose mid-turn handoff slots** (ArtificKoi's `PendingState`), where one part sets a value and another clears it. Read at the wrong moment, the value means nothing.
+- **Don't expose what already has its own contract,** like Event Pack paths. 2 ways of carrying one fact drift apart.
+
+## Adding a new name
+
+The 7 names above are the whole list today. When your game has something no name covers, a new name is added to the list. These are the rules for one:
+
+1. **Name the idea, not your word for it.** `cast@1`, never `classmate@1`.
+2. **Promise the minimum.** Every field you put in the shape is a field the next game has to produce too.
+3. **Publish a place you can keep publishing.** The path can move. The name can't disappear.
+4. **Don't publish what can't be used blind.** If a plugin needs your design notes to understand the value, it isn't an interface. That plugin should check `ENGINE_NAME` and handle your game by name instead.
+
+## Exposing is not permission
+
+`exposes` answers "where is it", never "may I write here".
+
+What stops a plugin from doing damage is somewhere else. Its engine runs in the same locked sandbox as yours, and every change it makes goes through your Zod schema, same as your own game's changes. If you want a part of your state closed to plugins, close it in your [schema](schema.md).
+
+Which plugins to trust is the player's call.
+
+So for a game author it's one sentence: don't publish a path you'd be upset to see written.
 
 How plugins are written is on [What is GameLogic Plugin](../gamelogic_plugin/README.md).
 

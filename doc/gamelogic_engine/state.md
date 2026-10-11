@@ -1,5 +1,7 @@
 # State corrections
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 `state` fixes values in saves that already exist. Players keep playing while you ship new versions, and sometimes an old save holds a value your new version can't live with.
 
 ## Where it goes

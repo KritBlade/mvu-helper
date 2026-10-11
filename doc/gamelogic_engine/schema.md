@@ -1,5 +1,7 @@
 # Schema
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 The schema is your Zod schema. It decides what can go into each variable, like refusing a word where your formula expects a number. What Zod does is on [Tavern Helper, ST-Prompt-Template and MVU](../st_extensions/README.md#mvu).
 
 The install puts it on the card as a Tavern Helper script named `Scheme`. The schema [MVU Status Menu Builder](../statusmenu_builder/README.md) generates is exactly what this page asks for, so if you use the builder, you're already done.
@@ -30,7 +32,7 @@ Anything else is removed, the whole statement, along with every statement that u
 
 Think of airport security. Your bag goes through, anything not on the allowed list gets taken out, and the rest of your bag still flies.
 
-A schema that passes, in ArtificKoi's style:
+A schema that passes, in ArtificKoi's style. The `[value, label]` pairs are ArtificKoi's choice. A schema with plain values, like `Money: z.number()`, passes just the same.
 
 ```js
 import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/util/mvu_zod.js';

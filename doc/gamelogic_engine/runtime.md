@@ -1,5 +1,7 @@
 # Where the engine runs
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 Your engine doesn't run on the SillyTavern page. It runs in a locked-down sandbox, and MVU Helper talks to it from outside.
 
 ## The sandbox

@@ -1,5 +1,7 @@
 # The hooks in detail
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 MVU Helper calls your engine by name, at fixed points of every reply. `resolveTurn` is the only one you must have. Every other hook adds one thing your game can do, and if you don't export it, your game simply doesn't do that thing.
 
 The basics of `resolveTurn` and `resolvePostRelay` are on [How a GameLogic Engine works](technical.md#the-2-entry-points). This page is everything else.

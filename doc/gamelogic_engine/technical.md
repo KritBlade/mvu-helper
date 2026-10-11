@@ -4,6 +4,16 @@ A GameLogic Engine has 2 halves. Lorebook entries tell the models what to look a
 
 This page walks through both halves with one real example from ArtificKoi: money.
 
+## A general design, with one real example
+
+Everything on these pages is a general design for any game: RPG, slice of life, zombie hunting, whatever you build. ArtificKoi shows up a lot because it's the first game built on MVU Helper. It's a school dating sim, and it's real and it works, so it makes a better example than something made up.
+
+But the names you see from it are ArtificKoi's own choices, not rules: `Mainchar`, `Classmate`, `CURRENT_VARIABLE_DATA`, `[llmshare]`, money in yen, values stored as `[value, label]` pairs. Your game names things however it wants.
+
+What every game has to follow is only what MVU Helper itself calls and reads: the hooks like `resolveTurn`, the entry prefixes like `[PRE]`, the pack format, and the interface names in `exposes`. Each page says which is which.
+
+One in between: `/Intent` is where ArtificKoi's narrator reports what happened. MVU Helper's event system uses it for one channel, `/Intent/eventFire`. Every other channel under it is your own design.
+
 ## It starts with lorebook entries
 
 Lorebook entries are what the models read: your rules, the current state, and what to report back.
@@ -45,7 +55,7 @@ IF MONEY CHANGED HANDS: /Intent/money/0 "<signed int>", + for earned and - for s
 The engine applies it. You never write Mainchar.Money. Nothing bought or earned, send nothing.
 ```
 
-The balance isn't typed into the entry. `getvar` reads it from `stat_data` every time the entry is sent, so the narrator always sees the real number, say ¥3000. (The `[0]` is there because ArtificKoi keeps each value together with its description, and the value comes first.)
+The balance isn't typed into the entry. `getvar` reads it from `stat_data` every time the entry is sent, so the narrator always sees the real number, say ¥3000. (The `[0]` is there because ArtificKoi keeps each value together with its description, MVU's `[value, label]` style, and the value comes first. That's ArtificKoi's choice. A game that stores plain values reads `stat_data.Mainchar.Money` with no `[0]`.)
 
 ### 2. The narrator writes the scene and reports what happened
 
@@ -59,7 +69,7 @@ The player types "I buy a bento at the school store." The narrator writes the sc
 </UpdateVariable>
 ```
 
-That's the narrator saying "480 yen left his hands", nothing more. It never touches the wallet itself. (Same `/0` as before, the value slot.)
+That's the narrator saying "480 yen left his hands", nothing more. It never touches the wallet itself. (Same `/0` as before, ArtificKoi's value slot. The channel name `money` is ArtificKoi's too. Name your channels whatever fits your game.)
 
 ### 3. RES1: `resolveTurn` picks up the report
 
@@ -99,7 +109,7 @@ Some things are better recorded after the reply, by POST, than reported by the n
 
 After POST's block is applied, MVU Helper calls `resolvePostRelay`. It's the entry point for RES2, and it works the same way as `resolveTurn`: it reads the record, applies the game's rules and returns the new state, in the same reply. ArtificKoi's sets the conflict in her state. That's the conflict EJS puts back in front of the narrator 200 replies later, from the [MVU Squad](../mvu_squad/README.md#what-ejs-does) page.
 
-In ArtificKoi, every channel has one owner. The narrator reports money, POST records relationships. If the narrator sends a relationship record anyway, RES1 ignores it with a warning.
+A good rule for any game: give every channel one owner. In ArtificKoi, the narrator reports money and POST records relationships. If the narrator sends a relationship record anyway, RES1 ignores it with a warning. MVU Helper doesn't enforce this. It's a design choice your engine makes.
 
 `resolvePostRelay` is optional. Without it, POST's changes are still saved, and `resolveTurn` sees them in the next reply.
 

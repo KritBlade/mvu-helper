@@ -1,5 +1,7 @@
 # What's in a GameLogic Pack
 
+> This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](technical.md#a-general-design-with-one-real-example).
+
 A GameLogic Pack is your game, packed up so it can be installed onto a character card.
 
 The way I see it, SillyTavern is the console, the character card is the cartridge, and the GameLogic Pack is the game written onto that cartridge.
@@ -52,10 +54,17 @@ A workspace can hold more than one pack. A folder with its own `pack.json` is on
   "id": "school-v4",
   "name": "ArtificKoi — School v4",
   "description": "Koikatu-style school dating sim: LogicEngine, schema, worldview and PRE/POST entries. The heroine profiles ship on the card itself.",
-  "version": "5.127.2",
+  "version": "5.132.0",
   "builtWith": "Tools/build_workspace.cjs",
   "engineOrder": ["i18n.cjs", "eventpack.cjs", "globalLogic.cjs"],
-  "exposes": { "cast@1": "Classmate", "player@1": "Mainchar" },
+  "exposes": {
+    "cast@1": "Classmate",
+    "player@1": "Mainchar",
+    "location@1": "World.Location",
+    "landmarks@1": "WorldRecord.Locations",
+    "chronicle@1": "WorldRecord.Events",
+    "clock@1": "World"
+  },
   "state": { "version": "0.1.0", "force": {} }
 }
 ```
