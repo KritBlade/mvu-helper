@@ -81,7 +81,9 @@ Plugins and event packs work like mods for a PC game. The modders never needed t
 
 The logic engine inherits NOTHING from the parent page except the chat and the MVU variables. It has no network access at all. No `fetch`, no `XMLHttpRequest`, no `WebSocket`, no `import()`, no reading or writing SillyTavern's settings files.
 
-JavaScript functions are on an allowlist too. Plain JavaScript still works (Math, JSON, Date, arrays and so on), plus a few pure helpers like `structuredClone`, `atob` and `btoa`. Pretty much everything else is blocked except `console.*` and `crypto.*`. That sounds limiting, but ArtificKoi, as complicated as it is, was built without any other exotic JavaScript functions. If your engine needs another pure helper, just ask. Network, storage and DOM will never be allowed.
+JavaScript functions are on an allowlist too. Plain JavaScript still works (Math, JSON, Date, arrays and so on), plus a few pure helpers like `structuredClone`, `atob` and `btoa`. Pretty much everything else is blocked except `console.*` and `crypto.*`. That sounds limiting, but ArtificKoi, as complicated as it is, was built without any other exotic JavaScript functions. If your engine needs another pure helper, just ask. Network, storage and DOM will never be allowed, these are handy and can do some really fancy features, but I want to keep the logic engine safe so the game logic engine would not expose these functions.  Even my own games do not have access to these functions.
+
+Therefore , the worst case scenerio for a wrongly coded gamelogic engine can only show the wrong logic in the chat, it can't even crash his own game.  The game logic engine is an isolated sandbox.
 
 Even the schema a pack installs is filtered. The schema runs on the page as a Tavern Helper script, so before it installs, MVU Helper cuts it down to an allowlist. It can declare a Zod schema and register it, nothing else. Anything else in it is removed, and a toast tells you which lines.
 

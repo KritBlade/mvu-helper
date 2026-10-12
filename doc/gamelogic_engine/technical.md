@@ -14,6 +14,25 @@ What every game has to follow is only what MVU Helper itself calls and reads: th
 
 One in between: `/Intent` is where ArtificKoi's narrator reports what happened. MVU Helper's event system uses it for one channel, `/Intent/eventFire`. Every other channel under it is your own design.
 
+## The parts
+
+Your engine ships inside a GameLogic Pack, and the pack has more parts than the 2 halves. Each part has its own folder, or its own field in `pack.json`:
+
+| Part | Where it lives | Required | What it does |
+| --- | --- | --- | --- |
+| [pack.json](pack.md) | the folder's root | yes | the pack's name card: id, name, version, and the order the engine files load in |
+| [engine](hooks.md) | `engine/` | yes | your JavaScript: `resolveTurn` and the other hooks. This is the game |
+| [entries](entries.md) | `entries/` | no | lorebook entries, what the models read: the narrator, a PRE call or a POST call. The starting state is one of them, `[InitVar]` |
+| [schema](schema.md) | `schema/` | no | every variable your game uses, and what can go into each one |
+| [regex](regex.md) | `regex/` | no | hides or restyles text, on screen or in what the model reads |
+| [state](state.md) | `state` in `pack.json` | no | fixes for saves that already exist |
+| [exposes](exposes.md) | `exposes` in `pack.json` | no | tells plugins where things live in your game |
+| [panel](../side_panel/README.md) | `panel/panel.json` | no | one slot in MVU Helper's side panel |
+
+Only `pack.json` and the engine are a must. A pack that's just those 2 already runs, see [The smallest pack that works](pack.md#the-smallest-pack-that-works). But a real game uses almost all of them.
+
+ArtificKoi uses every part except the panel. Its entries sit in 3 subfolders, `config/`, `windows/` and `char-image/`. Any folder layout under `entries/` works, so sort them however helps you find them.
+
 ## It starts with lorebook entries
 
 Lorebook entries are what the models read: your rules, the current state, and what to report back.

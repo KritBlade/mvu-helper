@@ -69,7 +69,7 @@ What a plugin has to know:
 ## Rules for exposing
 
 - **A name promises a shape, never a place.** You can move your cast to a new root tomorrow by changing one line in `exposes`, and every plugin keeps working. Changing the shape breaks every plugin, so a new shape gets a new name, `cast@2`, published next to `cast@1` until plugins move over.
-- **Don't expose your report channels** (ArtificKoi's `Intent`). That hands plugins a way to write into your game by accident.
+- **Don't expose your report channels** (ArtificKoi's `Intent`). That invites plugins to write your game's reports, as if your narrator had sent them.
 - **Don't expose mid-turn handoff slots** (ArtificKoi's `PendingState`), where one part sets a value and another clears it. Read at the wrong moment, the value means nothing.
 - **Don't expose what already has its own contract,** like Event Pack paths. 2 ways of carrying one fact drift apart.
 
@@ -86,11 +86,13 @@ The 7 names above are the whole list today. When your game has something no name
 
 `exposes` answers "where is it", never "may I write here".
 
-What stops a plugin from doing damage is somewhere else. Its engine runs in the same locked sandbox as yours, and every change it makes goes through your Zod schema, same as your own game's changes. If you want a part of your state closed to plugins, close it in your [schema](schema.md).
+An installed plugin can read all of `stat_data`, and it can write any path your Zod schema allows, exposed or not. Your schema checks the shape of a write, like a number where a number belongs. It doesn't check who made the write. So a game can't stop an installed plugin from writing into `stat_data`.
 
-Which plugins to trust is the player's call.
+That's on purpose. Installing a plugin is the player's decision, and installing it is what gives it the right to write. It's a mod for a PC game. A mod can change your save file, and that's exactly why you only install mods you trust.
 
-So for a game author it's one sentence: don't publish a path you'd be upset to see written.
+What MVU Helper does guarantee: the plugin's engine runs in the same locked sandbox as yours, so it can't reach anything outside the chat and the MVU variables. And a write with the wrong shape is refused by your [schema](schema.md), same as one from your own game.
+
+So exposing a path doesn't make it writable, and not exposing it doesn't protect it. It only tells plugins where to look.
 
 How plugins are written is on [What is GameLogic Plugin](../gamelogic_plugin/README.md).
 
