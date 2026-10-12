@@ -113,7 +113,7 @@ Loading the engine times out after 10 seconds, so a stuck engine can't freeze yo
 
 The technical walkthrough, from lorebook entries to `resolveTurn` and `resolvePostRelay`, is on [How a GameLogic Engine works](technical.md).
 
-Start from the skeleton: GameLogic Packs tab > Add New Blank Packs > GameLogic Pack > Create archive. The ZIP holds a working minimum: an engine that exports `resolveTurn`, an example entry, a sample regex and a sample schema.
+Start from a blank pack that already works: an engine that exports `resolveTurn`, an example entry, a sample regex and a sample schema. Clone the `mvu-helper-template` branch for a full workspace with a sample of every pack type, or get just the pack from GameLogic Packs tab > Add New Blank Packs. Both are on [Get a starting point](install.md#get-a-starting-point).
 
 Your engine ships inside a GameLogic Pack, together with your card's prompt entries, schema and regexes. You import the pack into the library, then install it to your card.
 

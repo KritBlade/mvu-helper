@@ -31,7 +31,17 @@ ArtificKoi's `MinimizeUpdateVar` folds the narrator's `<UpdateVariable>` block i
 
 `destination.prompt: true` rewrites what the MODEL reads, not just the screen. Declare `prompt_rewrite_intended: true` on such a regex, or it's warned.
 
-ArtificKoi's `PromptDeTagRESVariable` is one of these. It removes the engine's receipts from the prompt, so the narrator never sees them and never copies them into its own reply:
+### Why you need them
+
+An AI model copies its own history. It looks at the last few replies and writes the next one the same way. Whatever was in the last reply, the next reply very likely has too, and whatever was missing is very likely missing again. Even when your instructions say otherwise.
+
+We hit this with image generation. Every image tag kept coming out without a camera tag, no matter how we tweaked the prompt, even though the instructions said the camera tag was mandatory. It turned out the last reply had no camera tag, so the next reply copied that. The history beat the instructions.
+
+So anything in a reply that the model shouldn't copy has to be taken out of what it reads: receipts, record blocks, anything written in a fixed format for the engine and not for the story. If the model sees it, sooner or later it writes its own copy, and a copied block can be wrong, half-written, or not belong to this reply at all.
+
+### Example: hiding the engine's receipts
+
+ArtificKoi's `PromptDeTagRESVariable` takes the engine's receipts out of the prompt. The player still sees them on screen. The narrator never sees them, so it never copies one into its own reply:
 
 ```json
 {

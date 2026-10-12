@@ -2,11 +2,39 @@
 
 Your pack goes into the library first, and from the library onto a card. Everything happens on the GameLogic Packs tab.
 
-## Start from the skeleton
+## Get a starting point
 
-GameLogic Packs tab > Add New Blank Packs > type GameLogic Pack > Create archive.
+There are 2 ways to start. Both give you a blank GameLogic Pack that already works.
 
-The ZIP holds a `gamelogic/` folder with a working minimum: `pack.json`, an engine that exports `resolveTurn`, a disabled example entry, a sample regex and a sample schema. Extract it at your workspace root.
+### The template workspace
+
+The `mvu-helper-template` branch of this repo is a complete workspace, ready to open:
+
+```
+git clone -b mvu-helper-template --single-branch https://github.com/KritBlade/mvu-helper.git my-game
+```
+
+No git? Open the [branch on GitHub](https://github.com/KritBlade/mvu-helper/tree/mvu-helper-template), then Code > Download ZIP.
+
+Everything sits under `workspace/`:
+
+| Folder | What it is |
+| --- | --- |
+| `gamelogic/` | a blank GameLogic Pack: `pack.json`, an engine that exports `resolveTurn`, an example entry, a sample regex and a sample schema |
+| `plugin-lane-probe/` | a sample GameLogic Plugin that uses all 3 prompt windows (narrate, PRE, POST), dice and its own `resolveRelay` |
+| `plugin-standalone-probe/` | a sample GameLogic Plugin that runs with no GameLogic Pack beside it, and shows how to read state it doesn't own |
+| `statusmenu/` | a sample StatusMenu Pack |
+| `evenpack-test-series/` | a sample Event Pack: a 3-step quest chain |
+
+Start with the template when you want to see every pack type working side by side. You copy what you need and delete the rest.
+
+It also comes with a `CLAUDE.md`, the project rules for an AI coding assistant. So if you vibe code your game, your assistant starts out knowing how the workspace is laid out and which rules to follow.
+
+### From the GUI
+
+MVU Helper > GameLogic Packs tab > Add New Blank Packs > type GameLogic Pack > Create archive.
+
+The ZIP holds only a `gamelogic/` folder, the same blank pack as the template's: `pack.json`, an engine that exports `resolveTurn`, a disabled example entry, a sample regex and a sample schema. Extract it at your workspace root.
 
 ## Develop against a live card
 
