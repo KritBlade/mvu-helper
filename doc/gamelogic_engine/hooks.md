@@ -71,6 +71,8 @@ Lets an event play in the reply it becomes ready in, instead of the reply after.
 
 Take the Megumin restaurant event from the [README](../../README.md). You walk into the restaurant after everyone refused to join your party. Without this hook, Megumin shows up in the reply after. With it, she shows up in this reply.
 
+Why this matters, and the whole flow from PRE to RES1, is on [Same reply protection](same_reply.md#pattern-2-an-event-that-fires-the-moment-its-ready).
+
 How it works:
 
 - It runs when Extra LLM Calls is on and at least one PRE call ran.
