@@ -1,0 +1,5 @@
+This entry is a DISABLED example of the source pairing: every entry is a .txt (this text)
+plus a .json sidecar beside it carrying the same stem — the sidecar is a TavernHelper
+LorebookEntry minus content. Note its type: "constant" is a STRING; a boolean constant is
+silently dropped by TavernHelper and the entry never injects. Write your prompt window
+here, rename the pair by its purpose, and set "enabled": true in the sidecar.

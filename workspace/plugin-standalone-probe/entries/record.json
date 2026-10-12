@@ -1,0 +1,8 @@
+{
+  "comment": "{POST_CALL} standalone probe record",
+  "order": 801,
+  "position": "before_character_definition",
+  "type": "selective",
+  "enabled": true,
+  "keys": []
+}

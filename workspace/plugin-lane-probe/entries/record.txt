@@ -1,0 +1,114 @@
+<%_
+// LANE PROBE / POST window - the RECORDER. Every op is finished here and the model only decides
+// whether to emit it, because the POST call has no guaranteed view of this plugin's own subtree.
+//
+// WHAT EACH OP IS TESTING (read the drawer afterwards; a missing field names its own broken seam):
+//   Turn    - the drawer is writable at all, and the count is idempotent across a second POST pass
+//   Dice    - the LANEPROBE pool, which must equal what the narrate + PRE windows printed this turn:
+//             rollPool caches per generation epoch and a pool's PREFIX never changes inside one, so a
+//             disagreement means the epoch fence broke, not that a die was re-rolled
+//   Echo    - what the narrator actually emitted, i.e. how much of the narrate + PRE windows survived
+//             this card's output contract. "none" is a legitimate reading on a strict card
+//   Log     - the whole-list rewrite. "/-" would append here (this root is schema-open), but the list
+//             is capped at 10 host-side, so rewriting it whole is what keeps the cap
+// This entry only records; it writes nowhere outside its own root.
+// LP_LE answers the ENGINE question only (hosted/absent). Dice come through MvuHelper.rollPool —
+// the platform door, same pool name as narrate/PRE, so this window reads the SAME four dice.
+const LP_LE = (typeof globalThis !== 'undefined') ? globalThis.LogicEngine : null;
+const LP_MH = (typeof globalThis !== 'undefined') ? globalThis.MvuHelper : null;
+const LP_DICE = (LP_MH && typeof LP_MH.rollPool === 'function') ? (LP_MH.rollPool(4, null, 'LANEPROBE') || []) : [];
+// THE SEEDED ARM — a HASH-SEEDED deal, the swipe-stable path an RPG boss fight uses. Dealt and thrown
+// away here on purpose: nothing records it, no op carries it, and the model is never shown it. Its ONLY
+// job is to enter the dice receipt, where the resolver's RelayDicePool shows it under its hash.
+// Deterministic by construction (same hash, same dice, forever), so the expected pair is known offline
+// and checkable by hand. Deliberately NOT written to state: an op the model must copy is a place the
+// probe can fail for reasons that are not the thing being measured.
+if (LP_MH && typeof LP_MH.rollPool === 'function') { LP_MH.rollPool(2, 'lane-probe-r3', null); }
+const LP_ROOT = '{OWN_ROOT}';
+const LP_SD = (typeof getvar === 'function' ? getvar('stat_data') : null) || {};
+let LP_MINE = LP_SD;
+for (const seg of LP_ROOT.split('.')) { LP_MINE = (LP_MINE && typeof LP_MINE === 'object') ? LP_MINE[seg] : undefined; }
+const LP_HAS_DRAWER = LP_MINE !== undefined && LP_MINE !== null && typeof LP_MINE === 'object';
+LP_MINE = LP_HAS_DRAWER ? LP_MINE : {};
+const LP_VAL = (t) => (Array.isArray(t) ? t[0] : t);
+const LP_TURN = Number(LP_VAL(LP_MINE.Turn)) || 0;
+const LP_SEED = LP_DICE.join(',');
+const LP_PATH = '/' + LP_ROOT.split('.').join('/');
+// The PRE window wrote this BEFORE the narrator ran. Equal to this turn's seed = the PRE-time
+// apply lane works; anything else = it did not, and the value says which turn it stopped at.
+const LP_PRESEED = String(LP_VAL(LP_MINE.PreSeed) === undefined ? '' : LP_VAL(LP_MINE.PreSeed));
+const LP_PRE_OK = Boolean(LP_SEED) && LP_PRESEED === LP_SEED;
+const LP_NEXT = LP_TURN + 1;
+const LP_LOG = Array.isArray(LP_MINE.Log) ? LP_MINE.Log.slice() : [];
+const LP_LAST = String(LP_VAL(LP_MINE.Dice) === undefined ? '' : (Array.isArray(LP_MINE.Dice) ? LP_MINE.Dice.join(',') : LP_MINE.Dice));
+// IDEMPOTENCE. The pool is dealt once per generation, so a second POST pass in the SAME turn renders
+// the same seed. Recording only when the seed CHANGED is what stops the count double-stepping.
+const LP_DONE = Boolean(LP_SEED) && LP_LAST === LP_SEED;
+const LP_LINE = 't' + LP_NEXT + ' dice=' + (LP_SEED || 'none') + ' engine=' + (LP_LE ? 'hosted' : 'absent') + ' pre=' + (LP_PRE_OK ? 'ok' : 'MISS');
+const LP_NEXTLOG = LP_LOG.concat([LP_LINE]).slice(-10);
+_%>
+<Lane_Probe_Record>
+# LANE PROBE - record the turn. Read nothing from the reply except the one echo line below.
+<%_ if (!LP_HAS_DRAWER) { _%>
+#
+# STOP. The drawer <%= LP_ROOT %> does not exist. Emit NOTHING for this plugin - and note WHY, because
+# it is not that the write would fail: an op into a missing drawer under a schema-open root lands fine
+# and creates the containers on its way. That is exactly the problem. It would silently reconstitute a
+# root the host never registered, so the state and the install would disagree with nothing to say so.
+# The host creates that drawer at install and on every chat load, so its absence is a host-side fault
+# worth reporting, not a state this block should paper over.
+<%_ } else if (LP_DONE) { _%>
+#
+# Already recorded this turn (the dice seed is unchanged from the last record). Emit NOTHING for this
+# plugin. This is the idempotence arm of the test - a second POST pass must not step the count.
+<%_ } else { _%>
+<%_ if (!LP_SEED) { _%>
+#
+# NOTE - no hosted dealer at this render, so there is no per-generation seed and the idempotence
+# guard is OFF this turn: a second POST pass WILL step the count twice. Said rather than patched,
+# because a guard quietly substituting some other key would report a fence that is not there.
+<%_ } _%>
+#
+# ECHO: search the reply for EVERY line shaped <LaneProbe>...</LaneProbe>. Copy WHAT IS INSIDE the
+# tags into the Echo op below, exactly as written. Found several -> join them with " | " in the order
+# they appear; the reply can legitimately carry two, and WHICH ones came back is the measurement:
+# "narrate=" came from a worldbook entry no call carried, "pre=" came from a PRE call's output that
+# was injected into the narrator's input. Found nothing -> the literal string none. Do not invent one
+# and do not repair a partial one: an honest "none" is a reading, a guess is not.
+#
+# THE VERBS BELOW ARE MINE, NOT A HOUSE STYLE. Every op in this block is "add" because these keys are
+# mine to CREATE - they do not exist until I make them. That is correct HERE and correct NOWHERE ELSE.
+# The game's own blocks in this same prompt write to FIXED 2-slot tuples ending in /0, where the verb
+# is always "replace": "add" at an index INSERTS, the tuple comes out 3 long, and the schema throws
+# that op away. Write the game's ops with the game's verbs, exactly as its own control file states,
+# and leave mine alone. Do not let this block's shape decide the shape of theirs.
+# ⚠ A borrowed verb breaks the game, not this block: an "add" on /Intent/armClassmate/0 is refused, the
+# new-heroine gate never arms, and a heroine the prose introduced is never built - on a path this
+# block never mentions.
+#
+# Emit the block below as a SECOND <UpdateVariable>, after whatever the game's own control file asked
+# you for. The outer <UpdateVariable> wrapper is what makes the host splice a patch into the reply and
+# hand it to MVU - a bare <JSONPatch> is classified as lost ops and DROPPED - so it is not decoration.
+#
+# COPY IT CHARACTER FOR CHARACTER. Substitute ONE thing: replace the word ECHO_HERE with the echo text
+# you read above (or the word none). Everything else is already computed - do not retype a number, do
+# not reorder, do not merge these ops into the game's block, do not copy these VERBS into the game's
+# block, and do NOT prefix the paths with anything.
+# The paths below are absolute and complete; a prefix of any kind sends the write somewhere that does
+# not exist and the record is lost.
+
+<UpdateVariable>
+<JSONPatch>
+[{"op":"add","path":"<%= LP_PATH %>/Turn","value":<%= LP_NEXT %>},
+{"op":"add","path":"<%= LP_PATH %>/Dice","value":<%- JSON.stringify(LP_DICE) %>},
+{"op":"add","path":"<%= LP_PATH %>/Engine","value":"<%= LP_LE ? 'hosted' : 'absent' %>"},
+{"op":"add","path":"<%= LP_PATH %>/PreApplied","value":"<%= LP_PRE_OK ? 'yes' : (LP_PRESEED ? 'stale:' + LP_PRESEED : 'no') %>"},
+{"op":"add","path":"<%= LP_PATH %>/Log","value":<%- JSON.stringify(LP_NEXTLOG) %>},
+{"op":"add","path":"<%= LP_PATH %>/Echo","value":"ECHO_HERE"}]
+</JSONPatch>
+</UpdateVariable>
+<%_ } _%>
+#
+# <%= LP_ROOT %> is this plugin's whole territory. Never write anywhere else on its behalf, and never
+# touch a path this block did not print.
+</Lane_Probe_Record>

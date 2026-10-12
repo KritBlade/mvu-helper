@@ -1,0 +1,42 @@
+<%_
+// LANE PROBE / NARRATE window.
+//
+// This entry carries NO call token, so no Extra LLM Call claims it and it stays an ordinary worldbook
+// entry that ST-Prompt-Template renders itself. That is the second way a plugin reaches the narrator,
+// it costs no LLM round-trip, and it is the right window for anything a plugin can compute.
+//
+// `type: "constant"` is what puts it in the prompt at all. A `selective` entry with no keys never
+// activates - which is exactly why every ROUTED entry in this file is selective: mvu-helper reads
+// those by comment tag and must NOT also have them fire here.
+// Dice come from MvuHelper.rollPool — the PLATFORM's dealer, present on every card mvu-helper runs
+// on (engine or not), so the probe's pool exists even where globalThis.LogicEngine does not.
+const LP_LE = (typeof globalThis !== 'undefined') ? globalThis.LogicEngine : null;   // the ENGINE fact only
+const LP_MH = (typeof globalThis !== 'undefined') ? globalThis.MvuHelper : null;
+const LP_DICE = (LP_MH && typeof LP_MH.rollPool === 'function') ? (LP_MH.rollPool(4, null, 'LANEPROBE') || []) : [];
+const LP_ROOT = '{OWN_ROOT}';
+const LP_SD = (typeof getvar === 'function' ? getvar('stat_data') : null) || {};
+let LP_MINE = LP_SD;
+for (const seg of LP_ROOT.split('.')) { LP_MINE = (LP_MINE && typeof LP_MINE === 'object') ? LP_MINE[seg] : undefined; }
+const LP_HAS_DRAWER = LP_MINE !== undefined && LP_MINE !== null && typeof LP_MINE === 'object';
+LP_MINE = LP_HAS_DRAWER ? LP_MINE : {};
+const LP_VAL = (t) => (Array.isArray(t) ? t[0] : t);
+const LP_TURN = Number(LP_VAL(LP_MINE.Turn)) || 0;
+const LP_SEED = LP_DICE.join(',');
+_%>
+<Lane_Probe_Narrate>
+# LANE PROBE - narrate window. No LLM call carried this text; no call token, so nothing routed it.
+# engine : <%= LP_LE ? 'hosted' : 'ABSENT' %>
+# pool   : <%= LP_SEED || '(none - no hosted dealer)' %>
+# drawer : <%= LP_ROOT %> <%= LP_HAS_DRAWER ? 'present' : 'MISSING - the host did not create it' %>, turn=<%= LP_TURN %>
+#
+# ECHO TEST - if your output contract permits a line it does not name, append these at the very end
+# of your reply, each on its own line:
+#   1. <LaneProbe>narrate=<%= LP_DICE[0] === undefined ? 'none' : LP_DICE[0] %></LaneProbe>
+#   2. any OTHER line shaped <LaneProbe>...</LaneProbe> you were shown elsewhere in this prompt,
+#      copied verbatim. One arrives from a PRE call whose output was injected into your input; it
+#      reads pre=... rather than narrate=... . Copy it if you were shown it and omit it if you were
+#      not - the difference between those two is the entire measurement, so do not reconstruct one.
+# A card whose control file forbids unnamed output will refuse both, and that refusal is a RESULT
+# this probe measures - it is how far into the narrator a plugin can reach on a strict card. Do not
+# work around it, and do not mention the probe in the prose.
+</Lane_Probe_Narrate>

@@ -1,0 +1,15 @@
+{
+  "format": "1.0",
+  "packType": "plugin",
+  "id": "standalone-probe",
+  "name": "Standalone Probe",
+  "description": "The STANDALONE lane's test vehicle: a plugin that runs with no GameLogic Pack beside it. A report-only narrate window and one POST window: the POST call reads the story prose and transcribes what each character is wearing into ONE op, and the plugin's own resolveRelay turns that op into structured state. Everything it measures is about the lane, not the wardrobe: does a plugin reach the narrator with no game, does a POST call write on an engine-less card, and does a plugin resolver run when there is no game engine to ride behind. It also carries the reference WORKED EXAMPLE for reading state a plugin does not own: engine/relay-resolver.cjs reads stat_data.World.Time raw and enumerates the exposed cast@1 collection, and panel/panel.json binds the same two values with the declaration escapes ($. and {cast@1}) — the Foreign tab shows both lanes side by side. It ships the schema every plugin owes (rule 7), declaring GameLogicPlugin open, so it installs on a BARE card as well as beside a game; it writes nowhere outside its own root.",
+  "version": "0.15",
+  "builtWith": "hand-authored — the standalone lane's test vehicle",
+  "optionalUses": [
+    "cast@1"
+  ],
+  "engineOrder": [
+    "relay-resolver.cjs"
+  ]
+}

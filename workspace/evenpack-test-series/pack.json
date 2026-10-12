@@ -1,0 +1,9 @@
+{
+  "format": "1.0",
+  "packType": "eventpack",
+  "id": "test-series",
+  "name": "Series",
+  "description": "Event pack Series v3.3.1 - the live write probe: a three-step quest chain that opens on the road to the school gate, plus the locked / fillOnly / monotonic drops and a prose reward on step 1.",
+  "version": "3.3.1",
+  "builtWith": "hand-authored live probe - eventpack_revisit"
+}

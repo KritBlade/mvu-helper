@@ -1,0 +1,1015 @@
+{
+  "kind": "tabbed-grid",
+  "format": "1.0",
+  "tabs": [
+    {
+      "id": "tab-1",
+      "name": "Overview",
+      "containerWidth": 60,
+      "containerWidthUnit": "%",
+      "blocks": [
+        {
+          "id": "blk-101",
+          "title": "Avatar",
+          "width": 30,
+          "mappedKey": "Mainchar",
+          "cards": [
+            {
+              "id": "crd-1001",
+              "type": "Image",
+              "title": "Avatar",
+              "mappedKey": "Mainchar.Image",
+              "width": 100,
+              "sourceType": "variable",
+              "imageScale": 80,
+              "formatters": {
+                "image": "maincharImageImage"
+              }
+            }
+          ]
+        },
+        {
+          "id": "blk-102",
+          "title": "Core Status",
+          "width": 70,
+          "mappedKey": "",
+          "cards": [
+            {
+              "id": "crd-1010",
+              "type": "StatRow",
+              "title": "Name",
+              "mappedKey": "Mainchar.Name",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1011",
+              "type": "StatRow",
+              "title": "Age",
+              "mappedKey": "Mainchar.Age",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1012",
+              "type": "StatRow",
+              "title": "Gender",
+              "mappedKey": "Mainchar.Gender",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1013",
+              "type": "StatRow",
+              "title": "Race",
+              "mappedKey": "Mainchar.Race",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1014",
+              "type": "StatRow",
+              "title": "Job",
+              "mappedKey": "Mainchar.Occupation",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1015",
+              "type": "StatRow",
+              "title": "Mental",
+              "mappedKey": "Mainchar.Mental_state",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1022",
+              "type": "StatRow",
+              "title": "Identity",
+              "mappedKey": "Mainchar.Identity",
+              "width": 100,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1018",
+              "type": "StatBar",
+              "title": "Energy",
+              "mappedKey": "Mainchar.Energy_curr",
+              "width": 100,
+              "sourceType": "variable",
+              "maxMappedKey": "Mainchar.Energy_max",
+              "barColor": "yellow"
+            },
+            {
+              "id": "crd-1023",
+              "type": "RichText",
+              "title": "Attributes",
+              "mappedKey": "",
+              "width": 100,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1024",
+              "type": "StatRow",
+              "title": "STR",
+              "mappedKey": "Mainchar.Str",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1025",
+              "type": "StatRow",
+              "title": "STA",
+              "mappedKey": "Mainchar.Sta",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1026",
+              "type": "StatRow",
+              "title": "INT",
+              "mappedKey": "Mainchar.Int",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1027",
+              "type": "StatRow",
+              "title": "CHA",
+              "mappedKey": "Mainchar.Cha",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1028",
+              "type": "RichText",
+              "title": "Finance",
+              "mappedKey": "",
+              "width": 100,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1020",
+              "type": "StatRow",
+              "title": "Money (JPM)",
+              "mappedKey": "Mainchar.Money",
+              "width": 50,
+              "sourceType": "variable",
+              "formatters": {
+                "text": "maincharMoney"
+              }
+            },
+            {
+              "id": "crd-1021",
+              "type": "StatRow",
+              "title": "Salary (Weekly)",
+              "mappedKey": "Mainchar.Salary",
+              "width": 50,
+              "sourceType": "variable",
+              "formatters": {
+                "text": "maincharSalary"
+              }
+            }
+          ]
+        },
+        {
+          "id": "blk-103",
+          "title": "World Info",
+          "width": 100,
+          "mappedKey": "",
+          "cards": [
+            {
+              "id": "crd-1030",
+              "type": "StatRow",
+              "title": "Date",
+              "mappedKey": "World.Date",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1031",
+              "type": "StatRow",
+              "title": "Time",
+              "mappedKey": "World.Time",
+              "width": 33,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1791802662763",
+              "type": "StatRow",
+              "title": "Weekday",
+              "width": 33,
+              "sourceType": "variable",
+              "mappedKey": "World.Weekday"
+            },
+            {
+              "id": "crd-1032",
+              "type": "StatRow",
+              "title": "Location",
+              "mappedKey": "World.Location",
+              "width": 75,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1033",
+              "type": "StatRow",
+              "title": "Weather",
+              "mappedKey": "World.Weather",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1034",
+              "type": "RichText",
+              "title": "School Clock",
+              "mappedKey": "",
+              "width": 100,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1035",
+              "type": "StatRow",
+              "title": "Loop",
+              "mappedKey": "EngineDerived.ArcLoop",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1036",
+              "type": "StatRow",
+              "title": "Grade",
+              "mappedKey": "EngineDerived.Grade",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1037",
+              "type": "StatRow",
+              "title": "Replies",
+              "mappedKey": "EngineDerived.BlockReplyCount",
+              "width": 25,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1038",
+              "type": "Checkbox",
+              "title": "Next-Block",
+              "mappedKey": "PendingState.BlockDone",
+              "width": 50,
+              "sourceType": "variable"
+            },
+            {
+              "id": "crd-1039",
+              "type": "Checkbox",
+              "title": "Intimacy Active",
+              "mappedKey": "PendingState.IntimacyActive",
+              "width": 50,
+              "sourceType": "variable"
+            }
+          ]
+        },
+        {
+          "id": "blk-104",
+          "title": "Current Quests",
+          "width": 100,
+          "mappedKey": "Mainchar",
+          "cards": [
+            {
+              "id": "crd-1040",
+              "type": "QuestList",
+              "title": "",
+              "mappedKey": "Mainchar.Quests",
+              "width": 100,
+              "sourceType": "variable",
+              "layoutMode": "quest",
+              "allowDelete": true,
+              "allowEdit": true
+            }
+          ]
+        },
+        {
+          "id": "blk-105",
+          "title": "Skills",
+          "width": 100,
+          "mappedKey": "Mainchar",
+          "cards": [
+            {
+              "id": "crd-1050",
+              "type": "QuestList",
+              "title": "",
+              "mappedKey": "Mainchar.Skills",
+              "width": 100,
+              "sourceType": "variable",
+              "allowEdit": true,
+              "allowDelete": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tab-2",
+      "name": "Classmates",
+      "containerWidth": 60,
+      "containerWidthUnit": "%",
+      "blocks": [
+        {
+          "id": "blk-201",
+          "title": "Classmate List",
+          "width": 100,
+          "mappedKey": "Classmate",
+          "showQuickJump": true,
+          "pageSize": 1,
+          "cards": [
+            {
+              "id": "crd-2001",
+              "type": "GridContainer",
+              "title": "",
+              "width": 25,
+              "sourceType": "variable",
+              "layoutMode": "list",
+              "mappedKey": "",
+              "cards": [
+                {
+                  "id": "crd-2002",
+                  "type": "Image",
+                  "title": "Card Title",
+                  "width": 100,
+                  "imageScale": 90,
+                  "sourceType": "variable",
+                  "mappedKey": "Classmate.Image"
+                },
+                {
+                  "id": "crd-1790589297570",
+                  "type": "RichText",
+                  "title": "Nested Stat",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "mappedKey": "Classmate.Profile",
+                  "formatters": {
+                    "text": "classmateProfile"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "crd-2010",
+              "type": "GridContainer",
+              "title": "Classmate Info",
+              "width": 75,
+              "mappedKey": "",
+              "sourceType": "variable",
+              "cards": [
+                {
+                  "id": "crd-2011",
+                  "type": "StatRow",
+                  "title": "Name",
+                  "mappedKey": "Classmate.Name",
+                  "width": 40,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2012",
+                  "type": "StatRow",
+                  "title": "Age",
+                  "mappedKey": "Classmate.Age",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2013",
+                  "type": "StatRow",
+                  "title": "Gender",
+                  "mappedKey": "Classmate.Gender",
+                  "width": 35,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2017",
+                  "type": "StatRow",
+                  "title": "Loc",
+                  "mappedKey": "Classmate.Location",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2015",
+                  "type": "StatRow",
+                  "title": "ID",
+                  "mappedKey": "Classmate.Identity",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2016",
+                  "type": "StatRow",
+                  "title": "Job",
+                  "mappedKey": "Classmate.Occupation",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2014",
+                  "type": "StatRow",
+                  "title": "Race",
+                  "mappedKey": "Classmate.Race",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2018",
+                  "type": "StatRow",
+                  "title": "Height",
+                  "mappedKey": "Classmate.Height",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2019",
+                  "type": "StatRow",
+                  "title": "Cup",
+                  "mappedKey": "Classmate.Cup_Size",
+                  "width": 20,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2020",
+                  "type": "StatRow",
+                  "title": "Size",
+                  "mappedKey": "Classmate.Body_Measurements",
+                  "width": 30,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2105",
+                  "type": "StatRow",
+                  "title": "Thoughts",
+                  "mappedKey": "Classmate.Thoughts",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2022",
+                  "type": "Checkbox",
+                  "title": "Present",
+                  "mappedKey": "Classmate.Is_present",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2023",
+                  "type": "Checkbox",
+                  "title": "In Conflict",
+                  "mappedKey": "Classmate.ConflictActive",
+                  "width": 50,
+                  "sourceType": "variable",
+                  "isReadOnly": true
+                },
+                {
+                  "id": "crd-2032",
+                  "type": "StatBar",
+                  "title": "Affection",
+                  "mappedKey": "Classmate.Affection",
+                  "width": 50,
+                  "sourceType": "variable",
+                  "maxMappedKey": "Classmate.Base100",
+                  "barColor": "pink"
+                },
+                {
+                  "id": "crd-2042",
+                  "type": "StatBar",
+                  "title": "Energy",
+                  "mappedKey": "Classmate.Energy",
+                  "width": 50,
+                  "sourceType": "variable",
+                  "maxMappedKey": "Classmate.Base100",
+                  "barColor": "yellow"
+                },
+                {
+                  "id": "crd-2052",
+                  "type": "StatBar",
+                  "title": "Arousal",
+                  "mappedKey": "Classmate.Arousal",
+                  "width": 50,
+                  "sourceType": "variable",
+                  "maxMappedKey": "Classmate.Base100",
+                  "barColor": "red"
+                },
+                {
+                  "id": "crd-2075",
+                  "type": "StatBar",
+                  "title": "Lewdness",
+                  "mappedKey": "Classmate.Lewdness",
+                  "width": 50,
+                  "sourceType": "variable",
+                  "maxMappedKey": "Classmate.Base100",
+                  "barColor": "purple"
+                },
+                {
+                  "id": "crd-2060",
+                  "type": "RichText",
+                  "title": "Personality Traits (9, static)",
+                  "mappedKey": "",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2061",
+                  "type": "StatRow",
+                  "title": "STA",
+                  "mappedKey": "Classmate.Sta",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2062",
+                  "type": "StatRow",
+                  "title": "INT",
+                  "mappedKey": "Classmate.Int",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2063",
+                  "type": "StatRow",
+                  "title": "CHA",
+                  "mappedKey": "Classmate.Cha",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2064",
+                  "type": "StatRow",
+                  "title": "Pride",
+                  "mappedKey": "Classmate.Pride",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2065",
+                  "type": "StatRow",
+                  "title": "Morals",
+                  "mappedKey": "Classmate.Morals",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2066",
+                  "type": "StatRow",
+                  "title": "Elegance",
+                  "mappedKey": "Classmate.Elegance",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2067",
+                  "type": "StatRow",
+                  "title": "Sociability",
+                  "mappedKey": "Classmate.Sociability",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2068",
+                  "type": "StatRow",
+                  "title": "Kindness",
+                  "mappedKey": "Classmate.Kindness",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2069",
+                  "type": "StatRow",
+                  "title": "Hagaruro",
+                  "mappedKey": "Classmate.Hagaruro",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2030",
+                  "type": "RichText",
+                  "title": "Relationship",
+                  "mappedKey": "",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2031",
+                  "type": "StatRow",
+                  "title": "Stage",
+                  "mappedKey": "Classmate.RelationshipStage",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2034",
+                  "type": "StatRow",
+                  "title": "Affection",
+                  "mappedKey": "Classmate.Affection",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2040",
+                  "type": "RichText",
+                  "title": "State & Pulse",
+                  "mappedKey": "",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2041",
+                  "type": "StatRow",
+                  "title": "Mood",
+                  "mappedKey": "Classmate.Mood",
+                  "width": 34,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2044",
+                  "type": "StatRow",
+                  "title": "Embarrass",
+                  "mappedKey": "Classmate.Embarrassment",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2047",
+                  "type": "StatRow",
+                  "title": "Guilt",
+                  "mappedKey": "Classmate.Guilt",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2050",
+                  "type": "RichText",
+                  "title": "Intimacy (NSFW)",
+                  "mappedKey": "",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2051",
+                  "type": "StatRow",
+                  "title": "M_level",
+                  "mappedKey": "Classmate.M_level",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2076",
+                  "type": "StatRow",
+                  "title": "H_Count",
+                  "mappedKey": "Classmate.H_Count",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2077",
+                  "type": "StatRow",
+                  "title": "ClimaxGauge",
+                  "mappedKey": "Classmate.ClimaxGauge",
+                  "width": 33,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2078",
+                  "type": "StatRow",
+                  "title": "Exp Caress",
+                  "mappedKey": "Classmate.Exp_Caress",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2079",
+                  "type": "StatRow",
+                  "title": "Exp Oral",
+                  "mappedKey": "Classmate.Exp_Oral",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2086",
+                  "type": "StatRow",
+                  "title": "Exp Vaginal",
+                  "mappedKey": "Classmate.Exp_Vaginal",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2087",
+                  "type": "StatRow",
+                  "title": "Exp Anal",
+                  "mappedKey": "Classmate.Exp_Anal",
+                  "width": 25,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2100",
+                  "type": "RichText",
+                  "title": "Profile / Biography",
+                  "mappedKey": "",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2101",
+                  "type": "StatRow",
+                  "title": "Persona",
+                  "mappedKey": "Classmate.Persona",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2102",
+                  "type": "StatRow",
+                  "title": "Physical",
+                  "mappedKey": "Classmate.Physical_Features",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2021",
+                  "type": "StatRow",
+                  "title": "Hair",
+                  "mappedKey": "Classmate.Hair_Style",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2103",
+                  "type": "StatRow",
+                  "title": "Bio",
+                  "mappedKey": "Classmate.Biography",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2104",
+                  "type": "StatRow",
+                  "title": "Secret",
+                  "mappedKey": "Classmate.Secret",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "formatters": {
+                    "text": "classmateSecret"
+                  }
+                },
+                {
+                  "id": "crd-2110",
+                  "type": "RichText",
+                  "title": "Tracking",
+                  "mappedKey": "",
+                  "width": 100,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2111",
+                  "type": "StatRow",
+                  "title": "Last Seen",
+                  "mappedKey": "Classmate.TimeSinceLastSeen",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2112",
+                  "type": "StatRow",
+                  "title": "Last Initiative",
+                  "mappedKey": "Classmate.LastInitiative",
+                  "width": 50,
+                  "sourceType": "variable"
+                },
+                {
+                  "id": "crd-2120",
+                  "type": "RichText",
+                  "title": "Events & Relationship",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "mappedKey": "",
+                  "staticValue": "Events & Relationship"
+                },
+                {
+                  "id": "crd-2121",
+                  "type": "GridContainer",
+                  "title": "",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "layoutMode": "list",
+                  "mappedKey": "",
+                  "cards": [
+                    {
+                      "id": "crd-2122",
+                      "type": "QuestList",
+                      "title": "Important Events",
+                      "mappedKey": "Classmate.ImportantEvents",
+                      "width": 100,
+                      "sourceType": "variable",
+                      "collapsed": true,
+                      "allowEdit": true,
+                      "allowDelete": true
+                    },
+                    {
+                      "id": "crd-2123",
+                      "type": "QuestList",
+                      "title": "Friends",
+                      "mappedKey": "Classmate.Friends",
+                      "width": 100,
+                      "sourceType": "variable",
+                      "collapsed": true,
+                      "allowEdit": true,
+                      "allowDelete": true
+                    },
+                    {
+                      "id": "crd-2124",
+                      "type": "QuestList",
+                      "title": "Hobbies",
+                      "mappedKey": "Classmate.Hobbies",
+                      "width": 100,
+                      "sourceType": "variable",
+                      "collapsed": true,
+                      "allowEdit": true,
+                      "allowDelete": true
+                    }
+                  ]
+                },
+                {
+                  "id": "crd-2125",
+                  "type": "QuestList",
+                  "title": "Belongings",
+                  "mappedKey": "Classmate.Belongings",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "collapsed": true,
+                  "allowEdit": true,
+                  "allowDelete": true,
+                  "staticValue": "Belongings"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tab-3",
+      "name": "Items",
+      "containerWidth": 60,
+      "containerWidthUnit": "%",
+      "blocks": [
+        {
+          "id": "blk-301",
+          "title": "Belongings",
+          "width": 100,
+          "mappedKey": "Mainchar",
+          "cards": [
+            {
+              "id": "crd-3001",
+              "type": "QuestList",
+              "title": "",
+              "mappedKey": "Mainchar.Belongings",
+              "width": 100,
+              "sourceType": "variable",
+              "layoutMode": "equipment-action",
+              "allowEdit": true,
+              "allowDelete": true,
+              "rowActions": [
+                {
+                  "title": "📤 Unequip",
+                  "action": "unequip"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "blk-302",
+          "title": "Inventory",
+          "width": 100,
+          "mappedKey": "Mainchar",
+          "cards": [
+            {
+              "id": "crd-3002",
+              "type": "QuestList",
+              "title": "",
+              "mappedKey": "Mainchar.Inventory",
+              "width": 100,
+              "sourceType": "variable",
+              "layoutMode": "inventory",
+              "listType": "inventory",
+              "allowEdit": true,
+              "allowDelete": true,
+              "rowActions": [
+                {
+                  "title": "⚔ Equip",
+                  "action": "equip"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tab-4",
+      "name": "World",
+      "containerWidth": 50,
+      "containerWidthUnit": "%",
+      "blocks": [
+        {
+          "id": "blk-401",
+          "title": "Map",
+          "width": 100,
+          "layoutMode": "list",
+          "mappedKey": "WorldRecord",
+          "cards": [
+            {
+              "id": "crd-1790758464413",
+              "type": "Image",
+              "title": "Card Title",
+              "width": 100,
+              "sourceType": "variable",
+              "mappedKey": "EngineDerived.Mode",
+              "staticValue": "https://raw.githubusercontent.com/KritBlade/ArtificKoi/refs/heads/main/Image/school_map.jpg"
+            },
+            {
+              "id": "crd-4001",
+              "type": "GridContainer",
+              "title": "",
+              "width": 100,
+              "layoutMode": "list",
+              "sourceType": "variable",
+              "mappedKey": "",
+              "cards": [
+                {
+                  "id": "crd-4002",
+                  "type": "QuestList",
+                  "title": "Location",
+                  "mappedKey": "WorldRecord.Locations",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "collapsed": false,
+                  "allowEdit": true,
+                  "allowDelete": true
+                },
+                {
+                  "id": "crd-4003",
+                  "type": "QuestList",
+                  "title": "Events",
+                  "mappedKey": "WorldRecord.Events",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "collapsed": false,
+                  "allowEdit": true,
+                  "allowDelete": true
+                },
+                {
+                  "id": "crd-4004",
+                  "type": "QuestList",
+                  "title": "NPC",
+                  "mappedKey": "WorldRecord.NPCs",
+                  "width": 100,
+                  "sourceType": "variable",
+                  "collapsed": true,
+                  "allowEdit": true,
+                  "allowDelete": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "globalCss": "[data-pack=\"artifickoi\"] {\n        --text-primary: #1b2e23;\n        --text-secondary: #536a5d;\n        --accent-primary: #1e7d4b;\n        --border-color: rgba(30, 125, 75, 0.25);\n        --background-card: #eeeeee;\n    }\n[data-pack=\"artifickoi\"] /* mvu-row-sync-v4 */\n    * { box-sizing: border-box; }\n/* Gradient Animation */\n    @keyframes gradient-flow {\n        0% { background-position: 0% 50%; }\n        50% { background-position: 100% 50%; }\n        100% { background-position: 0% 50%; }\n    }\n[data-pack=\"artifickoi\"] {\n        font-family: 'Segoe UI', sans-serif;\n        background: transparent;\n        color: var(--text-primary);\n        margin: 0; padding: 10px;\n        font-size: 16px;\n    }\n[data-pack=\"artifickoi\"] .status-container, [data-pack=\"artifickoi\"] .status-card {\n        display: flex; flex-direction: column;\n        color: var(--text-primary);\n        background: linear-gradient(-45deg, #cfe9d9, #c5ffda, #3ab366, #21ff6f);\n        background-size: 400% 400%;\n        animation: gradient-flow 30s ease infinite;\n        border: 1px solid var(--border-color);\n        border-radius: 8px;\n        min-height: 500px;\n        overflow: hidden;\n        max-width: 100%;\n        box-sizing: border-box;\n        transition: width 0.3s;\n        margin: 0 auto;\n    }\n[data-pack=\"artifickoi\"] /* .tab-nav is the canonical tab container. PreviewRenderer uses it too (was .preview-tabs). */\n    .tab-nav {\n        display: flex;\n        background: rgba(30, 125, 75, 0.08);\n        border-bottom: 1px solid var(--border-color);\n        overflow-x: auto;\n    }\n[data-pack=\"artifickoi\"] .tab-btn {\n        padding: 12px 20px; color: var(--text-secondary); cursor: pointer; font-weight: bold;\n        border-bottom: 2px solid transparent; user-select: none;\n    }\n[data-pack=\"artifickoi\"] .tab-btn.active {\n        color: var(--accent-primary); border-bottom-color: var(--accent-primary);\n        background: var(--background-card);\n    }\n[data-pack=\"artifickoi\"] /* Builder Preview tab buttons — display-only (cursor: default, [data-pack=\"artifickoi\"] no click handler) */\n    .p-tab-btn {\n        padding: 12px 20px;\n        color: var(--text-secondary);\n        cursor: default;\n        font-weight: bold;\n        border-bottom: 2px solid transparent;\n        user-select: none;\n    }\n[data-pack=\"artifickoi\"] .p-tab-btn.active {\n        color: var(--accent-primary);\n        border-bottom: 2px solid var(--accent-primary);\n        background: var(--background-card);\n    }\n[data-pack=\"artifickoi\"] /* Pagination — shared flex layout */\n    .pagination-controls, [data-pack=\"artifickoi\"] .pagination-controls-sm {\n        display: flex;\n        justify-content: center;\n        align-items: center;\n    }\n[data-pack=\"artifickoi\"] /* Large pagination (PreviewRenderer top-level list pager) */\n    .pagination-controls {\n        gap: 15px;\n        margin-top: 15px;\n        padding-top: 10px;\n        border-top: 1px solid var(--border-color);\n    }\n[data-pack=\"artifickoi\"] .pager-btn {\n        background: transparent;\n        border: 1px solid var(--accent-primary);\n        color: var(--accent-primary);\n        width: 30px;\n        height: 30px;\n        border-radius: 4px;\n        cursor: pointer;\n        font-weight: bold;\n    }\n[data-pack=\"artifickoi\"] .pager-btn:disabled {\n        border-color: #b3c9bb;\n        color: #b3c9bb;\n        cursor: not-allowed;\n    }\n[data-pack=\"artifickoi\"] .pager-btn:hover:not(:disabled) {\n        background: rgba(30, 125, 75, 0.12);\n    }\n[data-pack=\"artifickoi\"] .page-info {\n        font-size: 0.9em;\n        color: #5e7567;\n    }\n[data-pack=\"artifickoi\"] .tab-content { display: none; padding: 10px; height: 100%; overflow-y: auto; }\n[data-pack=\"artifickoi\"] .tab-content.active { display: block; }\n[data-pack=\"artifickoi\"] .grid-row { display: flex; flex-wrap: wrap; margin: 0 -5px; align-items: stretch; align-content: flex-start; max-width: 100%; }\n[data-pack=\"artifickoi\"] .responsive-stats-grid {\n        display: grid;\n        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));\n        gap: 2px;\n        width: 100%;\n    }\n[data-pack=\"artifickoi\"] /* When .grid-row and .responsive-stats-grid are used together, [data-pack=\"artifickoi\"] flex wins via specificity (0, [data-pack=\"artifickoi\"] 2, [data-pack=\"artifickoi\"] 0 > 0, [data-pack=\"artifickoi\"] 1, [data-pack=\"artifickoi\"] 0).\n       This replaces the old duplicate .grid-row rule that was previously used as a cascade anchor. */\n    .grid-row.responsive-stats-grid { display: flex; flex-wrap: wrap; margin: 0 -5px; align-items: stretch; align-content: flex-start; }\n[data-pack=\"artifickoi\"] .grid-full-width {\n        grid-column: 1 / -1;\n    }\n[data-pack=\"artifickoi\"] /* Responsive Grid Layout Adjustments */\n    .responsive-stats-grid .checkbox-display {\n        justify-content: flex-start;\n    }\n[data-pack=\"artifickoi\"] .col-wrapper { padding: 5px; box-sizing: border-box; min-width: 0; max-width: 100%; overflow: hidden; }\n[data-pack=\"artifickoi\"] .info-card {\n        background: var(--background-card);\n        border: 1px solid var(--border-color);\n        border-radius: 6px;\n        padding: 8px;\n        height: 100%;\n    }\n[data-pack=\"artifickoi\"] .card-header {\n        color: var(--accent-primary); font-weight: bold;\n        border-bottom: 1px solid var(--border-color);\n        padding-bottom: 3px; margin-bottom: 4px;\n    }\n[data-pack=\"artifickoi\"] .prop-list {\n        display: flex;\n        flex-wrap: wrap;\n        margin: 0 -4px;\n        width: 100%;\n    }\n[data-pack=\"artifickoi\"] .prop-row-wrapper { \n        padding: 1px 4px; \n        box-sizing: border-box; \n        min-width: 55px;\n        flex: 1 0 auto;\n    }\n[data-pack=\"artifickoi\"] .prop-row {\n        display: flex;\n        flex-wrap: wrap;\n        align-items: center;\n        border-bottom: 1px dashed rgba(30, 125, 75, 0.2);\n        padding: 2px 0; margin: 0;\n        line-height: 1.2;\n        font-size: 0.875em;\n        min-width: 0;\n        gap: 4px;\n    }\n[data-pack=\"artifickoi\"] .prop-label {\n        color: #536a5d;\n        font-weight: bold;\n        flex: 0 0 auto;\n        max-width: 100%;\n        margin-right: 4px;\n        margin-bottom: 1px;\n        padding-top: 2px;\n        white-space: nowrap !important;\n        overflow: visible !important;\n        text-overflow: clip !important;\n    }\n[data-pack=\"artifickoi\"] .prop-val-container {\n        flex: 1 1 auto;\n        width: auto;\n        display: flex;\n        justify-content: flex-end;\n        align-items: center;\n        min-width: 0;\n    }\n[data-pack=\"artifickoi\"] .prop-val {\n        font-weight: 400;\n        width: auto;\n        max-width: 100%;\n        min-width: 0;\n        overflow-wrap: break-word;\n        word-break: normal;\n    }\n[data-pack=\"artifickoi\"] .checkbox-display {\n        width: 100%;\n        display: flex;\n        justify-content: flex-start;\n    }\n[data-pack=\"artifickoi\"] /* List content fallback (works even where :has is unsupported) */\n    .prop-val ul, [data-pack=\"artifickoi\"] .prop-val ol {\n        margin: 0;\n        padding-left: 1.2em;\n        text-align: left;\n        line-height: 1.35;\n        list-style-position: outside;\n        list-style-type: disc;\n    }\n[data-pack=\"artifickoi\"] .prop-val ol { list-style-type: decimal; }\n[data-pack=\"artifickoi\"] .prop-val li { margin-bottom: 4px; }\n[data-pack=\"artifickoi\"] .prop-val li:last-child { margin-bottom: 0; }\n[data-pack=\"artifickoi\"] .hidden { display: none !important; }\n[data-pack=\"artifickoi\"] /* Stat Bars */\n    .stat-bar-box, [data-pack=\"artifickoi\"] .stat-bar-card {\n        margin-bottom: 4px; padding: 4px;\n        background: rgba(30, 125, 75, 0.07); border-radius: 6px;\n        border: 1px solid rgba(30, 125, 75, 0.15);\n    }\n[data-pack=\"artifickoi\"] .stat-bar-header {\n        display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.9em;\n    }\n[data-pack=\"artifickoi\"] .stat-bar-label { font-weight: bold; color: var(--text-primary); }\n[data-pack=\"artifickoi\"] .stat-bar-val { font-family: monospace; color: var(--text-primary); }\n[data-pack=\"artifickoi\"] .stat-bar-track {\n        width: 100%;\n        height: 8px;\n        background: rgba(30, 125, 75, 0.15);\n        border-radius: 4px;\n        overflow: hidden;\n    }\n[data-pack=\"artifickoi\"] .stat-bar-fill {\n        height: 100%;\n        border-radius: 4px;\n        transition: width 0.3s ease;\n    }\n[data-pack=\"artifickoi\"] /* Bar Colors with Gradients */\n    .bar-red { background: linear-gradient(90deg, #e53935, #ef5350); box-shadow: 0 0 5px rgba(229,57,53,0.35); }\n[data-pack=\"artifickoi\"] .bar-green { background: linear-gradient(90deg, #2e9e5b, #43b876); box-shadow: 0 0 5px rgba(46,158,91,0.35); }\n[data-pack=\"artifickoi\"] .bar-darkgreen { background: linear-gradient(90deg, #1b5e20, #2e7d32); box-shadow: 0 0 5px rgba(27,94,32,0.35); }\n[data-pack=\"artifickoi\"] .bar-blue { background: linear-gradient(90deg, #1e88e5, #42a5f5); box-shadow: 0 0 5px rgba(30,136,229,0.35); }\n[data-pack=\"artifickoi\"] .bar-cyan { background: linear-gradient(90deg, #00acc1, #26c6da); box-shadow: 0 0 5px rgba(0,172,193,0.35); }\n[data-pack=\"artifickoi\"] .bar-orange { background: linear-gradient(90deg, #fb8c00, #ffa726); box-shadow: 0 0 5px rgba(251,140,0,0.35); }\n[data-pack=\"artifickoi\"] .bar-yellow { background: linear-gradient(90deg, #f2b90c, #f7cf3c); box-shadow: 0 0 5px rgba(242,185,12,0.35); }\n[data-pack=\"artifickoi\"] .bar-purple { background: linear-gradient(90deg, #7e57c2, #9575cd); box-shadow: 0 0 5px rgba(126,87,194,0.35); }\n[data-pack=\"artifickoi\"] .bar-pink { background: linear-gradient(90deg, #ec407a, #f06292); box-shadow: 0 0 5px rgba(236,64,122,0.35); }\n[data-pack=\"artifickoi\"] .bar-brown { background: linear-gradient(90deg, #8d5524, #a1745a); box-shadow: 0 0 5px rgba(141,85,36,0.35); }\n[data-pack=\"artifickoi\"] .bar-default { background: linear-gradient(90deg, #e53935, #ef5350); }\n[data-pack=\"artifickoi\"] /* Grid Layout */\n    .list-grid-view {\n        display: grid;\n        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));\n        gap: 8px;\n        width: 100%;\n    }\n[data-pack=\"artifickoi\"] .list-inventory-view {\n        display: grid;\n        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n        gap: 8px;\n        width: 100%;\n    }\n[data-pack=\"artifickoi\"] .grid-tile {\n        background: rgba(30, 125, 75, 0.08);\n        border: 1px solid var(--border-color);\n        padding: 6px 10px;\n        border-radius: 4px;\n        display: flex;\n        justify-content: space-between;\n        align-items: center;\n        color: var(--text-primary);\n        font-weight: bold;\n        font-size: 0.95em;\n    }\n[data-pack=\"artifickoi\"] .tile-name { \n        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; \n    }\n[data-pack=\"artifickoi\"] .tile-qty {\n        color: var(--accent-primary);\n        font-size: 0.85em;\n        margin-left: 8px;\n        flex-shrink: 0;\n    }\n[data-pack=\"artifickoi\"] /* Shared header style — .nested-section-header used in exported HTML; .grid-group-header builder-only */\n    .nested-section-header, [data-pack=\"artifickoi\"] .grid-group-header {\n        font-size: 0.9em; font-weight: bold; color: var(--accent-primary);\n        border-bottom: 1px solid rgba(30, 125, 75, 0.3);\n        text-transform: uppercase; letter-spacing: 0.5px;\n    }\n[data-pack=\"artifickoi\"] .nested-section-header { padding-bottom: 2px; margin-bottom: 4px; margin-top: 8px; }\n[data-pack=\"artifickoi\"] /* .grid-group-header has more vertical breathing room */\n    .grid-group-header { padding-bottom: 4px; margin-bottom: 8px; }\n[data-pack=\"artifickoi\"] .simple-list { margin-top: 4px; }\n[data-pack=\"artifickoi\"] .list-collapse-wrapper { margin-top: 4px; }\n[data-pack=\"artifickoi\"] .list-collapse-header { user-select: none; }\n[data-pack=\"artifickoi\"] .list-collapse-header:hover { opacity: 0.85; }\n[data-pack=\"artifickoi\"] .list-entry { padding: 1px 0; border-bottom: 1px dashed rgba(30, 125, 75, 0.2); }\n[data-pack=\"artifickoi\"] .entry-title { color: var(--text-primary); font-weight: bold; font-size: 0.95em; }\n[data-pack=\"artifickoi\"] .entry-desc { font-size: 0.85em; color: #4f6357; }\n[data-pack=\"artifickoi\"] /* Checkbox Row */\n    .kin-checkbox-row {\n        font-size: 0.9em;\n        background: transparent;\n        padding: 4px 8px;\n        border-radius: 4px;\n        width: 100%;\n        gap: 8px;\n        display: flex;\n        align-items: center;\n        justify-content: space-between;\n        flex-wrap: wrap;\n    }\n[data-pack=\"artifickoi\"] .kin-checkbox-label {\n        display: flex; align-items: center; gap: 6px;\n        cursor: pointer; color: var(--text-primary);\n        user-select: none;\n    }\n[data-pack=\"artifickoi\"] .kin-checkbox-text {\n        color: #536a5d;\n        font-weight: bold;\n        display: block;\n        flex: 1 1 auto;\n        min-width: 0;\n        white-space: normal;\n        overflow-wrap: anywhere;\n        word-break: break-word;\n    }\n[data-pack=\"artifickoi\"] .kin-checkbox-control {\n        flex: 0 0 auto;\n        width: auto;\n        min-width: 20px;\n        margin-left: auto;\n        justify-content: flex-end;\n    }\n[data-pack=\"artifickoi\"] .kin-checkbox-label input { margin: 0; cursor: pointer; }\n/* On narrow layouts, place checkbox on next line so long labels remain fully visible */\n    @media (max-width: 560px) {\n[data-pack=\"artifickoi\"] .kin-checkbox-text {\n            flex: 1 0 100%;\n        }\n[data-pack=\"artifickoi\"] .kin-checkbox-control {\n            flex: 1 0 100%;\n            width: 100%;\n            margin-left: 0;\n            justify-content: flex-end;\n        }\n}\n[data-pack=\"artifickoi\"] .img-wrapper {\n        position: relative;\n    }\n[data-pack=\"artifickoi\"] .avatar-img {\n        max-width: 100%;\n        height: auto;\n    }\n[data-pack=\"artifickoi\"] .img-popup-overlay {\n        position: fixed;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        background: rgba(27, 46, 35, 0.7);\n        z-index: 9999;\n        display: none;\n        align-items: center;\n        justify-content: center;\n        cursor: zoom-out;\n        padding: 12px;\n        box-sizing: border-box;\n    }\n[data-pack=\"artifickoi\"] .img-popup-content {\n        max-width: calc(100vw - 24px);\n        max-height: calc(100vh - 24px);\n        width: auto;\n        height: auto;\n        display: block;\n        border-radius: 4px;\n        box-shadow: 0 0 20px rgba(0,0,0,0.5);\n        object-fit: contain;\n    }\n[data-pack=\"artifickoi\"] .img-edit-btn {\n        position: absolute;\n        bottom: 8px;\n        right: 8px;\n        background: rgba(30, 125, 75, 0.85);\n        color: white;\n        width: 32px;\n        height: 32px;\n        border-radius: 50%;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        cursor: pointer;\n        font-size: 16px;\n        border: 1px solid rgba(255,255,255,0.7);\n        transition: background 0.2s;\n        z-index: 10;\n    }\n[data-pack=\"artifickoi\"] .img-edit-btn:hover {\n        background: #1e7d4b;\n        border-color: white;\n    }\n[data-pack=\"artifickoi\"] .st-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: #1e7d4b; }\n[data-pack=\"artifickoi\"] .ar-checkbox-input {\n        width: 20px;\n        height: 20px;\n        margin: 0;\n        cursor: pointer;\n        accent-color: #1e7d4b;\n        appearance: auto;\n        -webkit-appearance: checkbox;\n        position: static;\n        transform: none;\n    }\n[data-pack=\"artifickoi\"] .lorebook-placeholder-img { width: 100%; height: 150px; border: 2px dashed #ff5252; background: rgba(255, 82, 82, 0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #ff5252; font-size: 0.9em; padding: 10px; text-align: center; }\n[data-pack=\"artifickoi\"] /* ActionButton — the whole look lives here (the runtime stamps only the class); the\n       data-action-state rules are the click states rt_menuAction.js sets. */\n    .action-row { justify-content: flex-end; }\n[data-pack=\"artifickoi\"] .menu-action-btn { background: color-mix(in srgb, var(--accent-primary) 15%, transparent); border: 1px solid color-mix(in srgb, var(--accent-primary) 40%, transparent); color: var(--accent-primary); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; line-height: 1.2; }\n[data-pack=\"artifickoi\"] .menu-action-btn:hover { background: color-mix(in srgb, var(--accent-primary) 30%, transparent); }\n[data-pack=\"artifickoi\"] .menu-action-btn[data-action-state=\"busy\"] { opacity: 0.5; cursor: wait; }\n[data-pack=\"artifickoi\"] .menu-action-btn[data-action-state=\"refused\"] { border-color: rgba(211,47,47,0.6); color: #c62828; }\n[data-pack=\"artifickoi\"] /* Local Pagination (Small) — CardRenderer inline pager; base flex from shared rule above */\n    .pagination-controls-sm { gap: 10px; margin-top: 8px; padding-top: 4px; border-top: 1px dashed rgba(30, 125, 75, 0.15); }\n[data-pack=\"artifickoi\"] .block-jump-select { background: rgba(30,125,75,0.08); border: 1px solid rgba(30,125,75,0.3); color: var(--text-primary); font-size: 0.85em; padding: 2px 6px; border-radius: 4px; max-width: 180px; cursor: pointer; outline: none; }\n[data-pack=\"artifickoi\"] .block-jump-select:focus { border-color: #1e7d4b; }\n[data-pack=\"artifickoi\"] .block-jump-select option { background: #ffffff; color: #1b2e23; }\n[data-pack=\"artifickoi\"] .pager-btn-sm { background: transparent; border: 1px solid rgba(30, 125, 75, 0.5); color: #1e7d4b; width: 20px; height: 20px; font-size: 0.8em; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; }\n[data-pack=\"artifickoi\"] .pager-btn-sm:disabled { color: #b3c9bb; border-color: #b3c9bb; cursor: not-allowed; }\n[data-pack=\"artifickoi\"] .page-info-sm { font-size: 0.75em; color: #5e7567; }\n[data-pack=\"artifickoi\"] /* Grid Container & Groups (Builder-side layout wrapper) */\n    .grid-group-card { border: 1px solid rgba(30, 125, 75, 0.15); border-radius: 4px; padding: 8px; background: rgba(30, 125, 75, 0.05); margin-top: 5px; }\n[data-pack=\"artifickoi\"] .grid-group-content { display: flex; flex-wrap: wrap; margin: 0 -4px; }\n[data-pack=\"artifickoi\"] .grid-item { box-sizing: border-box; padding: 4px; min-width: 80px; flex: 1 0 auto; }\n[data-pack=\"artifickoi\"] .grid-item .prop-row { border-bottom: none; background: rgba(30, 125, 75, 0.06); padding: 4px 8px; border-radius: 3px; }\n[data-pack=\"artifickoi\"] /* Image Card Layout Wrapper */\n    .image-card { display: flex; flex-direction: column; align-items: center; gap: 10px; }\n[data-pack=\"artifickoi\"] .p-avatar { width: 100%; border: 1px solid #1e7d4b; border-radius: 4px; }\n[data-pack=\"artifickoi\"] .p-name { font-family: serif; font-size: 1.2em; color: #1e7d4b; }\n[data-pack=\"artifickoi\"] /* Quest List Card — canonical class, [data-pack=\"artifickoi\"] used by both Builder preview and exported HTML template (tmpl-quest) */\n    .quest-card { background: rgba(30, 125, 75, 0.08); padding: 10px; border-radius: 4px; margin-bottom: 8px; border-left: 3px solid var(--accent-primary); position: relative; }\n[data-pack=\"artifickoi\"] .quest-card-header { display: flex; justify-content: space-between; margin-bottom: 4px; }\n[data-pack=\"artifickoi\"] .quest-card-title { font-weight: bold; color: var(--text-primary); }\n[data-pack=\"artifickoi\"] .quest-card-actions { display: flex; gap: 8px; align-items: center; }\n[data-pack=\"artifickoi\"] .quest-delete-btn { background: rgba(211,47,47,0.1); border: 1px solid rgba(211,47,47,0.4); color: #c62828; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.9em; line-height: 1; }\n[data-pack=\"artifickoi\"] .quest-difficulty { font-size: 0.8em; background: rgba(30, 125, 75, 0.12); color: var(--accent-primary); padding: 2px 6px; border-radius: 4px; }\n[data-pack=\"artifickoi\"] .quest-desc { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 4px; }\n[data-pack=\"artifickoi\"] .quest-next { font-size: 0.8em; color: var(--text-secondary); margin-bottom: 4px; }\n[data-pack=\"artifickoi\"] .quest-reward { font-size: 0.8em; color: #946b00; }\n[data-pack=\"artifickoi\"] .quest-last-updated { font-size: 0.75em; color: #5e7567; margin-top: 4px; }\n[data-pack=\"artifickoi\"] /* Inventory / Equipment Action item controls */\n    .item-action-wrap { position: relative; width: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }\n[data-pack=\"artifickoi\"] .item-menu-btn { background: rgba(30,125,75,0.15); border: 1px solid rgba(30,125,75,0.4); color: #1e7d4b; border-radius: 4px; font-size: 14px; cursor: pointer; padding: 0 6px; line-height: 18px; z-index: 10; }\n[data-pack=\"artifickoi\"] .item-action-menu { display: none; position: absolute; bottom: 22px; right: 0; min-width: 100px; background: #ffffff; border: 1px solid rgba(30,125,75,0.4); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 9999; overflow: hidden; }\n[data-pack=\"artifickoi\"] .action-equip-btn, [data-pack=\"artifickoi\"] .action-delete-btn { display: none; width: 100%; text-align: left; background: transparent; border: none; padding: 6px 10px; cursor: pointer; font-size: 0.8em; }\n[data-pack=\"artifickoi\"] .action-equip-btn { display: none; color: #1e7d4b; }\n[data-pack=\"artifickoi\"] .action-delete-btn { display: block; color: #c62828; }\n[data-pack=\"artifickoi\"] .unequip-btn { background: rgba(211,47,47,0.1); border: 1px solid rgba(211,47,47,0.4); color: #c62828; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 1em; line-height: 1; min-width: 30px; }\n[data-pack=\"artifickoi\"] /* Item Detail Modal — ID-based; used only in exported HTML (detail-modal popup for item inspection) */\n    #detail-modal { display: none; position: fixed; inset: 0; background: rgba(27, 46, 35, 0.5); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }\n[data-pack=\"artifickoi\"] #detail-content { background: #ffffff; border: 1px solid #1e7d4b; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; color: #1b2e23; position: relative; box-shadow: 0 0 20px rgba(30, 125, 75, 0.2); }\n[data-pack=\"artifickoi\"] #detail-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #536a5d; font-size: 24px; cursor: pointer; }\n[data-pack=\"artifickoi\"] #detail-close-btn:hover { color: var(--accent-primary); }\n[data-pack=\"artifickoi\"] #detail-title { margin-top: 0; color: #1e7d4b; border-bottom: 1px solid rgba(30,125,75,0.3); padding-bottom: 10px; }\n[data-pack=\"artifickoi\"] .detail-row { display: flex; margin-bottom: 5px; font-size: 0.9em; }\n[data-pack=\"artifickoi\"] .detail-key { font-weight: bold; color: #536a5d; min-width: 100px; }\n[data-pack=\"artifickoi\"] .detail-val { color: #1b2e23; white-space: pre-wrap; }",
+  "staticLocale": {
+    "pack.artifickoi.empty_none": "None",
+    "pack.artifickoi.empty_quest": "No active quests",
+    "pack.artifickoi.empty_skills": "No skills learned",
+    "pack.artifickoi.empty_equipped": "No belongings equipped",
+    "pack.artifickoi.empty_inventory": "Empty inventory",
+    "pack.artifickoi.header_kin_stats": "Status Attributes",
+    "pack.artifickoi.header_core_status": "Core Status"
+  },
+  "collectionPaths": [
+    ".Classmate",
+    ".Mainchar.Belongings",
+    ".Mainchar.Inventory",
+    ".Mainchar.Quests",
+    ".Mainchar.Skills",
+    ".WorldRecord.Events",
+    ".WorldRecord.Locations",
+    ".WorldRecord.NPCs",
+    ".EventPack.triggers",
+    ".Classmate.Mitsuki.ImportantEvents",
+    ".Classmate.Mitsuki.Friends",
+    ".Classmate.Mitsuki.Hobbies",
+    ".Classmate.Mitsuki.Belongings",
+    ".Intent.newClassmate",
+    ".EventPack.installed",
+    ".EventPack.fired",
+    ".EventPack.installed.paulk_beacharc.keys",
+    ".EventSpine.fired",
+    ".mvuhelper.worn_outfit"
+  ]
+}

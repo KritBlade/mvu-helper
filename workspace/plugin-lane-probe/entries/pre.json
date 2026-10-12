@@ -1,0 +1,8 @@
+{
+  "comment": "{PRE_CALL} lane probe pre",
+  "order": 800,
+  "position": "before_character_definition",
+  "type": "selective",
+  "enabled": true,
+  "keys": []
+}

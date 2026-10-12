@@ -1,0 +1,15 @@
+{
+  "format": "1.0",
+  "packType": "plugin",
+  "id": "lane-probe",
+  "name": "Plugin Lane Probe",
+  "description": "Test harness for the GameLogic Plugin lane, and the dev loop's plugin-side hot-reload vehicle. Exercises all three prompt windows (narrate, PRE, POST), the rollPool epoch fence and the plugin's resolveRelay, recording what each lane really did into its own state root. Writes nowhere outside that root. Its resolver verifies its OWN window-dealt dice against its own pool in ctx.dicePools and never rolls. Its POST window also deals a hash-seeded pair (hash lane-probe-r3, deterministic [10,6]) that nothing records, so RelayDicePool shows whether the seeded path reaches the receipt. Not a game feature; install it to watch the lanes.",
+  "version": "2.9",
+  "builtWith": "hand-authored - the plugin lane's own test vehicle",
+  "optionalUses": [
+    "cast@1"
+  ],
+  "engineOrder": [
+    "relay-resolver.cjs"
+  ]
+}

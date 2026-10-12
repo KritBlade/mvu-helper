@@ -1,0 +1,50 @@
+<%_
+// STANDALONE PROBE / POST window — the TRANSCRIBER, and deliberately nothing more.
+//
+// It asks the model for ONE op carrying ONE string. Everything structural — splitting the string,
+// naming the characters, counting the turn, deciding whether this fire is a repeat — happens in
+// relay-resolver.cjs, which needs no model and cannot be talked out of it. That split is the card's
+// doctrine (narrate observes, the engine decides) and it is also what makes this window RELIABLE.
+//
+// ⚠ IT NEVER CLAIMS THE MODEL'S ROLE. A POST call is shared — other plugins and mvu-helper's own
+// tasks route their entries into the SAME system block, and each one's contract is as entitled as
+// this one's. So this entry only ever ADDS, and says so in its first line.
+//
+// ⚠ AND IT IS SHORT ON PURPOSE. Another task's long contract in the same system block competes for the
+// model's one output: the LONGER this entry gets, the likelier the model answers the other one and emits
+// no patch at all ("POST 0 block(s)"). Length is spent against a competitor, so every line below has to
+// earn its place.
+//
+// ⚠ IT READS THE PROSE, NOT A MARKER. Clothing is described in the prose already, and this window reads
+// it there. Asking the narrator to leave marker lines inside the story tag would be a PLACEMENT judgment
+// for a narrator whose layout the card controls: the card's reply skeleton puts structured blocks AFTER
+// </maintext>, and the POST window is handed only the story tag's interior. The doctrine's answer to a
+// channel that misbehaves is to delete the judgment, never to repeat it louder.
+const SP_ROOT = '{OWN_ROOT}';
+const SP_PATH = '/' + SP_ROOT.split('.').join('/');
+const SP_SD = (typeof getvar === 'function' ? getvar('stat_data') : null) || {};
+let SP_MINE = SP_SD;
+for (const seg of SP_ROOT.split('.')) { SP_MINE = (SP_MINE && typeof SP_MINE === 'object') ? SP_MINE[seg] : undefined; }
+const SP_HAS_DRAWER = SP_MINE !== undefined && SP_MINE !== null && typeof SP_MINE === 'object';
+_%>
+<Standalone_Probe_Record>
+<%_ if (!SP_HAS_DRAWER) { _%>
+# STANDALONE PROBE — emit NOTHING for this plugin this reply.
+# Its state drawer <%= SP_ROOT %> is missing from this message, and an op would silently rebuild a
+# root the host never registered. The host owns that drawer; its absence is reported, not repaired.
+<%_ } else { _%>
+# STANDALONE PROBE — one extra block, ADDED to whatever else this prompt asked for. Do all of that,
+# then append this too. It is never a choice between them.
+#
+# Name every character whose clothing the story text DESCRIBES, as  NAME=clothing  joined by  " | "
+# (e.g.  Mitsuki=white blouse, tan vest | Umi=aqua hoodie). Describe only what is worn. Nobody
+# described -> the single word  none . Never invent one; "none" is a real answer, a guess is not.
+# No double quote inside the value. Copy the path exactly — a prefix sends the write nowhere.
+
+<UpdateVariable>
+<JSONPatch>
+[{"op":"add","path":"<%= SP_PATH %>/PostSaid","value":"WHAT_YOU_WROTE"}]
+</JSONPatch>
+</UpdateVariable>
+<%_ } _%>
+</Standalone_Probe_Record>

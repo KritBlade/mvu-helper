@@ -1,0 +1,8 @@
+{
+  "comment": "standalone probe wardrobe",
+  "order": 795,
+  "position": "before_character_definition",
+  "type": "constant",
+  "enabled": true,
+  "keys": []
+}

@@ -1,0 +1,72 @@
+<%_
+// LANE PROBE / PRE window.
+//
+// WHAT THIS MEASURES, and it is not what it looks like: that this text ARRIVED is already proven by
+// the console ("routed lorebook entries" lists it). What is under test is the return leg - mvu-helper
+// prepends every PRE call's raw OUTPUT onto the last user message of the prompt-building copy
+// (coreChat), and the narrator reads that. Shaping what the PRE model writes is therefore a plugin's
+// way into the narrate window, and this block asks for one line so the echo is checkable.
+//
+// BIND THIS TO THE GAME'S OWN PRE CALL. Sharing is the point, not a compromise: one call's system
+// block is every routed entry concatenated, so a plugin riding the game's PRE is the ordinary case
+// and the probe exists to prove it survives contact. Both halves of this entry are safe there: the
+// host splits and validates per BLOCK and per OP, so neither half can void the game's own blocks; and
+// the card's own `outputRegex` is anchored at the START only, so an appended line does not fail the
+// pattern the game is judged by.
+//
+// WHEN THE HINT DOES NOT ARRIVE it is the output's OPENING, never this appended line. Against School's
+// own pattern /^\s*\{[\s\S]*\}/ the line below carries no brace, so appending it cannot break a match
+// that is already closed by the verdict's own '}'. What DOES fail that pattern is a model opening
+// wrong - a <think> block, a ```json fence, a preamble - and a low-end model emits those routinely.
+// The patch blocks are judged separately and still apply, so the game keeps its state writes; the
+// PROSE half is lost, the game's verdict with it. Read a missing hint as a reading about the MODEL,
+// and look for a reasoning block before suspecting the card.
+// Same MvuHelper.rollPool door as narrate.txt — same pool name, so PRE reads the SAME four dice
+// (growth-append per pool; the prefix never moves within a generation).
+const LP_LE = (typeof globalThis !== 'undefined') ? globalThis.LogicEngine : null;   // the ENGINE fact only
+const LP_MH = (typeof globalThis !== 'undefined') ? globalThis.MvuHelper : null;
+const LP_DICE = (LP_MH && typeof LP_MH.rollPool === 'function') ? (LP_MH.rollPool(4, null, 'LANEPROBE') || []) : [];
+const LP_ROOT = '{OWN_ROOT}';
+const LP_SD = (typeof getvar === 'function' ? getvar('stat_data') : null) || {};
+let LP_MINE = LP_SD;
+for (const seg of LP_ROOT.split('.')) { LP_MINE = (LP_MINE && typeof LP_MINE === 'object') ? LP_MINE[seg] : undefined; }
+const LP_HAS_DRAWER = LP_MINE !== undefined && LP_MINE !== null && typeof LP_MINE === 'object';
+LP_MINE = LP_HAS_DRAWER ? LP_MINE : {};
+const LP_VAL = (t) => (Array.isArray(t) ? t[0] : t);
+const LP_TURN = Number(LP_VAL(LP_MINE.Turn)) || 0;
+const LP_SEED = LP_DICE.join(',');
+const LP_PATH = '/' + LP_ROOT.split('.').join('/');
+_%>
+<Lane_Probe_Pre>
+# LANE PROBE - you are a PRE call. TWO things, and they travel by different roads.
+#
+# ORDER FIRST, because getting it wrong costs the game its verdict: emit these AT THE VERY END of your
+# output, AFTER whatever the game's own control file told you to write. Never ahead of it. A card checks
+# its output shape from the first character, so a plugin line ahead of the game's output fails that
+# check and all of the output's text is dropped - the game's verdict included. A plugin appends; it
+# never opens.
+#
+# 1. THE HINT. Your output is injected onto the narrator's prompt, so this line is one way a plugin
+#    reaches the prose. Append it after the game's own output:
+# <LaneProbe>pre=<%= LP_SEED || 'none' %>;engine=<%= LP_LE ? 'hosted' : 'absent' %>;turn=<%= LP_TURN %></LaneProbe>
+#
+# 2. THE PATCH. A PRE call becomes a state writer by EMITTING a <JSONPatch> - the block IS the
+#    switch, nothing has to be declared. It applies BEFORE the narrator runs, so what it writes is
+#    already true by the time the prose is generated. This is also the STURDIER road to the narrator:
+#    the host renders an inject line FROM the applied ops, so it reaches the prompt even on a turn
+#    where the card's output contract drops the hint above. Emit this block last:
+#    COPY THE BLOCK BELOW CHARACTER FOR CHARACTER. Do not retype it, do not merge it into another
+#    block, do not substitute an op from anywhere else in this prompt, and do not prefix the paths
+#    with anything - the paths below are already absolute and complete.
+<%_ if (!LP_HAS_DRAWER) { _%>
+#
+#    ...except the drawer <%= LP_ROOT %> does not exist, so no op of this plugin's can land:
+<JSONPatch>[]</JSONPatch>
+<%_ } else { _%>
+
+<JSONPatch>[{"op":"add","path":"<%= LP_PATH %>/PreSeed","value":"<%= LP_SEED || 'none' %>"}]</JSONPatch>
+<%_ } _%>
+#
+# PreSeed is read back by the POST window, where it either matches this turn's dice (the PRE write
+# landed) or does not (it did not).
+</Lane_Probe_Pre>

@@ -1,0 +1,418 @@
+{
+  "kind": "slot-list",
+  "format": "1.0",
+  "title": "Standalone Probe",
+  "tabs": [
+    {
+      "id": "colortest",
+      "name": "Color",
+      "blocks": [
+        {
+          "type": "fields",
+          "style": {
+            "heading": {
+              "color": "#dfe7ff",
+              "background": {
+                "stops": [
+                  "#9a1a4a",
+                  "#000000"
+                ],
+                "angle": 100
+              }
+            }
+          },
+          "fields": [
+            {
+              "label": "Time",
+              "path": "$.World.Time",
+              "style": {
+                "value": {
+                  "background": "#7ea6e022"
+                }
+              }
+            },
+            {
+              "label": "Weekday",
+              "path": "$.World.Weekday",
+              "style": {
+                "value": {
+                  "background": "#7ea6e022"
+                }
+              }
+            },
+            {
+              "label": "Weather",
+              "path": "$.World.Weather",
+              "style": {
+                "value": {
+                  "background": "#7ea6e022"
+                }
+              }
+            },
+            {
+              "label": "Location",
+              "path": "$.World.Location",
+              "style": {
+                "value": {
+                  "background": "#7ea6e022"
+                }
+              }
+            }
+          ],
+          "heading": "WORLD"
+        },
+        {
+          "type": "fields",
+          "style": {
+            "heading": {
+              "color": "#ffe3c9",
+              "background": {
+                "stops": [
+                  "#4a2a1a",
+                  "#4a3a1a",
+                  "#2a1a10"
+                ],
+                "angle": 100
+              }
+            }
+          },
+          "fields": [
+            {
+              "label": "Relay turn",
+              "path": "RelayTurn",
+              "style": {
+                "value": {
+                  "background": "#d3a03c22"
+                }
+              }
+            },
+            {
+              "label": "Fired at",
+              "path": "RelayAt",
+              "style": {
+                "value": {
+                  "background": "#d3a03c22"
+                }
+              }
+            },
+            {
+              "label": "Game engine",
+              "path": "RelayEngine",
+              "style": {
+                "value": {
+                  "background": "#d3a03c22"
+                }
+              }
+            }
+          ],
+          "heading": "LANE"
+        },
+        {
+          "type": "collection",
+          "path": "{cast@1}",
+          "style": {
+            "groupKey": {
+              "color": "#8fd3c7"
+            },
+            "heading": {
+              "color": "#d9ffe8",
+              "background": {
+                "stops": [
+                  "#12332a",
+                  "#1a4a38"
+                ],
+                "angle": 100
+              }
+            }
+          },
+          "fields": [
+            {
+              "label": "Mood",
+              "path": "Mood",
+              "style": {
+                "value": {
+                  "background": "#5cb37a1f"
+                }
+              }
+            },
+            {
+              "label": "Location",
+              "path": "Location",
+              "style": {
+                "value": {
+                  "background": "#5cb37a1f"
+                }
+              }
+            }
+          ],
+          "heading": "CAST"
+        }
+      ]
+    },
+    {
+      "id": "wardrobe",
+      "name": "Wardrobe",
+      "blocks": [
+        {
+          "type": "collection",
+          "path": "Characters",
+          "fields": [
+            {
+              "label": "Outfit",
+              "path": "Outfit"
+            },
+            {
+              "label": "Recorded at",
+              "path": "RecordedAt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "foreign",
+      "name": "Foreign",
+      "blocks": [
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "label": "Time ($ raw)",
+              "path": "$.World.Time",
+              "style": {
+                "label": {
+                  "color": "#7ea6e0",
+                  "background": "#fff03c"
+                },
+                "value": {
+                  "color": "#7ea6e0"
+                }
+              }
+            },
+            {
+              "label": "Weather ($ raw)",
+              "path": "$.World.Weather",
+              "style": {
+                "value": {
+                  "color": [
+                    {
+                      "has": "rain",
+                      "use": "#d3a03c"
+                    },
+                    {
+                      "has": "storm",
+                      "use": "#dd6a6a"
+                    },
+                    {
+                      "use": "#5cb37a"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "label": "Time (engine read)",
+              "path": "ExampleWorldTime"
+            },
+            {
+              "label": "Hobbies (engine read)",
+              "path": "ExampleHobbies"
+            }
+          ]
+        },
+        {
+          "type": "collection",
+          "path": "{cast@1}.Mitsuki.Hobbies",
+          "fields": [
+            {
+              "label": "Desc",
+              "path": "Desc"
+            }
+          ],
+          "style": {
+            "groupKey": {
+              "color": "#e08ac0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "belongings",
+      "name": "Belongings",
+      "blocks": [
+        {
+          "type": "collection",
+          "path": "{cast@1}",
+          "style": {
+            "groupKey": {
+              "color": "#e08ac0"
+            }
+          },
+          "fields": [
+            {
+              "label": "Mood",
+              "path": "Mood"
+            },
+            {
+              "label": "Affection",
+              "path": "Affection",
+              "style": {
+                "value": {
+                  "color": [
+                    {
+                      "lt": 30,
+                      "use": "#dd6a6a"
+                    },
+                    {
+                      "lt": 60,
+                      "use": "#d3a03c"
+                    },
+                    {
+                      "use": "#5cb37a"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "blocks": [
+            {
+              "type": "collection",
+              "path": "Belongings",
+              "style": {
+                "groupKey": {
+                  "color": "#9ecbff"
+                }
+              },
+              "fields": [
+                {
+                  "label": "Type",
+                  "path": "Type"
+                },
+                {
+                  "label": "Qty",
+                  "path": "Qty",
+                  "style": {
+                    "value": {
+                      "color": [
+                        {
+                          "gt": 1,
+                          "use": "#5cb37a"
+                        },
+                        {
+                          "use": "#888888"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "label": "Desc",
+                  "path": "Desc"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lane",
+      "name": "Lane",
+      "blocks": [
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "label": "Relay turn",
+              "path": "RelayTurn",
+              "style": {
+                "value": {
+                  "color": [
+                    {
+                      "lt": 1,
+                      "use": "#888888"
+                    },
+                    {
+                      "use": "#5cb37a"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "label": "Fired at",
+              "path": "RelayAt"
+            },
+            {
+              "label": "Repeat fire",
+              "path": "RelayRepeat",
+              "style": {
+                "row": {
+                  "background": [
+                    {
+                      "is": true,
+                      "use": "#3a2c05"
+                    }
+                  ]
+                },
+                "value": {
+                  "color": [
+                    {
+                      "is": true,
+                      "use": "#ffd24a"
+                    },
+                    {
+                      "use": "#888888"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "label": "Game engine",
+              "path": "RelayEngine",
+              "style": {
+                "label": {
+                  "color": "#888888"
+                },
+                "value": {
+                  "color": [
+                    {
+                      "has": "none",
+                      "use": "#888888"
+                    },
+                    {
+                      "use": "#7ea6e0"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "label": "cast@1",
+              "path": "RelayCast"
+            },
+            {
+              "label": "Other plugins",
+              "path": "RelayNeighbours"
+            },
+            {
+              "label": "Ops seen",
+              "path": "RelayOps"
+            },
+            {
+              "label": "POST said",
+              "path": "PostSaid"
+            },
+            {
+              "label": "Reading",
+              "path": "RelaySaidNote"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

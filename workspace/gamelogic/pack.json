@@ -1,0 +1,12 @@
+{
+  "format": "1.0",
+  "packType": "gamelogic",
+  "id": "mygame",
+  "name": "MyGame",
+  "description": "MyGame Description",
+  "version": "0.1.0",
+  "builtWith": "mvu-helper 0.3.367",
+  "engineOrder": [
+    "gameLogic.cjs"
+  ]
+}

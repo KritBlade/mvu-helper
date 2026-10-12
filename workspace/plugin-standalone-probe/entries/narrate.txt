@@ -1,0 +1,42 @@
+<%_
+// STANDALONE PROBE / NARRATE window.
+//
+// No call token, so nothing routes this entry — ST-Prompt-Template renders it and the MAIN model
+// reads it. Free, and the window a plugin should use for anything it can compute itself.
+//
+// `type: "constant"` is what puts it in the prompt at all; a `selective` entry with no keys never
+// activates, which is why the ROUTED entry beside it is selective and this one is not.
+//
+// ⚠ IT ASKS THE NARRATOR FOR NOTHING. This window is a REPORT, not a duty: it tells the narrator what
+// is on file. Asking the narrator to place lines inside a tag whose layout the card controls would be a
+// judgment, and the card's own reply skeleton wins; the POST window reads the prose instead, where
+// clothing already is.
+const SP_ROOT = '{OWN_ROOT}';
+const SP_SD = (typeof getvar === 'function' ? getvar('stat_data') : null) || {};
+let SP_MINE = SP_SD;
+for (const seg of SP_ROOT.split('.')) { SP_MINE = (SP_MINE && typeof SP_MINE === 'object') ? SP_MINE[seg] : undefined; }
+const SP_HAS_DRAWER = SP_MINE !== undefined && SP_MINE !== null && typeof SP_MINE === 'object';
+SP_MINE = SP_HAS_DRAWER ? SP_MINE : {};
+const SP_VAL = (t) => (Array.isArray(t) ? t[0] : t);
+// The resolver's structured half, read back. This is the CONTINUITY proof: what the engine wrote
+// last turn is what the narrator is told this turn, with no model in between.
+const SP_CHARS = (SP_MINE.Characters && typeof SP_MINE.Characters === 'object') ? SP_MINE.Characters : {};
+const SP_WORN = Object.keys(SP_CHARS)
+    .map((k) => k + ' — ' + String(SP_VAL(SP_CHARS[k] && SP_CHARS[k].Outfit) || '(unrecorded)'));
+_%>
+<Standalone_Probe>
+# WARDROBE ON FILE (recorded by a plugin, not by the story — trust it over your own memory)
+<%_ if (!SP_HAS_DRAWER) { _%>
+# (unavailable — the plugin's state drawer <%= SP_ROOT %> does not exist on this message. Nothing to
+#  report and nothing to fix from here; the host creates that drawer at install and at chat load.)
+<%_ } else if (!SP_WORN.length) { _%>
+# (nothing on file yet — this is the first turn, or nobody's clothing has been described.)
+<%_ } else { _%>
+<%_ for (const line of SP_WORN) { _%>
+#   <%= line %>
+<%_ } _%>
+<%_ } _%>
+#
+# Dress each character as recorded above unless THIS reply changes it. Nothing else is asked of you
+# here: describe clothing in the prose as you normally would, and never mention this block.
+</Standalone_Probe>

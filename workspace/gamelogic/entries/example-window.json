@@ -1,0 +1,8 @@
+{
+  "comment": "example window",
+  "order": 100,
+  "position": "before_character_definition",
+  "type": "constant",
+  "enabled": false,
+  "keys": []
+}

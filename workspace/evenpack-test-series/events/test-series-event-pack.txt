@@ -1,0 +1,197 @@
+<%_ if (false) { _%>
+<mvueventpack>
+{
+  "format": "1.1",
+  "creator": "test",
+  "event": "Series",
+  "version": "3.3.1",
+  "builtWith": "hand-authored live probe - eventpack_revisit",
+  "triggers": {
+    "test_series_step1": {
+      "cat": "TRG",
+      "series": "test_series_Chain",
+      "whenAny": [
+        "Loc=Town_BusStop & Present(Mitsuki)",
+        "Loc=School_Gate & Present(Mitsuki)"
+      ],
+      "fx": {
+        "summary": "在往校門的路上注意到一件之後還得再處理的小事。",
+        "scope": "save",
+        "writes": [
+          {
+            "path": "Mainchar.Quests",
+            "key": "test_series_Chain",
+            "set": {
+              "Step": 1,
+              "Title": "Three-Step Test Chain",
+              "Status": "On-going",
+              "Desc": "A small thing noticed on the walk to the school gate, meant to take three beats to close.",
+              "Objective": "Come back to it later and push it one step further.",
+              "ProgressSummary": "Noticed on the road to the gate.",
+              "Reward": "Mitsuki fills out a little (Cup_Size)",
+              "Difficulty": 99
+            }
+          }
+        ],
+        "reward": {
+          "appearance": {
+            "Mitsuki": { "Cup_Size": "D cup" }
+          }
+        }
+      }
+    },
+    "test_series_step2": {
+      "cat": "TRG",
+      "series": "test_series_Chain",
+      "prereq": "flag:test_series_step1",
+      "when": "DaysSince(EventPack.fired.test_series_step1.at)<1",
+      "fx": {
+        "summary": "那件小事又被提了起來，學生會書記也記住了。",
+        "scope": "save",
+        "writes": [
+          {
+            "path": "WorldRecord.NPCs",
+            "key": "StudentCouncilSecretary",
+            "set": {
+              "Name": "學生會書記",
+              "Rel": "同校生"
+            }
+          },
+          {
+            "path": "WorldRecord.Locations",
+            "key": "School_Entrance",
+            "set": {
+              "Label": "SHARED-BREACH this line must not overwrite",
+              "Note": "昇降口：早上換室内靴的地方。"
+            }
+          },
+          {
+            "path": "Mainchar.Quests",
+            "key": "test_series_Chain",
+            "set": {
+              "Step": 2,
+              "Status": "On-going",
+              "Objective": "Let the student-council secretary close it out.",
+              "ProgressSummary": "Picked up again once they were inside school."
+            }
+          }
+        ]
+      }
+    },
+    "test_series_step3": {
+      "cat": "TRG",
+      "series": "test_series_Chain",
+      "prereq": "flag:test_series_step2",
+      "when": "has(WorldRecord.NPCs, \"StudentCouncilSecretary\")",
+      "fx": {
+        "summary": "學生會書記把那件小事處理掉了，這條線收乾淨。",
+        "scope": "save",
+        "writes": [
+          {
+            "path": "WorldRecord.NPCs",
+            "key": "StudentCouncilSecretary",
+            "set": {
+              "Name": "FILLONLY-BREACH",
+              "Rel": "FILLONLY-BREACH"
+            }
+          },
+          {
+            "path": "Mainchar.Quests",
+            "key": "test_series_Chain",
+            "set": {
+              "Step": 3,
+              "Status": "Completed",
+              "Objective": "Done.",
+              "ProgressSummary": "All three beats played.",
+              "Reward": "Test complete"
+            }
+          }
+        ]
+      }
+    },
+    "test_series_step4_monotonic": {
+      "cat": "TRG",
+      "prereq": "flag:test_series_step3",
+      "when": "flag:test_series_step3",
+      "fx": {
+        "summary": "書記回頭又翻了一次那份紀錄，但事情已經結案了。",
+        "scope": "save",
+        "writes": [
+          {
+            "path": "Mainchar.Quests",
+            "key": "test_series_Chain",
+            "set": {
+              "Step": 1,
+              "Status": "MONOTONIC-BREACH",
+              "ProgressSummary": "MONOTONIC-BREACH"
+            }
+          }
+        ]
+      }
+    },
+    "test_series_canary": {
+      "cat": "TRG",
+      "prereq": "flag:test_series_never_fires",
+      "when": "T>=00:01",
+      "fx": {
+        "summary": "CANARY FIRED - PREREQ IS NOT EVALUATED. This must never appear.",
+        "scope": "save"
+      }
+    }
+  }
+}
+</mvueventpack>
+<%_ } _%>
+<%_ if (getvar('stat_data.EngineDerived.EventArmed[0]') === '@test_series_step1') { _%>
+<Event_Pack>
+@test_series_step1  Three-Step Test Chain ·1
+  DO  On the walk to the school gate, {{user}} notices ONE small thing that will need dealing with later
+    - a notice slip pinned crookedly to the gate board, or a page sticking out of Mitsuki's bag. Touch on
+    it and walk on: do not resolve it, do not move the scene, do not skip time, do not add a character.
+  FIRE  emit /Intent/eventFire "test_series_step1" - write that value to the path /Intent/eventFire/0
+    (the path ENDS in /0). The engine opens the "Three-Step Test Chain" quest at Step 1 and writes
+    Mitsuki's Cup_Size to "D cup" - a PROSE reward, so the engine SETS the field rather than adding to
+    it. Do not narrate the change; the payout is state, and this beat is only the walk to the gate.
+</Event_Pack>
+<%_ } _%>
+<%_ if (getvar('stat_data.EngineDerived.EventArmed[0]') === '@test_series_step2') { _%>
+<Event_Pack>
+@test_series_step2  Three-Step Test Chain ·2
+  DO  Wherever the scene stands now - the shoe lockers, a corridor, the classroom - the thing from the walk
+    comes up again in passing. A student-council secretary overhears and says she has made a note of it.
+    Push it ONE step: do not close it, do not skip time.
+  FIRE  emit /Intent/eventFire "test_series_step2" - write that value to the path /Intent/eventFire/0
+    (the path ENDS in /0). The engine moves the quest to Step 2, registers the secretary as an NPC, and
+    registers the entrance as a discovered venue.
+</Event_Pack>
+<%_ } _%>
+<%_ if (getvar('stat_data.EngineDerived.EventArmed[0]') === '@test_series_step3') { _%>
+<Event_Pack>
+@test_series_step3  Three-Step Test Chain ·3
+  DO  Close it out: the student-council secretary deals with the small thing and thanks {{user}} in passing.
+    Finish it cleanly - leave no new thread, do not skip time.
+  FIRE  emit /Intent/eventFire "test_series_step3" - write that value to the path /Intent/eventFire/0
+    (the path ENDS in /0). The engine marks the quest Completed.
+        THEN write "save|The student-council secretary cleared up the small thing noticed on the way to
+    school." to /Intent/recordEvent/0 - the world log holds only what the narrator reports; the engine
+    writes no prose there.
+</Event_Pack>
+<%_ } _%>
+<%_ if (getvar('stat_data.EngineDerived.EventArmed[0]') === '@test_series_step4_monotonic') { _%>
+<Event_Pack>
+@test_series_step4_monotonic  Three-Step Test Chain ·coda
+  DO  Wherever {{user}} is, the secretary mentions the already-closed record once more, two or three lines.
+    Do not reopen the thread, do not skip time, do not add a character.
+  FIRE  emit /Intent/eventFire "test_series_step4_monotonic" - write that value to the path
+    /Intent/eventFire/0 (the path ENDS in /0). The engine receives a write that tries to send the quest
+    back to Step 1, and must skip that write entirely.
+</Event_Pack>
+<%_ } _%>
+<%_ if (getvar('stat_data.EngineDerived.EventArmed[0]') === '@test_series_canary') { _%>
+<Event_Pack>
+@test_series_canary  CANARY - THIS MUST NEVER FIRE
+  DO  Stop the scene and write one line, exactly: "CANARY FIRED - PREREQ IS NOT EVALUATED."
+  FIRE  emit /Intent/eventFire "test_series_canary" - write that value to the path /Intent/eventFire/0
+    (the path ENDS in /0), only so this failure lands in state instead of in a reply that scrolls away.
+</Event_Pack>
+<%_ } _%>

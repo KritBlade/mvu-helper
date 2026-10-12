@@ -1,0 +1,22 @@
+{
+  "id": "5b1e7c02-9a4d-4f38-b6e1-2c8f0d374a95",
+  "script_name": "HideFarFloor",
+  "enabled": true,
+  "find_regex": "/.*/s",
+  "replace_string": "",
+  "trim_strings": [],
+  "source": {
+    "user_input": true,
+    "ai_output": true,
+    "slash_command": false,
+    "world_info": false,
+    "reasoning": false
+  },
+  "destination": {
+    "display": true,
+    "prompt": false
+  },
+  "run_on_edit": true,
+  "min_depth": 10,
+  "max_depth": null
+}
