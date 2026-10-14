@@ -24,7 +24,7 @@ Both are standalone. Install either one, play a few replies, and read its drawer
 
 ## Develop against a live card
 
-1. In the mvu-helper repo, run `npm run dev -- <workspace>`, where `<workspace>` is the folder that holds `plugin-<id>/`.
+1. Keep your `plugin-<id>/` folder in your workspace, `c:\dev\my-game\workspace`. Then open CMD in `c:\dev\my-game` and run `npm run dev`. It watches `workspace/`.
 2. In SillyTavern: GameLogic Packs tab > Artifact dev loop > Watch the local dev server. The loop puts the folder together and adds it to the library.
 3. The first time it applies to a card, it asks whether that card is a dev card. From then on it applies every save to it, with no reload.
 

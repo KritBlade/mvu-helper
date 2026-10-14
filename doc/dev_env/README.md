@@ -4,7 +4,9 @@ This is the setup I use to build games on MVU Helper. VS Code with an AI assista
 
 Set it up once, and you never export or import a pack by hand while you work. You save a file, and the game on your screen already runs the new code.
 
-## What you need first
+After the following steps are completed, the complete engine can be built inside VS code with AI assitance.
+
+
 
 - **SillyTavern with MVU Helper**, plus the extensions it rides on: Tavern Helper, ST-Prompt-Template with Environmental isolation on, and MVU. See [Tavern Helper, ST-Prompt-Template and MVU](../st_extensions/README.md).
 - **[Node.js](https://nodejs.org/en/download).** The dev loop runs on it, and so does the tool that lets your AI see Chrome.
@@ -29,6 +31,8 @@ You get this:
 | File or folder | What it is |
 | --- | --- |
 | `workspace/` | your packs: a blank GameLogic Pack, 2 sample GameLogic Plugins, a sample StatusMenu Pack and a sample Event Pack |
+| `tools/` | the checks `npm test` runs, see [Check your work](#check-your-work-npm-test) |
+| `package.json` | the 2 commands you use: `npm run dev` and `npm test` |
 | `CLAUDE.md` | the project rules for an AI coding assistant, see [Step 4](#step-4-vs-code-and-an-ai-assistant) |
 | `.mcp.json` | how your AI connects to Chrome, see [Step 3](#step-3-your-ai-connects-through-mcpjson) |
 | `README.md` | a short guide to the template |
