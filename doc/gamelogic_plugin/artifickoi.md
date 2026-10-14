@@ -23,7 +23,7 @@ ArtificKoi's engine calls itself `School`. That's the name a plugin checks.
 
 - **These 6 interfaces, and no others.** A plugin that `requires` any other name is refused on ArtificKoi. One that lists it in `optionalUses` installs, and runs without it.
 - **An interface only promises its shape:** `Name` for the cast and the player, `Label` for a landmark, `summary` for a chronicle entry, `Date` and `Time` for the clock. See [Exposes](../gamelogic_engine/exposes.md#the-interfaces). Every other field on this page is ArtificKoi's own vocabulary. Read it only behind `engine.name === 'School'`, so the same plugin still runs on a game that keeps its state differently.
-- **Every value is a `[value, label]` pair.** `World.Location` is `["Town_BusStop", "Location"]`, and `Date` is `["2026-04-08", "Date"]`. Read `Array.isArray(v) ? v[0] : v`.
+- **Most values are `[value, label]` pairs.** `World.Location` is `["Town_BusStop", "Location"]`, `Date` is `["2026-04-08", "Date"]`, and a heroine's `Name` is a pair too. The records in `WorldRecord` are the exception: a landmark's `Label` and a chronicle entry's `summary` are plain strings. `Array.isArray(v) ? v[0] : v` reads both kinds, so use it on every value.
 - **`location@1` holds a venue key,** `Area_Venue`, like `School_Rooftop` or `Town_Cafe`. `landmarks@1` only holds the venues the story added during play. The base map lives in a lorebook entry, `Location_List`. So the scene is often at a venue with no landmark.
 - **The clock can move backwards.** A time leap restarts the calendar at `2026-04-08`, so a cooldown counted by date difference goes negative across it.
 - **A chronicle entry can disappear.** A time leap deletes every entry that isn't kept for the whole save, and the player can trim the log too.

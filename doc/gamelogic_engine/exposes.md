@@ -63,7 +63,8 @@ ArtificKoi publishes the first 6, as in the `pack.json` above. `locale@1` is pro
 What a plugin has to know:
 
 - **`landmarks@1` isn't every place in the world.** A game can list only the places found during play, so the scene can be somewhere with no landmark. No landmark means no label, not nowhere. ArtificKoi keeps its base map in a lorebook entry, so there it happens a lot.
-- **A value can come as MVU's `[value, description]` pair.** Read the first item when it's a pair: `Array.isArray(v) ? v[0] : v`. ArtificKoi writes every value that way: `Name` is `["Mitsuki Tachibana", "Name"]`, and `World.Location` is `["Town_BusStop", "Location"]`.
+- **A value can come as MVU's `[value, description]` pair.** Read the first item when it's a pair: `Array.isArray(v) ? v[0] : v`. ArtificKoi writes most values that way: `Name` is `["Mitsuki Tachibana", "Name"]`, and `World.Location` is `["Town_BusStop", "Location"]`. But its landmarks' `Label` and its chronicle's `summary` are plain strings. So one game can hand you both kinds, and the line above reads both.
+- **A collection can hold keys that aren't entries.** An MVU card can keep its own bookkeeping inside a collection, like `$meta` or `template`. When you walk `cast@1`, `landmarks@1` or `chronicle@1`, skip every key that starts with `$`, and `template`. ArtificKoi's engine skips the same keys when it walks its own cast.
 - **Time doesn't only move forward, and records don't always stay.** A game can rewind its clock or delete old records, so a cooldown counted by date difference can go negative. Check for that instead of trusting it. ArtificKoi does both: a time leap resets the date to `2026-04-08` and deletes the chronicle entries that aren't kept across it, and the player can trim the log too.
 
 ## Rules for exposing

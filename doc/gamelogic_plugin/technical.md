@@ -23,9 +23,45 @@ A plugin has no starting state and no regexes. It creates what it keeps, when it
 
 ## Example: the Weather plugin
 
+The whole plugin is one folder with 5 files:
+
+```
+plugin-weather/
+├── pack.json                  # id "weather", engineOrder ["weather.cjs"], optionalUses ["clock@1"]
+├── entries/
+│   ├── weather.json           # the entry's fields, with its name in "comment"
+│   └── weather.txt            # the entry's text, the EJS in step 1
+├── engine/
+│   └── weather.cjs            # resolveRelay, step 3
+└── schema/
+    └── plugin_root_schema.js  # declares GameLogicPlugin open, see The schema
+```
+
+The schema file is the same one line for every plugin, see [The schema](writing.md#the-schema). The rest is below.
+
 ### 1. The entry rolls the weather and tells the narrator
 
 The weather is just a die and a table, so it needs no LLM call at all. The entry has no call tag, so it goes straight into the narrator's prompt, for free.
+
+An entry is 2 files with the same name in `entries/`. `weather.json` holds its fields:
+
+```json
+{
+  "comment": "weather today",
+  "order": 790,
+  "position": "before_character_definition",
+  "type": "constant",
+  "enabled": true,
+  "keys": []
+}
+```
+
+- **`comment` is the entry's name** in the lorebook. Installed, it becomes `[GameLogicPlugin:weather] weather today`. The installer puts the prefix in front, and that's how Uninstall finds the entry later. Never write the prefix yourself.
+- **No call tag in the name.** That's what sends it to the narrator. A `{PRE_CALL}` or `{POST_CALL}` in the name would send it to that call instead. Keep square brackets out of a narrator entry's name altogether. A `[name]` that matches one of the player's calls routes the entry to that call.
+- **`type: "constant"`,** so it's sent every reply. A `selective` entry with no keys never shows up at all.
+- **The file name is yours.** `weather.txt` and `weather.json` only have to match each other. The lorebook shows the `comment`.
+
+`weather.txt` holds its text, the part the narrator reads:
 
 ```ejs
 <%_
@@ -78,7 +114,7 @@ The narrator reads "Weather today: Sunny" and writes a sunny scene. It doesn't r
 
 ### 3. `resolveRelay` saves it
 
-The plugin's engine is a small JavaScript file. Its `resolveRelay` runs once per reply, after the game is done with the reply:
+The plugin's engine is a small JavaScript file, `engine/weather.cjs`, named in `engineOrder` in `pack.json`. Its `resolveRelay` runs once per reply, after the game is done with the reply:
 
 ```js
 const ENGINE_VERSION = 'v1.0.0';

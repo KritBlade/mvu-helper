@@ -74,6 +74,23 @@ If an exposed path stops existing in the live `stat_data`, chat load warns and y
 
 What each interface promises, and which ones exist today, is on [Exposes](../gamelogic_engine/exposes.md#the-interfaces).
 
+### What an interface tells you, and what it doesn't
+
+An interface tells you the shape: a collection (a map of id > object), one object, or one value. It never tells you whether a value is a pair or plain. ArtificKoi's `Name` is a pair and its landmarks' `Label` is plain, and the next game may do it the other way round.
+
+So unwrap every value you read: `Array.isArray(v) ? v[0] : v`. A pair gives you its first item, and a plain value comes back as it is.
+
+That line is only safe on the values an interface promises: `Name`, `Label`, `summary`, `Date`, `Time` and the place id. They're all single values, so an array there can only be a pair. Anywhere else, an array can be a real list, like `["Baking", "Gardening"]`, and the line would keep only `"Baking"`. So for any field beyond what an interface promises, you need the game's own docs, and an `engine.name` check around the code that reads it.
+
+**When you walk a collection, skip MVU's own keys.** An MVU card can keep its bookkeeping inside a collection: `$meta`, `$internal`, `$key` or `template`. They aren't entries. Skip every key that starts with `$`, and `template`, and anything that isn't an object:
+
+```js
+const ids = Object.keys(cast).filter((k) => !k.startsWith('$') && k !== 'template'
+  && cast[k] && typeof cast[k] === 'object');
+```
+
+It's like a class register with the teacher's notes page at the front. Count the notes page, and you have one student too many.
+
 ## Example: a cast journal that runs anywhere
 
 ```js
@@ -99,7 +116,9 @@ module.exports = {
       return { patches: [{ op: 'add', path: ownPointer + '/Mode', value: 'awaiting-cast' }], log };
     }
 
-    const ids = Object.keys(cast);
+    // a collection can hold MVU's own keys ($meta, template…). They aren't cast members
+    const ids = Object.keys(cast).filter((k) => !k.startsWith('$') && k !== 'template'
+      && cast[k] && typeof cast[k] === 'object');
     const unwrap = (v) => (Array.isArray(v) ? v[0] : v);     // MVU's [value, "label"] pair: take the value
     const firstName = ids.length ? unwrap(cast[ids[0]].Name) : '';
 
@@ -178,7 +197,8 @@ Before you ship a standalone plugin:
 - [ ] `engine.name === null` is handled as "unknown game", not as an error.
 - [ ] Every `optionalUses` interface has a written path that returns instead of throwing.
 - [ ] "Declared but missing" is handled separately from "not declared".
-- [ ] Every value read from the game's state is unwrapped from its `[value, label]` pair.
+- [ ] Every promised value goes through the unwrap line, pair or not. A field beyond the promise is read from the game's own docs, behind its `engine.name`.
+- [ ] Every collection is walked without MVU's own keys: anything starting with `$`, and `template`.
 - [ ] No macro read inside `<% %>`. Branching code uses `globalThis.MvuHelper`.
 - [ ] The version is recorded, not checked. Unless you name the one change you're working around.
 
