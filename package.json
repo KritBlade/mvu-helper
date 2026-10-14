@@ -1,0 +1,11 @@
+{
+  "name": "my-game",
+  "private": true,
+  "version": "0.0.0",
+  "description": "My game's artifact source. `workspace/` holds the artifacts: each subfolder with a pack.json is one. `npm run dev` fetches MVU Helper's dev server with npx (into npm's cache, never into this folder) and serves workspace/ to the Artifact dev loop. `tools/` holds the checks, and `npm test` runs them, reading workspace/ and nothing else.",
+  "scripts": {
+    "dev": "npx -y github:KritBlade/mvu-helper workspace",
+    "test": "npm run test:ejs-scope",
+    "test:ejs-scope": "node tools/scan_ejs_scope.cjs"
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* scan_ejs_scope.cjs — EJS scope + syntax auditor. v0.4 — PASS-AWARE, and it can FAIL A BUILD.
+/* scan_ejs_scope.cjs — EJS scope + syntax auditor. v0.5 — PASS-AWARE, and it can FAIL A BUILD.
  *
  * ST-Prompt-Template concatenates every entry rendered in ONE pass into ONE EJS compile scope, so
  * a TOP-LEVEL (depth-0) `let`/`const` with the same name in two of them collides:
@@ -8,26 +8,31 @@
  * uniquely nasty: raw EJS still reads like plausible prose, so the model answers from the template's
  * literal branches instead of the rendered one and nothing looks broken anywhere.
  *
+ * It reads EVERY entry of EVERY artifact in workspace/: the GameLogic Pack's and each plugin's. A
+ * plugin's entries render in the same passes as the game's once both sit on one card, so they are
+ * checked against each other.
+ *
  * Two checks:
- *   1. CROSS-ENTRY COLLISIONS. Tools/entry_routes.cjs says WHICH PASS each file renders in, so a REAL
+ *   1. CROSS-ENTRY COLLISIONS. tools/entry_routes.cjs says WHICH PASS each file renders in, so a REAL
  *      collision (same pass — a build breaker) is told apart from a benign one (two files that never
- *      render together, e.g. current_variable_data narrate vs current_variable_data-post [POST]).
+ *      render together, e.g. a narrator entry and a [POST] entry). Every top-level name counts, not
+ *      only `_`-prefixed ones: a plugin cannot know the game's naming convention.
  *      EXIT 1 on a same-pass collision, so `npm test` stops on it.
  *   2. PER-FILE SYNTAX. Each file's own scriptlets are concatenated and compiled, which catches what the
- *      collision scan cannot see: a duplicate inside ONE file, a name not `_`-prefixed, and anything
- *      inside a `try {` (where most entries put their whole body). It needs no rules and no name
- *      convention: a redeclaration, a stray brace and a bad regex all fail here.
+ *      collision scan cannot see: a duplicate inside ONE file, and anything inside a `try {` (where most
+ *      entries put their whole body). It needs no rules and no name convention: a redeclaration, a
+ *      stray brace and a bad regex all fail here.
  *
- * Full authoring rules -> maker-app/Doc/dev-helper.md §6.
- * Run from maker-app/GameLogic/Schoolv4:  node Tools/scan_ejs_scope.cjs
+ * Authoring rules -> https://github.com/KritBlade/mvu-helper/blob/main/doc/gamelogic_plugin/entries.md#ejs-in-your-entries
+ * Run from the project folder (the one holding workspace/):  npm run test:ejs-scope
  */
 const fs = require('fs');
-const path = require('path');
 const { passesFor } = require('./entry_routes.cjs');
 const WS = require('./workspace_paths.cjs');
 
-const dir = WS.WINDOWS_DIR;
-const files = fs.readdirSync(dir).filter((f) => f.endsWith('.txt'));
+const ENTRIES = WS.entries();
+const byDisplay = new Map(ENTRIES.map((e) => [e.display, e]));
+const files = ENTRIES.map((e) => e.display);
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
 
 // Parse the comma-separated declarator identifiers of a let/const/var statement that starts
@@ -65,7 +70,7 @@ function parseDeclarators(code, start) {
 // helpers (getvar, sd) are irrelevant. Wrapped in an async function because Window A awaits.
 const syntaxErrors = [];
 for (const f of files) {
-  const src = fs.readFileSync(path.join(dir, f), 'utf8');
+  const src = fs.readFileSync(byDisplay.get(f).file, 'utf8');
   if (!src.includes('<%')) continue;
   const bodies = [];
   const sre = /<%_?(?!=)([\s\S]*?)_?%>/g;
@@ -90,7 +95,7 @@ console.log('EJS syntax check PASSED — every entry\'s scriptlets compile as on
 
 const report = {};
 for (const f of files) {
-  const src = fs.readFileSync(path.join(dir, f), 'utf8');
+  const src = fs.readFileSync(byDisplay.get(f).file, 'utf8');
   if (!src.includes('<%')) continue;
   const re = /<%_?(?!=)([\s\S]*?)_?%>/g;                     // scriptlets only — NOT <%= output tags
   let m, depth = 0;
@@ -100,11 +105,14 @@ for (const f of files) {
     const kw = /\b(?:let|const|var)\s+/g;
     let dm;
     while ((dm = kw.exec(code))) {
-      let dd = depth;                                         // brace depth AT the keyword
-      for (let k = 0; k < dm.index; k++) { const ch = code[k]; if (ch === '{') dd++; else if (ch === '}') dd--; }
-      if (dd !== 0) continue;
+      let dd = depth, pd = 0;                                 // brace depth AT the keyword, paren depth in this scriptlet
+      for (let k = 0; k < dm.index; k++) {
+        const ch = code[k];
+        if (ch === '{') dd++; else if (ch === '}') dd--; else if (ch === '(') pd++; else if (ch === ')') pd--;
+      }
+      if (dd !== 0 || pd !== 0) continue;                     // inside a block, or a `for (const x of …)` head
       const { names, end } = parseDeclarators(code, dm.index + dm[0].length);
-      for (const n of names) if (n.startsWith('_')) top.add(n);
+      for (const n of names) top.add(n);                      // every top-level name, `_`-prefixed or not
       kw.lastIndex = end;                                     // resume after this statement
     }
     for (const ch of code) { if (ch === '{') depth++; else if (ch === '}') depth--; }
@@ -118,8 +126,8 @@ for (const f of files) {
 const byPass = {};
 for (const f of Object.keys(report).sort()) {
   const r = report[f];
-  const passes = passesFor(f);
-  console.log(f.padEnd(34) + (passes.join('+') + ' ').padEnd(10) + (r.top.join(', ') || '(none)')
+  const passes = passesFor(byDisplay.get(f).entry);
+  console.log(f.padEnd(52) + ((passes.join('+') || 'none') + ' ').padEnd(10) + (r.top.join(', ') || '(none)')
     + (r.endDepth ? '  [!! endDepth=' + r.endDepth + ']' : ''));
   for (const p of passes) {
     const bucket = byPass[p] || (byPass[p] = {});

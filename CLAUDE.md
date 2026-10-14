@@ -1,10 +1,19 @@
 ---
 name: dev-workflow-standards-shell-logging-helpers
-description: Core dev rules - Use Bash if you can because more tools available. Always check SigMap before new helpers. Logging migration. No fallback/migration without asking.
+description: Core dev rules - Use Bash if you can because more tools available. Always check existing functions before new helpers. Logging migration. No fallback/migration without asking.
 metadata:
   node_type: memory
   type: project
 ---
+
+## This workspace (read first)
+- **`workspace/` holds the artifacts.** Each subfolder with a `pack.json` is one: `gamelogic/` (the GameLogic Pack: engine, entries, schema, regex), `plugin-*/` (GameLogic Plugins), `statusmenu/` (the StatusMenu Pack) and the Event Pack folder. MVU Helper is the platform: read-only from here, never edited.
+- **The dev loop is live.** The user runs `npm run dev` with the Artifact dev loop checked in MVU Helper. Every file saved under `workspace/` is installed on the open SillyTavern card within a second. A save IS a deploy: never leave a half-written file saved.
+- **The dev server is MVU Helper's, not this project's.** `npm run dev` fetches it with `npx` into npm's cache and runs it on `workspace/`. It is platform code: never copy it into this project, never edit it, never work around it. If it refuses a pack, the pack is wrong.
+- **Run `npm test` before calling a change done.** It runs the checks in `tools/` (today: the EJS scope scan, `tools/scan_ejs_scope.cjs`). A failure is caught here, not in the user's chat.
+- **EJS shares one scope per pass.** ST-Prompt-Template compiles every entry of one pass (narrator, PRE, POST) as one block, plugin entries included. A top-level `let`/`const` that another entry in the same pass also declares breaks the WHOLE pass silently: the model gets raw template text. Declare inside a block, or prefix the name per entry (`_wx…`). `npm test` catches it.
+- **Engine code runs in MVU Helper's sandboxed Worker.** Plain JavaScript plus `console`, `crypto`, `structuredClone`, `TextEncoder`, `TextDecoder`, `atob`, `btoa` and `MvuHelper`. No network, no DOM, no `import()`, no `require`. Several engine files are joined into one script in `engineOrder` order, so a top-level name in one file is visible in every later file, and the same top-level name in 2 files fails the whole engine.
+- **Docs:** https://github.com/KritBlade/mvu-helper (GameLogic Engine, GameLogic Plugin, Same reply protection, Development Environment).
 
 ## Project layering — platform vs consumer (mandatory)
 Platform/consumer boundaries prevent cross-repo coupling bugs where platforms fail silently by assuming downstream structures.
@@ -65,19 +74,11 @@ Applies to every `/Intent` channel and every logic-engine function.
 * **Narrate (AI model) = pure OBSERVER.** Emits `/Intent` reporting what its prose just did — one simple judgment at a time, never compound, never a verdict, never a forecast, never initiating from silence. Every duty must be doable by a low-end model (gemma 27b is the bar).
 * **RES (engine) = the brain.** Parses the `/Intent` sentence and does ALL number crunching and logic diversion. May be arbitrarily complex — it is 100% deterministic and unit-tests without narrate.
 * **Payoff:** the `/Intent` log lines ARE the result — the turn is known without reading the prose; prose is cross-checked only to catch an emit contradicting its own page. Every engine function's boundary is known before design starts.
-* **When a channel misbehaves: a judgment leaked into narrate's duties — never a wording problem.** Do NOT make the instruction louder; convert the judgment into an observation. (Proven: social-check verdict removal after CHECK DESYNC, H-act `gate:<die>` never `gate:Success`, stepDone dump-and-sort — each fix = DELETE the judgment, KEEP the observation. The quest channel burned 5 prompt rounds before conforming: `Plans/quest-revisit.md` §0.)
+* **When a channel misbehaves: a judgment leaked into narrate's duties — never a wording problem.** Do NOT make the instruction louder; convert the judgment into an observation. (Proven: social-check verdict removal after CHECK DESYNC, H-act `gate:<die>` never `gate:Success`, stepDone dump-and-sort — each fix = DELETE the judgment, KEEP the observation. The quest channel burned 5 prompt rounds before conforming.)
 
-## Same reply calcuation protection (mandatory)
-We made numerous edition in mvu-helper and mvu-squid logic just to make sure dice roll can be resolved inside the same reply instead of delaying to the next round.  Whenever changes that seems to break this protection, STOP , verify and ASK.
-Same-reply EVENT firing — which piece is the engine's, which is mvu-helper's, and why: `maker-app/GameLogic/Schoolv4/doc/GameLogicEngine_Guide.md`.
-
-### Failure Mode & Impact
-* **Silent Dropping:** Files wrapped in IIFE/UMD (`(function(...)`) or non-exported scripts (`_engine/eventpack.cjs`, `engine/i18n.cjs`, `globalLogic.cjs`, `logicengine-bundle.cjs`, `Tools/*.cjs`) yield 0 signatures and are omitted from `.github/copilot-instructions.md` with no warning.
-* **Misleading Diagnostics:** `sigmap --report` misdiagnoses extractor misses as token/`srcDirs` issues. A green budget report DOES NOT guarantee coverage.
-* **False Negatives:** AI queries asking "does helper X exist?" receive confident "no" answers for dropped files, causing duplicate code creation.
-### Config vs. Extractor Separation
-* **Config Fix (Budget Half):** `gen-context.config.json` pins `srcDirs`, sets `autoMaxTokens: false`, and `maxTokens: 25000` (fixing token/outline bloat, dropping files 35 → 0).
-* **Extractor Limit (Code Half):** No config key (`customExtractor`, etc.) fixes column 0 regex blindness.
+## Same reply calculation protection (mandatory)
+We made numerous edition in mvu-helper and mvu-squad logic just to make sure dice roll can be resolved inside the same reply instead of delaying to the next round.  Whenever changes that seems to break this protection, STOP , verify and ASK.
+How to design for it (a dice roll in the prose, an event that fires the moment it's ready, a new character the reply she shows up, a chain inside the prose), and which piece is the engine's and which is MVU Helper's: https://github.com/KritBlade/mvu-helper/blob/main/doc/gamelogic_engine/same_reply.md
 
 ## Comments in source file including lorebook entry or javascript files
 - It should ONLY contain what it does, we do not need history what has been changed.  If you still find old files have full history, change it.
@@ -116,16 +117,10 @@ A document is NOT a history audit. Do not append changes to the doc.  Applies to
 - **Why (user):** "make it right the first time so you don't hunt for your own bug." Faster-but-hidden costs more later. (Pure files with no logger surface via an injected `onError` hook or by returning to a caller that logs — never a silent swallow.)
 
 
-##  Logging instructions
-- New code: **never** use `console.*`. Always use `import { log } from 'path_to_logging_lib/log.js'`.  Check project level CLAUDE.md for more info.
-- Levels: `error`/`warn` (always on), `lifecycle`/`verbose`/`trace` (gated), `log.domain(...)` for subsystems.  
-
-
 ## **Logging**    (mandatory)
-- Before editing: scan for old `console.*` or manual gates. Migrate to central helper.  
+- Before editing: scan for old `console.*` or manual gates. Migrate to `MvuHelper.log`.  
 - New code: **never** use `console.*`. Every line names WHO wrote it: `[mvu-helper] [<source>] [<stage>]… message`.  
-  - **mvu-helper code:** `const log = createModuleLog('<source>')` from `src/sillytavern/log.js` — the rules are in `mvu-helper/CLAUDE.md`.  
-  - **Our engine (Worker) and our card's scripts (EJS entries, TavernHelper scripts, on the page):** `MvuHelper.log`, a stage via `.child('RES')` — they print as `[mvu-helper] [engine:game] [RES] …` and `[mvu-helper] [card] [EJS] …`. Other people's engines and cards are offered it, never held to it.  
+  - **The engine (Worker) and the card's scripts (EJS entries, TavernHelper scripts, on the page):** `MvuHelper.log`, a stage via `.child('RES')` — they print as `[mvu-helper] [engine:game] [RES] …` and `[mvu-helper] [card] [EJS] …`. A plugin engine prints as `[mvu-helper] [engine:plugin:<id>] …`.  
 - Levels: `error`/`warn` (always on), `lifecycle`/`verbose`/`trace` (gated), `log.domain(...)` for subsystems.  
 
 ## **Log sanity check — after building ANY new mechanic / channel / stage**  
@@ -136,12 +131,13 @@ The pipeline console log — every line under `[mvu-helper]`, one stage per tag:
 
 ## **Live Chrome view (Chrome DevTools MCP → live SillyTavern)**  
 Lets Claude attach to the real ST tab and read frames/console/`stat_data` directly (incl. the `TH-script--*` `about:srcdoc` iframes that capture extensions can't see). **Remind the user to do this before any live browser-inspection task.**  
-1. **Launch the debug Chrome FIRST** (dedicated profile → runs alongside normal Chrome, no need to close anything):  
-   `start chrome --remote-debugging-port=9222 --profile-directory="Profile 1" --user-data-dir="H:\Github\misc\TestChromeProfile\Profile 1"`  
-2. Open SillyTavern in it (http://127.0.0.1:8000). Point 4 below will need to use the correct URL.  
+1. **Launch the debug Chrome FIRST** (its own profile → runs alongside normal Chrome, no need to close anything). The user's `start-chrome-debug.bat` runs:  
+   `"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\chrome-debug-profile"`  
+   Chrome ignores the port on the everyday profile, so the separate `--user-data-dir` is required.  
+2. Open SillyTavern in it (default http://127.0.0.1:8000).  
 3. **Then (re)launch VS Code / Claude Code** — the MCP attaches at startup, so 9222 must already be up.  
-4. Config: `.mcp.json` `chrome-devtools` uses `--browser-url=http://localhost:9222` (untracked, local). Revert to `--isolated` to spawn a throwaway browser instead.  
-5. Verify: `curl http://localhost:9222/json/version`, or MCP `list_pages` shows `SillyTavern → http://127.0.0.1:8000/` (not `about:blank`).  
+4. Config: this workspace's `.mcp.json` runs `chrome-devtools-mcp` with `--browser-url=http://localhost:9222`. Swap that for `--isolated` to spawn a throwaway browser instead.  
+5. Verify: `curl http://localhost:9222/json/version`, or MCP `list_pages` shows the SillyTavern tab (not `about:blank`).  
 - If `list_pages` shows `about:blank`, the debug Chrome wasn't up at MCP start → relaunch Chrome on 9222, then restart Claude Code.
 
 
