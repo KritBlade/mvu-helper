@@ -96,13 +96,16 @@ The template's `CLAUDE.md` holds the guidelines I found useful when developing a
 
 ## Step 5: start the dev loop
 
-Open Windows CMD in the mvu-helper folder, the one with `package.json`, and run:
+Open Windows CMD in the folder you cloned in step 1, and run:
 
 ```
-npm run dev -- <path to the workspace>
+cd c:\dev\my-game
+npm run dev
 ```
 
-So with the template cloned to `c:\dev\my-game` in step 1, that's `npm run dev -- c:\dev\my-game\workspace`.
+The first time, it downloads MVU Helper's dev server, the same way `.mcp.json` downloads the Chrome tool. It lands in npm's own cache, not in your game's folder. That's on purpose. Your AI never sees MVU Helper's code, so it never mistakes it for something it should change to make your engine work. Then the server watches `c:\dev\my-game\workspace`.
+
+Port 6620 taken? Run `npm run dev -- --port 6621`, and change the address in MVU Helper to match.
 
 Then in SillyTavern: MVU Helper > GameLogic Packs tab > Artifact dev loop > check Watch the local dev server. The address is already filled in, `http://127.0.0.1:6620`. It should connect:
 
@@ -143,15 +146,28 @@ It's built to be safe to leave on:
 
 A plugin needs one install by hand first, because the loop never picks your LLM calls for you. See [Build, install and uninstall](../gamelogic_plugin/install.md#develop-against-a-live-card).
 
+## Check your work: npm test
+
+The template also comes with checks to run before you call a change done. Open CMD in `c:\dev\my-game` and run:
+
+```
+npm test
+```
+
+Today it runs one check, the EJS scope scan. It reads every entry in `workspace/`, the GameLogic Pack's and every plugin's, and fails when 2 entries that render together declare the same top-level name. That mistake breaks the whole prompt without a single error on screen, so it's worth catching before it reaches your chat. Why it happens is on [EJS in your entries](../gamelogic_plugin/entries.md#ejs-in-your-entries).
+
+Your AI can run it too, and the template's `CLAUDE.md` tells it to. As your game grows, add your own checks to `tools/`, and list them in the `test` script in `package.json`.
+
 ## The whole loop
 
 Put all of this together, and your AI can work on its own:
 
 1. You, or your AI, change the engine in VS Code and save.
 2. The dev loop installs it on the open card, in a second.
-3. A reply is played in SillyTavern.
-4. Whenever you have errors want to show to AI, just ask AI in VS code chat and have him to get into chrome via MCP.
-5. Back to 1.
+3. Your AI runs `npm test`, and fixes what it finds.
+4. A reply is played in SillyTavern.
+5. Whenever you have errors want to show to AI, just ask AI in VS code chat and have him to get into chrome via MCP.
+6. Back to 1.
 
 That's the setup. Your editor, your game and your AI all look at the same thing, at the same time.  AI could code and see what's going on in Chrome as he code.
 
