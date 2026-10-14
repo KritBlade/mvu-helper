@@ -101,7 +101,7 @@ A lot of people ALWAYS get this wrong. They think having rules means the AI can'
 
 Here's the difference. Say you try to kiss her, and the engine says no because her Affection is too low. The AI is completely free in how she turns you down. She laughs it off. She steps back and changes the subject. She slaps you. She pretends she didn't hear. Every one of those is fine. The only thing the AI can't write is her kissing you back.  We just want to set the boundary that AI shouldn't do something stupid and not logical at all.  Most console game works the same way.
 
-Think of a football match. The commentator can describe a goal any way they like, but if the scoreboard says 2-1, they can't call it 3-1. The AI is the commentator. The logic engine is the scoreboard.
+
 
 ### The AI is only the observer
 
