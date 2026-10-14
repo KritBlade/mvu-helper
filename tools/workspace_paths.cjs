@@ -3,7 +3,7 @@
  *
  * Every tool asks THIS module instead of hard-coding a path, so moving a folder is one edit here.
  *
- * The workspace is the folder `npm run dev -- <workspace>` watches. Each immediate subfolder that
+ * The workspace is `workspace/`, the folder `npm run dev` watches. Each immediate subfolder that
  * holds a pack.json is one artifact: a GameLogic Pack, a GameLogic Plugin, a StatusMenu Pack or an
  * Event Pack. Any folder layout under an artifact's entries/ works, so the entry walk is recursive.
  * ========================================================================== */
