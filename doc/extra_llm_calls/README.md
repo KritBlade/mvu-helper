@@ -1,5 +1,89 @@
 # Extra LLM Calls
 
-_This page is under construction._
+SillyTavern makes 1 LLM call per reply, on the one connection profile you picked in Connection Manager. Extra LLM Calls lets a card make more: any number of calls BEFORE the main reply, and any number AFTER it. Each one can run on its own connection profile.
+
+The calls before the reply are called PRE. The calls after it are called POST.
+
+PRE > narrate > POST.
+
+## Why more than 1 call
+
+Your main model is the expensive one, and it's good at one thing: the prose. A game card asks for a lot more than prose. Somebody has to judge whether your action worked, keep track of who's in the scene, and write down what changed after every reply.
+
+Pile all of that on the main model, and it gets slower, more expensive, and worse at the prose. So a card built for MVU Helper hands those small jobs to extra calls, on a cheap, fast model.
+
+Think of a film set. The director only directs. The script supervisor checks continuity before each take, and the editor logs what was shot after it. Nobody pays the director to take notes.
+
+## What you need to do
+
+Almost nothing. A card built for Extra LLM Calls brings its calls with it: their names, when they run and what they read. The only thing the card can't bring is which model runs each call, because that's your connection, not the card's.
+
+So you pick one connection profile per call:
+
+1. Load the card and open a chat.
+2. Open MVU Helper > **Extra LLM Calls**.
+3. Make sure **Enable Extra LLM Calls** is ticked.
+4. For each call in the list, pick a connection profile in its dropdown.
+
+That's it. A call that's on but has no profile shows a warning next to its name, and MVU Helper tells you with a toast too.
+
+Make the profiles in SillyTavern's Connection Manager first. One profile is one model plus its preset. A different preset is a different profile.
+
+## Which model for which call
+
+PRE and POST calls do small, focused jobs, so a cheap, fast model is usually fine. The card's author may suggest one.
+
+- **PRE holds up your reply.** The narrator waits until every PRE call is back. A slow PRE model means a slow reply.
+- **POST doesn't hold anything up.** It runs after the reply is already on screen.
+- **2 calls can share one profile.** They just take turns instead of running at the same time, so a local server with one slot never chokes.
+
+## The settings
+
+At the top of the tab:
+
+![alt text](../../image/extra_llm_calls/settings.png)
+
+| Setting | What it does |
+| --- | --- |
+| **Enable Extra LLM Calls** | the master switch. Off, and no PRE or POST call runs |
+| **Run calls in parallel** | on, and the calls of one phase run at the same time, except calls sharing a profile, which take turns. Off, and they run one after another |
+| **Call timeout (s)** | how long to wait for each call before giving up on it, 60 seconds by default. A stuck call counts as empty, and the reply goes on without it |
+
+On each call:
+
+![alt text](../../image/extra_llm_calls/llmcall.png)
+
+| Field | What it does |
+| --- | --- |
+| **On** | turns this one call on or off, without deleting it |
+| **Test** | runs the call right now, and shows the answer in a toast |
+| connection profile | the model this call runs on. Yours to pick |
+| **max tok**, **temp** | leave them blank to use the profile's preset. A number here overrides it for this call only |
+
+The rest of each call's fields belong to the card, and you can leave them as they are. All these settings are per card, so every card keeps its own calls.
+
+## What you'll see
+
+Most of the time, nothing. PRE's output goes into the prompt the narrator reads, and never shows up in the chat. POST writes what it recorded into the reply as a `<POSTUpdateVariable>` block. Many cards hide it with a regex.
+
+When something goes wrong, MVU Helper tells you:
+
+- **PRE degraded**: a PRE call returned nothing usable, or timed out. The reply is written without it.
+- **POST slow**: the POST calls are taking a long time. If they don't finish in time, the reply's last touches, like the stat box, are written without them.
+- **a warning next to a call's name**: the call is on, but has no connection profile.
+
+## Swipe, regenerate and delete just work
+
+PRE, the narrator and POST all have to agree on which reply they're talking about. That's harder than it sounds, because you can swipe, regenerate, stop or delete at any moment, even while a call is still running.
+
+MVU Helper handles all of it. A regenerate never builds on the attempt you threw away. A swipe gets its own PRE, its own reply and its own POST. Stop a reply halfway, and POST doesn't record the half reply. Delete a reply while POST is still running, and POST writes nothing into the wrong message.
+
+Continue, impersonate and SillyTavern's own background calls aren't new turns, so no extra call runs for them.
+
+## For card authors
+
+How to set up calls for your own card, what each call reads and where its answer goes, is on [How Extra LLM Calls work](technical.md).
+
+Basically, your main model writes the story, and the extra calls do the small jobs around it, each on the model you picked for it.
 
 [Back to index](../../README.md)
