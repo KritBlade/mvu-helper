@@ -4,6 +4,21 @@ A GameLogic Engine has 2 halves. Lorebook entries tell the models what to look a
 
 This page walks through both halves with one real example from ArtificKoi: money.
 
+## The technical pages
+
+Read them in this order, or jump to the one you need:
+
+1. [Same reply protection](same_reply.md) > read this one first. The prose, the dice and the result in one reply, and only once.
+2. [What's in a GameLogic Pack](pack.md) > the folder, `pack.json`, the checks, the smallest pack that works.
+3. [The hooks in detail](hooks.md) > the declarations and all 4 hooks.
+4. [Where the engine runs](runtime.md) > the sandbox, calling the engine from EJS, logging, dice, an engine in several files.
+5. [Entries](entries.md) > the entry file format, and what install does to it.
+6. [Schema](schema.md) > the Zod schema, its allowlist and keeping the root open.
+7. [Regex](regex.md) > hiding and restyling text, and regexes that change what the model reads.
+8. [State corrections](state.md) > fixing values in saves that already exist.
+9. [Exposes](exposes.md) > telling plugins where things live in your game.
+10. [Import, install and uninstall](install.md) > the library, the dev loop, and what install writes and never touches.
+
 ## A general design, with one real example
 
 Everything on these pages is a general design for any game: RPG, slice of life, zombie hunting, whatever you build. ArtificKoi shows up a lot because it's the first game built on MVU Helper. It's a school dating sim, and it's real and it works, so it makes a better example than something made up.
@@ -175,21 +190,6 @@ Watch out for a few things:
 - **If it throws, the reply isn't resolved.** MVU Helper logs the error and shows a toast.
 
 The other 2 hooks, `preAssemblyPatch` and `pickSameRoundEvent`, and the fine print of these 2, are on [The hooks in detail](hooks.md).
-
-## The technical pages
-
-Read them in this order, or jump to the one you need:
-
-1. [Same reply protection](same_reply.md) > read this one first. The prose, the dice and the result in one reply, and only once.
-2. [What's in a GameLogic Pack](pack.md) > the folder, `pack.json`, the checks, the smallest pack that works.
-3. [The hooks in detail](hooks.md) > the declarations and all 4 hooks.
-4. [Where the engine runs](runtime.md) > the sandbox, calling the engine from EJS, logging, dice, an engine in several files.
-5. [Entries](entries.md) > the entry file format, and what install does to it.
-6. [Schema](schema.md) > the Zod schema, its allowlist and keeping the root open.
-7. [Regex](regex.md) > hiding and restyling text, and regexes that change what the model reads.
-8. [State corrections](state.md) > fixing values in saves that already exist.
-9. [Exposes](exposes.md) > telling plugins where things live in your game.
-10. [Import, install and uninstall](install.md) > the library, the dev loop, and what install writes and never touches.
 
 Basically, your entries tell the models what to look at and what to report, and `resolveTurn` and `resolvePostRelay` turn those reports into the game.
 

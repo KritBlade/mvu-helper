@@ -6,6 +6,12 @@ A StatusMenu Pack has 3 pieces. The layout is data: what the menu draws. The eng
 
 The builder writes most of it. This page is about which file is whose, and what to export when.
 
+## The technical pages
+
+1. [The menu engine](engine.md) > formatters, actions and inputs, and the 2 engine files.
+2. [Where the menu runs](frame.md) > the layout, the shell, and the locked frame the menu runs in.
+3. [Install, uninstall and mismatch](install.md) > what install writes, and why a wrong menu never breaks a card.
+
 ## The folder
 
 | File | Written by | What it is |
@@ -83,12 +89,6 @@ A new cell, a new formula, a new tab:
 A cell that names a formatter the engine doesn't export is an error, and it names the cell.
 
 Your `statusMenuLogic.cjs` only changes for what the builder can't write: an action, its inputs, or a formatter you write by hand. How to write those is on [The menu engine](engine.md).
-
-## The technical pages
-
-1. [The menu engine](engine.md) > formatters, actions and inputs, and the 2 engine files.
-2. [Where the menu runs](frame.md) > the layout, the shell, and the locked frame the menu runs in.
-3. [Install, uninstall and mismatch](install.md) > what install writes, and why a wrong menu never breaks a card.
 
 Basically, the builder owns how the menu looks, you own what it does, and the refresh export keeps those 2 apart.
 

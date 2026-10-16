@@ -2,7 +2,7 @@
 
 The Status Menu Engine is your game's screen. The status menu the player opens inside the chat: stats, money, the cast, the inventory, buttons to equip an item or edit a record.
 
-The GameLogic Engine is the game. The status menu is how the player sees it, and pokes at it.  The status menu show at the end of each reply in Sillytavern.
+The GameLogic Engine is the game. The status menu is how the player sees it, and pokes at it. The status menu shows at the end of each reply in SillyTavern.
 
 Here's ArtificKoi's, on the Classmates tab. Every value on it comes straight from `stat_data`, and the pencil on the portrait is a button:
 

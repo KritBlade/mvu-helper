@@ -2,7 +2,19 @@
 
 A GameLogic Plugin is a file with up to 4 parts: prompt entries, a one-line schema, an engine and a side panel. Only the entries and the schema are required.
 
-This page builds the Weather plugin from [What is GameLogic Plugin](README.md), one part at a time. Then it points you to the pages with the details.
+This page builds the Weather plugin from [What is GameLogic Plugin](README.md), one part at a time. The pages with the details come first.
+
+## The technical pages
+
+Read them in this order, or jump to the one you need:
+
+1. [The plugin file](file.md) > the file, the folder and the 3 tokens.
+2. [Build, install and uninstall](install.md) > the dev loop, the install dialog, upgrade, repair and drift.
+3. [Entries and the 3 windows](entries.md) > routing, sharing the game's calls, EJS, dice and logging.
+4. [Writing into stat_data](writing.md) > your drawer, the schema, and the write shapes that land on every card.
+5. [The plugin engine](engine.md) > `resolveRelay`, `renderPanel` and the side panel slot.
+6. [Running on any game](any_game.md) > the engine's name, `exposes`, and a card with no game at all.
+7. [A real host: ArtificKoi](artifickoi.md) > what one real game offers a plugin, and its house rules.
 
 ## Written for any game
 
@@ -185,18 +197,6 @@ Use the narrate window for anything you can compute. Use PRE when a model's judg
 | `resolveRelay` | your code runs. No model involved | always |
 
 Put anything that must be exact in `resolveRelay`. Use the patch lanes when a model's judgment is the input. Use prose only for what has to read as story. The details are on [Writing into stat_data](writing.md).
-
-## The technical pages
-
-Read them in this order, or jump to the one you need:
-
-1. [The plugin file](file.md) > the file, the folder and the 3 tokens.
-2. [Build, install and uninstall](install.md) > the dev loop, the install dialog, upgrade, repair and drift.
-3. [Entries and the 3 windows](entries.md) > routing, sharing the game's calls, EJS, dice and logging.
-4. [Writing into stat_data](writing.md) > your drawer, the schema, and the write shapes that land on every card.
-5. [The plugin engine](engine.md) > `resolveRelay`, `renderPanel` and the side panel slot.
-6. [Running on any game](any_game.md) > the engine's name, `exposes`, and a card with no game at all.
-7. [A real host: ArtificKoi](artifickoi.md) > what one real game offers a plugin, and its house rules.
 
 Basically, the entries tell the models what the plugin needs, and `resolveRelay` saves what actually happened, on any game that can use it.
 
