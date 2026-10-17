@@ -100,7 +100,8 @@ C:\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI\models\
 
 If you picked another install location in step 3, start from that one instead.
 
-The workflow looks each file up by its exact name. So when a download comes with another name, rename it to the one in the table.
+The workflow looks each file up by its exact name. So when a download comes with another name, rename it to the one in the table.  
+**You only need to pick either Krea2 or Anima 2.9.  You do NOT need to download both model.**
 
 #### Krea 2
 
@@ -113,7 +114,7 @@ The workflow looks each file up by its exact name. So when a download comes with
 | [SNOFS](https://civitai.red/models/1972981/snofs-sex-nudes-other-fun-stuff?modelVersionId=3390681) | `models\loras` | `snofs_krea_v1_5.safetensors` |
 | [[KREA2] Breast Slider](https://civitai.red/models/2993835/krea2-breast-slider?modelVersionId=3395188) | `models\loras` | `breast_size_v2_krea2_loraholic.safetensors` |
 
-Take Krea2 Cat Tower **v1.0 Turbo INT4 ConvRot**. It's about 7.5GB, small enough for a 12GB video card.  If you have 16GB VRAM, download the [(Turbo INT8 ConvRot version)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) .   Do NOT download v2.0 raw, it won't work with this workflow and I found it does weird thing in NSFW scene.
+Take Krea2 Cat Tower **v1.0 Turbo INT4 ConvRot**. It's about 7.5GB, small enough for a 12GB video card.  If you have 16GB VRAM, download the [(Turbo INT8 ConvRot version)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) .   Do NOT download v2.0 raw, it won't work with this workflow and I found it does wierd thing in NSFW scene.
 
 The INT4 version needs ComfyUI v0.28 or later. The update in step 6 gives you that.
 
