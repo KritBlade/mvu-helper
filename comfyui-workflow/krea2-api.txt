@@ -5,16 +5,21 @@
         "type": "PowerLoraLoaderHeaderWidget"
       },
       "lora_1": {
+        "on": false,
+        "lora": "ass_krea2_loraholic.safetensors",
+        "strength": 6
+      },
+      "lora_2": {
         "on": true,
         "lora": "krea2filterbypass2.safetensors",
         "strength": 1
       },
-      "lora_2": {
+      "lora_3": {
         "on": false,
         "lora": "krea2-masterpieces-v51.safetensors",
         "strength": 1.2
       },
-      "lora_3": {
+      "lora_4": {
         "on": true,
         "lora": "snofs_krea_v1_5.safetensors",
         "strength": 0.7
@@ -32,29 +37,6 @@
     "class_type": "Power Lora Loader (rgthree)",
     "_meta": {
       "title": "Power Lora Loader (rgthree)"
-    }
-  },
-  "43": {
-    "inputs": {
-      "randomize_percent": 50,
-      "auto_strength_factor": 1,
-      "strength": 20,
-      "noise_insert": "noise on beginning steps",
-      "steps_switchover_percent": 25,
-      "seed": "%seed%",
-      "mask_starts_at": "beginning",
-      "mask_percent": 0,
-      "log_to_console": false,
-      "noise_distribution": "uniform",
-      "granularity": "values",
-      "conditioning": [
-        "59:64",
-        0
-      ]
-    },
-    "class_type": "KreaSeedVarianceEnhancer",
-    "_meta": {
-      "title": "Seed Variance Enhancer - Krea 2 Turbo"
     }
   },
   "82": {
@@ -213,7 +195,7 @@
         0
       ],
       "positive": [
-        "43",
+        "59:64",
         0
       ],
       "negative": [
