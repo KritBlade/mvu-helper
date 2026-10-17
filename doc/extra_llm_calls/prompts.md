@@ -25,7 +25,7 @@ An entry goes to a call when its comment or its keys contain `[name]`, anywhere,
 
 That last one is the whole trick behind a lean narrator prompt. Rule-heavy entries move to a cheap model at full size, instead of bloating the prompt your expensive model reads.
 
-| ArtificKoi's entry | Goes to |
+| ArtificKoi's sample entry | Goes to |
 | --- | --- |
 | `CURRENT_VARIABLE_DATA` | the narrator |
 | `[PRE] Social_check_system` | the `PRE` call |

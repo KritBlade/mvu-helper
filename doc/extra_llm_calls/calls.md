@@ -10,6 +10,8 @@ A call needs a name, a phase and a connection profile. Its prompt doesn't live h
 
 Click **+ Add call**. It asks for 2 things:
 
+![A call's name and connection profile, and the Add call button](../../image/extra_llm_calls/addllmcall.png)
+
 - **Call name.** The prefix of the lorebook entries this call reads. A call named `PRE2` reads every entry tagged `[PRE2]`.
 - **Phase.** PRE, before the reply is written, or POST, after it.
 
@@ -46,8 +48,6 @@ Why calls on one profile take turns: one profile is one endpoint. A local server
 
 **There's no per-call preset, on purpose.** SillyTavern puts the preset inside the connection profile. So a different preset is a different profile: make one in Connection Manager, and pick it. MVU Helper never changes SillyTavern's own profiles. **max tok** and **temp** only ride along with the request.
 
-**There's no owned root anymore either.** Older versions had one: a field that fed one part of the save into a PRE call. A call reads state with EJS in its own entries instead, and that reads as many paths as you like, see [A call that remembers](prompts.md#a-call-that-remembers). A card that still carries the field gets a line in the console, and the field is ignored.
-
 ## When a call actually runs
 
 All of these, every time:
@@ -66,6 +66,8 @@ MVU Helper says when a call won't run while entries are tagged for it. On chat l
 Some content is the same for several calls: a cast roster, your schema's syntax. Copying it into every call's entries means editing it in 3 places, and drifting.
 
 A shared group fixes that. It has a tag, and a set of member calls:
+
+![A shared group: its tag, its member calls, and the Add group button](../../image/extra_llm_calls/sharegroup.png)
 
 1. Click **+ Add group**, and type the tag, like `llmshare`.
 2. Tick the calls that should read it.
