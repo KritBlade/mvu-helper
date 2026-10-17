@@ -27,6 +27,8 @@ Test `/sd` first. Type `/sd a cat sitting on a desk` in the chat. If you get a c
 4. Pick a **/sd prompt prefix** that fits your checkpoint, or just use the Default one.
 5. Send a message.
 
+![The Image Generation tab: Inline Replace Mode, Streaming pre-generation on, and 1 image per reply](../../image/image_gen/image_gen_quickstart.jpg)
+
 That's it. The picture shows up right under the sentence it belongs to, with a small redraw button next to it.
 
 ## Per card, or for your whole PC
@@ -190,7 +192,11 @@ Pick portrait, landscape, closeup, scene or square. The sizes are in [Resolution
 
 Skip this one unless your workflow loads a breast slider LoRA. Without one, the number just sits in a chat variable and nothing happens.
 
-A character's look can carry a `[Bust]` value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default. Your workflow reads it with a custom placeholder, `{{getvar::bust_strength}}`, feeding a FLOAT input like `LoraLoaderModelOnly.strength_model`.
+A character's look can carry a `[Bust]` value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default.
+
+Your workflow reads that variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor: find `bust_strength`, replace `{{getvar::bust_strength}}`. You don't type it in yourself. Ticking this box adds it to SillyTavern's Image Generation settings, and unticking removes it. If you already wrote your own under the same name, MVU Helper leaves yours alone.
+
+The one part that's still yours is the workflow. Put `"%bust_strength%"` on the strength input of the LoRA node, like `LoraLoaderModelOnly.strength_model`. The Workflow Editor ticks `%bust_strength%` in its Custom list once the workflow has it.
 
 It has to be a typed FLOAT input. A raw rgthree widget won't work. It doesn't convert the text, so the LoRA silently does nothing.
 

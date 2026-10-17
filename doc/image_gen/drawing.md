@@ -141,6 +141,29 @@ That's also why it needs Queue concurrency 1. There's one variable, and 2 jobs r
 
 A blank variable name skips it with a warning. Off, and nothing is written, so the workflow keeps whatever value it already had.
 
+### The ComfyUI placeholder
+
+The workflow can only read a chat variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor. SillyTavern keeps those in one list for every workflow, `extension_settings.sd.comfy_placeholders`, and at each call it swaps `"%<find>%"` in the workflow for the macro-resolved replace, as a quoted string. That's why the input has to be a typed FLOAT, which converts the string.
+
+The checkbox owns the entry MVU Helper needs:
+
+```json
+{ "find": "bust_strength", "replace": "{{getvar::bust_strength}}" }
+```
+
+| When | What happens |
+| --- | --- |
+| load, while the box is ticked | added if it isn't there. The box is on by default, so a new install never ticks it |
+| the box is ticked | added if it isn't there |
+| the box is unticked | removed |
+| the variable is renamed | the old name's entry goes, the new name's comes |
+
+It's added the way SillyTavern's own "+" adds one, and removed from the same list, so the Workflow Editor shows it like one you typed.
+
+Only an exact copy is ever removed. An entry you wrote yourself under the same find, with a replace of your own, is never touched. Adding it is skipped too, and the console names it once per session, because a replace that reads anything else never hands the number to the workflow.
+
+The workflow file itself is never touched. `"%bust_strength%"` on the LoRA's strength input is yours to put there.
+
 ## The call
 
 MVU Helper calls `/sd`, or `/imagine` when that's what's there, with the width, the height and the full prompt. It runs quiet, so SillyTavern posts nothing itself, except on Create New Message, where `/sd` posts the picture as its own message.
