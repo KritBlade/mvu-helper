@@ -11,7 +11,7 @@
       },
       "lora_2": {
         "on": true,
-        "lora": "krea2filterbypass2.safetensors",
+        "lora": "fedor_bypass.safetensors",
         "strength": 1
       },
       "lora_3": {

@@ -687,7 +687,7 @@
         "ver": "1.5.0"
       },
       "widgets_values": [
-        "<lora:anima_breasts:1>\n",
+        "<lora:breasts:1>\n",
         1,
         2,
         true,
@@ -697,7 +697,7 @@
         "Auto (Recommended)"
       ],
       "widgets_values_named": {
-        "text": "<lora:anima_breasts:1>\n",
+        "text": "<lora:breasts:1>\n",
         "default_weight": 1,
         "weight_multiplier": 2,
         "auto_remap": true,
@@ -764,7 +764,7 @@
         "ver": "1.5.0"
       },
       "widgets_values": [
-        "<lora:anima_breasts:1>\n",
+        "<lora:breasts:1>\n",
         -0.7,
         -0.7,
         true,
@@ -774,7 +774,7 @@
         "Auto (Recommended)"
       ],
       "widgets_values_named": {
-        "text": "<lora:anima_breasts:1>\n",
+        "text": "<lora:breasts:1>\n",
         "default_weight": -0.7,
         "weight_multiplier": -0.7,
         "auto_remap": true,

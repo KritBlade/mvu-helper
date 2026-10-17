@@ -17,7 +17,16 @@ So, MVU Helper will get the DNA out of every **named** NPC.
 - **SillyTavern's Image Generation extension, set up and working.** MVU Helper doesn't draw by itself. It hands every picture to SillyTavern's `/sd` command, so ComfyUI or any other backend SillyTavern supports works.  You will have to have a working installation of ComfyUI before using this function.
 - **A card.** Any card works. A card built for MVU Helper sets most of the fields below for you, and brings its characters' looks with it.
 
-Test `/sd` first. Type `/sd a cat sitting on a desk` in the chat. If you get a cat, you're good.
+### ComfyUI and one of my workflows
+
+I made 2 ComfyUI workflows for MVU Helper. Pick one of them:
+
+- **Anima 2.9**, for a less powerful GPU.
+- **Krea 2**, for a video card with 12GB or more. It understands the scene better, so it usually draws better than Anima.
+
+How to install ComfyUI Desktop, test the workflow, and hook it up to SillyTavern is on [Set up ComfyUI](comfyui_setup.md).
+
+Using your own workflow instead? Test `/sd` first. Type `/sd a cat sitting on a desk` in the chat. If you get a cat, you're good. My 2 workflows wait for the bust number that only MVU Helper's own pictures set, so test those inside ComfyUI instead, as the setup page says.
 
 ## Quick start
 
@@ -289,7 +298,7 @@ A path that isn't found holds the rules back on purpose. A card that set a path 
 Turn on the **Image gen** debug domain in MVU Helper's Main tab first. The console then shows every picture: the shot the AI wrote, and the exact prompt sent to `/sd`.
 
 - **No picture, and no toast.** The reply has no tag, so the AI skipped the instruction. A card's own output format can crowd it out. The console says so.
-- **"Image generation produced no image".** `/sd` failed. Check SillyTavern's image generation, and try `/sd` by hand.
+- **"Image generation produced no image".** `/sd` failed. Check SillyTavern's image generation, and run the test workflow inside ComfyUI, see [Set up ComfyUI](comfyui_setup.md#test-it-in-comfyui). With my workflows, also check **Send bust multiplier to the backend** is still ticked.
 - **A character looks like a stranger.** She has no look on file. The console names her.
 - **Someone is missing from the picture.** The tag had more people than Max characters with DNA per image. The console says who was left out.
 
