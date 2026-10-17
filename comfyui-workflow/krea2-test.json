@@ -130,7 +130,7 @@
   },
   "59:66": {
     "inputs": {
-      "unet_name": "krea2CatTower_v10TurboINT8Convrot.safetensors",
+      "unet_name": "krea2CatTower_v10TurboINT4Convrot.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",

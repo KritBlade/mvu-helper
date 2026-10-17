@@ -38,7 +38,7 @@ Using your own workflow instead? Test `/sd` first. Type `/sd a cat sitting on a 
 
 ![The Image Generation tab: Inline Replace Mode, Streaming pre-generation on, and 1 image per reply](../../image/image_gen/image_gen_quickstart.jpg)
 
-That's it. The picture shows up right under the sentence it belongs to, with a small redraw button next to it.
+That's it. The picture shows up right under the sentence it belongs to, with a small redraw button next to it.  **You can stop reading below if you are not interested in knowing what each of the field means**.
 
 ## Per card, or for your whole PC
 

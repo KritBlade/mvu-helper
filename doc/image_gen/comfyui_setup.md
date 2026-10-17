@@ -10,7 +10,7 @@ I made 2 workflows for MVU Helper. You only need one of them.
 
 | Workflow | For | Files |
 | --- | --- | --- |
-| **Anima 2.9** | a less powerful GPU | [anima2.9-api.txt](../../comfyui-workflow/anima2.9-api.txt), test: [anima2.9-test.json](../../comfyui-workflow/anima2.9-test.json) |
+| **Anima 2.9** | a less powerful GPU with 6GB VRAM | [anima2.9-api.txt](../../comfyui-workflow/anima2.9-api.txt), test: [anima2.9-test.json](../../comfyui-workflow/anima2.9-test.json) |
 | **Krea 2** | a video card with 12GB or more | [krea2-api.txt](../../comfyui-workflow/krea2-api.txt), test: [krea2-test.json](../../comfyui-workflow/krea2-test.json) |
 
 Krea 2 understands the scene better, so it usually draws better than Anima. If your video card has 12GB or more, pick Krea 2. Below that, pick Anima.
@@ -108,12 +108,14 @@ The workflow looks each file up by its exact name. So when a download comes with
 | --- | --- | --- |
 | [Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled](https://huggingface.co/ahmed22xa/Huihui-Qwen3-VL-4B-Instruct-abliterated-comfy/tree/main) | `models\text_encoders` | `Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors` |
 | [qwen_image_vae](https://huggingface.co/f5aiteam/VAE/tree/main) | `models\vae` | `qwen_image_vae.safetensors` |
-| [Krea2 Cat Tower v1.0](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) | `models\diffusion_models` | `krea2CatTower_v10TurboINT8Convrot.safetensors` |
+| [Krea2 Cat Tower v1.0 (Turbo INT4 ConvRot)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3165660) | `models\diffusion_models` | `krea2CatTower_v10TurboINT4Convrot.safetensors` |
 | [Krea2 Filter Bypass (fedor)](https://civitai.red/models/2746817/krea2-filter-bypass-fedor) | `models\loras` | `fedor_bypass.safetensors` |
 | [SNOFS](https://civitai.red/models/1972981/snofs-sex-nudes-other-fun-stuff?modelVersionId=3390681) | `models\loras` | `snofs_krea_v1_5.safetensors` |
 | [[KREA2] Breast Slider](https://civitai.red/models/2993835/krea2-breast-slider?modelVersionId=3395188) | `models\loras` | `breast_size_v2_krea2_loraholic.safetensors` |
 
-Take Krea2 Cat Tower **v1.0**. Do NOT download v2.0 raw, it won't work with this workflow.
+Take Krea2 Cat Tower **v1.0 Turbo INT4 ConvRot**. It's about 7.5GB, small enough for a 12GB video card.  If you have 16GB VRAM, download the [(Turbo INT8 ConvRot version)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) .   Do NOT download v2.0 raw, it won't work with this workflow and I found it does weird thing in NSFW scene.
+
+The INT4 version needs ComfyUI v0.28 or later. The update in step 6 gives you that.
 
 #### Anima 2.9
 
@@ -123,7 +125,7 @@ Take Krea2 Cat Tower **v1.0**. Do NOT download v2.0 raw, it won't work with this
 | [qwen_image_vae](https://huggingface.co/f5aiteam/VAE/tree/main), the same file as Krea 2 | `models\vae` | `qwen_image_vae.safetensors` |
 | [Anima Cat Tower](https://civitai.com/models/2383017/anima-cat-tower?modelVersionId=3368209) | `models\diffusion_models` | `animaCatTowerPlus_v01_bf16.safetensors` |
 | [anima29b-turbo-v2.9-remap](https://huggingface.co/Langzaigg/anima29b-turbo-unofficial/tree/main) | `models\loras` | `anima29b-turbo-v2.9-remap.safetensors` |
-| [Breasts Slider](https://civitai.red/models/2905521/breast-size-slider?modelVersionId=3285828) | `models\loras` | `breasts.safetensors` |
+| [Breasts Slider](https://civitai.red/models/2905521/breast-size-slider?modelVersionId=3285828) | `models\loras` | `anima_breasts.safetensors` |
 
 ## Test it in ComfyUI
 
