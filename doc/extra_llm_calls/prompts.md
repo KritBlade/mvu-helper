@@ -89,11 +89,11 @@ Every one of them comes with the patch blocks taken out. A call gets story text,
 
 **Macros only read.** None of them writes a variable. To change state, a call answers with a patch block, see [PRE](pre.md) and [POST](post.md).
 
-## Owned root: a call that remembers
+## A call that remembers
 
 Some PRE calls run a little simulation: a town's background life, a rival's plans, the weather. Each turn, they need to know what they decided last turn.
 
-Give that call an **owned root**, like `/TownSim`, and MVU Helper adds that part of `stat_data` to the call's user message, every turn, as it stood before your line. The call reads its own last decision without you writing any EJS.
+What they decided is in the save, so the call reads it like any other state: with EJS in its own entry. PRE's EJS reads the save as it stood before your line, so a regenerate never builds on the attempt you threw away.
 
 ```
 [PRE2] World_Simulation
@@ -103,6 +103,9 @@ You track the town's background life, the events the player hasn't seen.
 WHAT JUST HAPPENED:
 {{mvuhelper::history::2}}
 
+THE TOWN AS IT STANDS:
+<%- JSON.stringify(getvar('stat_data.TownSim')) %>
+
 Advance the background world one beat, and react to what happened above.
 Emit a <JSONPatch> over /TownSim only.
 ```
@@ -110,11 +113,11 @@ Emit a <JSONPatch> over /TownSim only.
 Here's the difference between the 2 sources:
 
 - **`history::N`** is what the story did. Prose exists nowhere else.
-- **the owned root** is what this call decided. It survives a reload, follows a swipe correctly, and is checked by your schema.
+- **the state** is what this call decided. It survives a reload, follows a swipe correctly, and is checked by your schema.
 
 Most simulations want both.
 
-The owned root is a convenience, not a switch. It doesn't decide whether the call can write, and it doesn't limit where. Seed it in `[InitVar]`, and in your Zod schema if you have one, or the call runs without it and warns.
+Seed the path in `[InitVar]`, and in your Zod schema if you have one. A closed schema strips any path it doesn't list, and the call finds nothing there next turn.
 
 ## Checking your work
 

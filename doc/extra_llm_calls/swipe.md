@@ -18,7 +18,7 @@ So a Continue keeps the verdict that's already in the save, and the dice it alre
 
 PRE writes to the message your line is on. So if PRE also read from there, a regenerate would read attempt 1's writes, and attempt 2 would build on them. Every regenerate would push the state a little further. That's a ratchet.
 
-So PRE always reads the base floor: the last reply with state before your line. EJS1, the owned root and every other PRE read are pinned there. Attempt 2 starts from exactly where attempt 1 started.
+So PRE always reads the base floor: the last reply with state before your line. EJS1 and every other PRE read are pinned there. Attempt 2 starts from exactly where attempt 1 started.
 
 It's like retaking an exam question. You start from the question, not from the answer you crossed out.
 

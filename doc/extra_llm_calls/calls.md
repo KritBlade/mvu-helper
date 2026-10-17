@@ -43,9 +43,10 @@ Why calls on one profile take turns: one profile is one endpoint. A local server
 | **temp** | the temperature for this call. Blank uses the profile's preset |
 | input filter regex | narrows what the call reads. With a capture group, the call reads group 1, otherwise the whole match. `<gametxt>([\s\S]*?)</gametxt>` sends only that slice |
 | output check regex | what a valid answer looks like. Prose that doesn't match is dropped, with a toast, instead of being passed on. Patch blocks are split out first, so they always survive |
-| owned root | PRE only. A `stat_data` path the call looks after, like `/World_Cities`. Its current value is fed into the call, see [Owned root](prompts.md#owned-root-a-call-that-remembers) |
 
 **There's no per-call preset, on purpose.** SillyTavern puts the preset inside the connection profile. So a different preset is a different profile: make one in Connection Manager, and pick it. MVU Helper never changes SillyTavern's own profiles. **max tok** and **temp** only ride along with the request.
+
+**There's no owned root anymore either.** Older versions had one: a field that fed one part of the save into a PRE call. A call reads state with EJS in its own entries instead, and that reads as many paths as you like, see [A call that remembers](prompts.md#a-call-that-remembers). A card that still carries the field gets a line in the console, and the field is ignored.
 
 ## When a call actually runs
 
@@ -86,7 +87,7 @@ Not everything travels the same way:
 
 | Kind | Extra LLM Calls fields | First load | A card upgrade |
 | --- | --- | --- | --- |
-| the card's | each call's phase, max tok, temp, input and output regex, owned root, and each group's members | from the card | refreshed from the card |
+| the card's | each call's phase, max tok, temp, input and output regex, and each group's members | from the card | refreshed from the card |
 | the player's | **Enable**, **Run calls in parallel**, **Call timeout**, and each call's **On** | from the card | kept as the player set them |
 | never travels | each call's connection profile | never | never |
 

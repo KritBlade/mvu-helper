@@ -62,7 +62,7 @@ The patch can write any path your Zod schema allows. MVU Helper:
 1. **splits** the patch from the prose, before anything else checks the answer,
 2. **checks it strictly,** block by block and op by op. A broken block costs that block alone, and a bad op costs that op alone. Each one is named in the console,
 3. **applies it now,** to the message your line is on. The reply starts from there, so the narrator writes from the new state,
-4. **tells the narrator in plain lines,** like `World.Weather > sunny`, never the raw ops. With an owned root, the lines are written relative to it.
+4. **tells the narrator in plain lines,** like `World.Weather > sunny`, never the raw ops. Every line carries the full path, because the path is the only thing that tells the narrator what the value is.
 
 Why not show the narrator the raw ops? 2 reasons. A narrator that echoes a `<JSONPatch>` gets it applied a second time, because MVU applies a patch wherever it finds one. And machine syntax in a story prompt makes a model write worse, the small ones most of all.
 
