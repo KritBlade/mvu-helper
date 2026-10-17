@@ -93,7 +93,9 @@ You don't need to turn it off just to see what was sent to `/sd` though. The con
 
 So by the time you've read the reply, the picture is usually done. Off, and drawing waits for the whole reply.
 
-A tag inside the AI's thinking doesn't count. And a tag with someone whose look isn't ready yet waits for the finished reply, so it's never drawn wrong.
+A tag inside the AI's thinking doesn't count. And a tag with someone whose look isn't ready yet waits for the finished reply, so it's never drawn wrong.  
+
+One catch is that some proxy or lower end model vendor might cut off the reply from time to time.  For these lower end ai model vendor, you might want to turn this off.
 
 ### Queue concurrency
 
@@ -123,7 +125,9 @@ This comes on top of the prompt prefix in SillyTavern's own Image Generation set
 
 **The most pictures one reply may have.** Per card, 1 by default, up to 10.
 
-The AI is told that a new scene gets a new picture. Another place, a jump in time, or someone new walking in is a new scene. A new pose or more talking in the same scene isn't.
+It's a ceiling, not a target. Set it to 3, and a reply can still come back with 1 picture. How many you actually get depends on the scene.
+
+The AI is told that a new scene gets a new picture. Another place, a jump in time, or someone new walking in is a new scene. A new pose or more talking in the same scene isn't. So a reply that stays at the same lunch table the whole time gets 1 picture, while one that goes from the classroom to the rooftop to the walk home can get 3.
 
 With more scenes than pictures, the last scene always gets one, because that's where the story stands now. 1 is fine for plain chat. 2 or 3 is nice with galgame companion.
 
@@ -140,8 +144,6 @@ This number is a ceiling, not a target. The AI still decides who's in each shot,
 Each named person takes a slot in the tag: `char=`, then `char2=`, `char3=` and so on, each with their own outfit. The main character counts toward the number too, but never takes a slot. They get `mainchar=` instead, see [Main character entry](#main-character-entry).
 
 So why a limit at all? Because every look is copied into the prompt in full. A look like Mitsuki's is around 300 tokens. 3 people is 900 tokens of looks before the scene even starts, and every image model has a point where it loses track of who wears what.
-
-Think of a waiter taking a table's order from memory. 2 or 3 people, no problem. 8 people at once, and somebody gets the wrong dish. In a picture, the wrong dish is one girl's hair on the other girl.
 
 MVU Helper does its part to keep them apart. Each person gets their own sentence, opened with their name and wrapped in their name: `Mitsuki is: [Mitsuki] … [/Mitsuki]`. Clothes everyone shares, like the same school uniform, are said once for all of them.
 

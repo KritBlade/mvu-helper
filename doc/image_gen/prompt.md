@@ -68,6 +68,8 @@ At 2 or more, it's an instruction, not a judgment call:
 
 It's written this way because a judgment doesn't work. Ask any AI whether a beat "earns" a picture, and it answers one tag, every single time.
 
+So the number is a ceiling, never a target. The scenes decide how many tags a reply gets. A reply that never leaves one room gets 1, whatever the number says, and nothing is re-shot just to fill the count.
+
 The draw pass enforces the number anyway. Tags past it aren't drawn, see [From tag to `/sd`](drawing.md#the-cap).
 
 ## `<outfit_rules>`
