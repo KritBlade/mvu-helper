@@ -13,12 +13,14 @@
 - [Side Panel](doc/side_panel/README.md)
 - [Stat Box](doc/stat_box/README.md)
 - [Macros and API](doc/macros_api/README.md)
+- [galgame-companion](#galgame-companion)
 
 **User Facing Features**
 
 - [Auto Image Generation](doc/image_gen/README.md)
 - [Roster](doc/roster/README.md)
 - [Extra LLM Calls](doc/extra_llm_calls/README.md)
+
 
 ## What is MVU Helper
 
@@ -118,3 +120,26 @@ The logic engine takes the `/Intent`, checks the stats of everyone involved, loo
 It doesn't judge anything. Think of the barcode scanner at a supermarket checkout. It doesn't care why you're buying something or who it's for. It reads the code, looks up the price and adds it up. The logic engine does the same with the story. It converts the prose into numbers...nothing more.
 
 Basically, the AI writes the story, and the logic engine keeps the score.
+
+## galgame-companion
+
+[galgame](https://github.com/bigmalove/galgame) is a visual novel plugin for SillyTavern. It turns a reply into a visual novel: a backdrop, a text box, one line at a time. It's a great plugin, but it was built for Chinese cards, and it knows nothing about MVU Helper.
+
+So I wrote [galgame-companion](https://github.com/KritBlade/galgame-companion), a small Tavern Helper script that sits next to galgame and makes the 2 work together.  And translate the Chinese plugin into English.
+
+What you get:
+
+- **An English GUI.** galgame's Chinese buttons and menus are translated.
+- **MVU Helper's pictures become the backdrops.** Every picture [Auto Image Generation](doc/image_gen/README.md) draws shows up as the background at the exact line of the story where it happens. You can open it full size, or regenerate it, right from galgame's screen.
+- **Your status menu inside galgame.** A Menu button opens the card's status menu on top of the visual novel, so you never have to leave it.
+- **The game state on screen.** Location, weather and time, read from the save. On ArtificKoi, also the Next Block button, and the energy meters during an intimate scene.
+- **galgame's own quirks fixed.** The "Generating" popup stays up through the PRE and POST calls, not just the reply. Enter makes a new line in the free input box. Your card's preset decides how long a reply is, not galgame's format rule.
+- **No setup.** galgame's display settings are set the way the card was designed, on first run.
+
+It never edits galgame. galgame keeps updating by itself, and galgame-companion patches everything from the outside. Anything an update moves that it can't find anymore, it just skips.
+
+You need galgame and an MVU card written in galgame's format, like ArtificKoi. MVU Helper adds the pictures, the status menu and the game's own controls. Without it, those parts just don't show up.
+
+How to install it, and how every part works, is on [galgame-companion's page](https://github.com/KritBlade/galgame-companion).
+
+So galgame draws the visual novel, MVU Helper runs the game, and galgame-companion makes them talk to each other.

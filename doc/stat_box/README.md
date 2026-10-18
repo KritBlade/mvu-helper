@@ -7,7 +7,7 @@ Critblade: STR 51 (+1)
 Mana Arikawa: Affection 18 (+3)
 ```
 
-![alt text](../../image/stat_box/stat_box.jpg)
+![ArtificKoi's Scene Stats box in the SillyTavern chat: Critblade STR 51 (+1), 有川真奈 Affection 26 (+6)](../../image/stat_box/stat_box.jpg)
 
 That's ArtificKoi's "Scene Stats" box, after a reply where you charmed Mana a little.
 
@@ -44,7 +44,7 @@ So a stat can say what resets it. On the reply where you level up, the box shows
 
 ## It works in galgame too
 
-![alt text](../../image/stat_box/stat_box_galgame.jpg)
+![The same box in galgame, drawn as a terminal window titled Scene Stats, one sender row per character](../../image/stat_box/stat_box_galgame.jpg)
 
 ArtificKoi's box uses galgame's own terminal block, so in the galgame GUI it shows up as a little terminal window after the last line of the story.
 
