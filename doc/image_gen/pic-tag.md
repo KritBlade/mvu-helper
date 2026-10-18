@@ -103,7 +103,7 @@ Every slot names what that person wears in this shot:
 | `newclothes` | clothes none of the above are, because the story just changed them. The clothes are written down in the same reply |
 | `undressed` | no clothes. It outranks every other value, and the composition then says how |
 
-How a look and its outfits are written belongs with the looks, on their own page.
+How a look and its outfits are written, and when clothes get saved, is on [How the character registry works](../roster/registry.md).
 
 Values are written in English, whatever language the story is in. The code reads them word for word, and no code can recognise every language's word for "undressed". Names are the opposite: they stay in the story's script.
 
