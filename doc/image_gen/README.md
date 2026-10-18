@@ -2,6 +2,19 @@
 
 MVU Helper draws pictures for your story while you chat. The AI writes a small tag where a picture belongs, and MVU Helper turns it into a picture with SillyTavern's own image generation.
 
+## Why this one is different
+
+Most auto image generation just draws whatever the AI describes this reply. Ours keeps track of what every NPC is wearing, and I spent a great deal of thinking to get the logic right.
+
+Every NPC registers their clothes. Then, when the story calls for it, they change into something else: a gown at the banquet, a swimsuit at the beach, casual wear for the weekend shopping trip. And those one-off clothes stick with the NPC for the rest of the scene. When the story goes back to the main line, they're back in their normal outfit. All by itself, nobody has to tell it.  NPC's face, hair style and overall look stay consistent in every single picture when you use the Krea 2 model, because the NPC's DNA is recorded.
+
+That means a classmate wears her uniform from Mon to Fri, and some casual wear on Sat when she meets you for a date. The casual wear sticks with her for the rest of Sat. When you meet her again on Mon, she's back in her **SAME** uniform. And the next week, when you date her again, she naturally changes into a **new** casual outfit on Sat.  Every character's look and wardrobe are saved once, in the lorebook: her face, hair and body, plus each outfit she owns, such as her school uniform, gym clothes and swimsuit. What she wore in her last picture is saved in the chat's MVU variables, with every message and every swipe.
+
+When the AI draws a picture, it never describes anyone it already knows. It picks an outfit name from a short list (we support more than 1 outfit) and mvu-helper pastes her saved description into the image prompt word for word. A brand-new outfit is described once, on the picture that first shows it. After that it is offered back to the AI so it can keep her in it.
+
+Saved looks and outfits never go to the AI. The only exception is a one-off outfit, which the AI sees again while it is her latest one. Once she has been out of the scene and unmentioned for 10 messages (about five exchanges), the AI stops seeing it. It stays saved and comes back when she does, and it is deleted for good after 100 replies with no picture of her.  Other extension that describes every heroine in the scene, with her look and the outfit she wears now, spends about 1,800 tokens per reply on a classroom of 6.  On the other hand, mvu-helper's outfit block costs about 740 tokens, rules included, and each extra heroine adds only about 12 tokens. Over 100 replies that is under 75,000 tokens for us, against about 180,000 for other implementation. If all 21 heroines stay in the scene for those 100 replies, other implementation climbs to about 630,000 (about 6,300 tokens per reply), which is 9 times larger than ours.  **Our extension is built for a lot of casts in the game!**
+
+
 ## How it works
 
 The AI never draws anything. It only writes down the shot: who is in it, what they're doing, where, and from which angle.

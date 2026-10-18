@@ -6,14 +6,14 @@ If you want the advanced features, install the ComfyUI portable version instead.
 
 ## Pick a workflow
 
-I made 2 workflows for MVU Helper. You only need one of them.
+I made 2 workflows for MVU Helper. You only need one of them.   MVU-Helper is tuned for using Krea2, but I leave Anima here for lower end video card users.
 
 | Workflow | For | Files |
 | --- | --- | --- |
 | **Anima 2.9** | a less powerful GPU with 6GB VRAM | [anima2.9-api.txt](../../comfyui-workflow/anima2.9-api.txt), test: [anima2.9-test.json](../../comfyui-workflow/anima2.9-test.json) |
 | **Krea 2** | a video card with 12GB or more | [krea2-api.txt](../../comfyui-workflow/krea2-api.txt), test: [krea2-test.json](../../comfyui-workflow/krea2-test.json) |
 
-Krea 2 understands the scene better, so it usually draws better than Anima. If your video card has 12GB or more, pick Krea 2. Below that, pick Anima.
+Krea 2 understands the scene better, so it usually draws better than Anima. And Krea2 can ALWAYS draw the same girl exactly the same with the same DNA.   Anima would struggle when more than 1 girl on the scene.   If your video card has 12GB or more, pick Krea 2. Below that, pick Anima.
 
 Each one comes in 2 files. The `-test.json` is for ComfyUI itself, so you can check it draws. The `-api.txt` is the one SillyTavern uses.
 
@@ -124,7 +124,7 @@ The INT4 version needs ComfyUI v0.28 or later. The update in step 6 gives you th
 | --- | --- | --- |
 | [Anima text encoder](https://huggingface.co/circlestone-labs/Anima/tree/main/split_files/text_encoders) | `models\text_encoders` | `qwen306BBaseAnima_1.safetensors` |
 | [qwen_image_vae](https://huggingface.co/f5aiteam/VAE/tree/main), the same file as Krea 2 | `models\vae` | `qwen_image_vae.safetensors` |
-| [Anima Cat Tower](https://civitai.com/models/2383017/anima-cat-tower?modelVersionId=3368209) | `models\diffusion_models` | `animaCatTowerPlus_v01_bf16.safetensors` |
+| [Anima Cat Tower Plus](https://civitai.red/models/2983186/anima-cat-tower-plus?modelVersionId=3381954) | `models\diffusion_models` | `animaCatTowerPlus_v01_bf16.safetensors` |
 | [anima29b-turbo-v2.9-remap](https://huggingface.co/Langzaigg/anima29b-turbo-unofficial/tree/main) | `models\loras` | `anima29b-turbo-v2.9-remap.safetensors` |
 | [Breasts Slider](https://civitai.red/models/2905521/breast-size-slider?modelVersionId=3285828) | `models\loras` | `anima_breasts.safetensors` |
 
