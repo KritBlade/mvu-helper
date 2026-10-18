@@ -120,9 +120,6 @@ Deletes the entry, so the AI describes them from scratch the next time they show
 
 It only works on **Predefined + auto-harvest new**, with **Harvest via** picked. Otherwise nobody describes them again.
 
-### Import from VIR
-
-Copies characters from a "FF4 VIR" lorebook into the registry, if you have one. Names already on file are skipped, so nothing you made gets overwritten.
 
 ## Where the looks live
 

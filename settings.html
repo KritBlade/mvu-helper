@@ -91,6 +91,11 @@
         <!-- i18n: every user-facing string here carries data-i18n="<Key>"; keep the
              matching key in i18n/<locale>.json. Language switching itself is deferred. -->
         <div id="mvuh_panel_main" class="mvuh-panel">
+            <!-- Shown only while MVU is not installed (features/mvu-bootstrap/mvu-bootstrap-ui.js). -->
+            <div id="mvuh_mvu_install_offer" class="flex-container flexnowrap" style="display:none;align-items:center;">
+                <span class="flex1" data-i18n="MVU not installed">The MVU script is not installed — every state feature is off until it is.</span>
+                <div id="mvuh_mvu_install" class="menu_button" data-i18n="Install MVU">Install MVU</div>
+            </div>
             <div class="mvuh-section"><i class="fa-solid fa-sliders"></i><span data-i18n="General">General</span></div>
             <div class="flex-container flexnowrap">
                 <label for="mvuh_language" class="flex1" data-i18n="Language">Language</label>
@@ -127,21 +132,23 @@
             </div>
             <small class="mvuh-lore-hint" data-i18n="Debug domains help">
                 Per-subsystem console deep-dives, independent of the level above. <b>Small-LLM</b> logs each
-                PRE/POST call's system block, user text, and response. <b>Pipeline</b> logs the card-carried
-                EJS (Window-A) and RES (resolver) hand-offs — what EJS passes to the narrator and what RES writes.
+                PRE/POST call's system block, user text, and response. <b>Pipeline</b> logs the turn stage by
+                stage: the lorebook entries each call was sent, what PRE applied and POST wrote, what RES1 and RES2
+                resolved and saved, each plugin relay, and each write into the reply.
             </small>
 
             <div class="mvuh-section" style="--mvuh-sec-color:#81c784;"><i class="fa-solid fa-id-card"></i><span data-i18n="Card config">Card config</span></div>
             <small class="mvuh-lore-hint" data-i18n="Card config help">
-                Save this card's Extra-LLM setup (calls, input regex, groups, timeout) into a
-                <code>[Initmvuhelper]</code> lorebook entry so the card carries it — anyone who loads the card gets it
-                auto-imported (once, without clobbering later edits). The small-LLM <b>connection</b> stays local, so
-                each user assigns it per call in <b>Extra LLM Calls</b>.
-                <b>Re-import</b> is the everyday one: it restores calls the card declares but you're missing, refreshes
-                every field the card owns, and <b>keeps</b> your connection assignments and any call you added by hand.
-                Reach for <b>Reset from card</b> only when the problem is something the card <b>does not</b> declare —
-                a setting left over from an older version, a hand-added call gone bad — because that is exactly what a
-                merge cannot touch. It DISCARDS this card's whole stored setup, connections included.
+                Save this card's mvu-helper setup (Extra-LLM calls, image settings and prompt template, roster, stat
+                box) into a <code>[Initmvuhelper]</code> lorebook entry so the card carries it. Anyone who opens the card
+                gets it imported, and again whenever the entry changes (a card upgrade): the card's own settings are
+                refreshed, each player's preferences are kept. The small-LLM <b>connection</b> stays local, so each user
+                assigns it per call in <b>Extra LLM Calls</b>.
+                <b>Re-import</b> does the same on demand: it restores calls the card declares but you're missing,
+                refreshes every field the card owns, and <b>keeps</b> your preferences, connection assignments and any
+                call you added by hand. Reach for <b>Reset from card</b> only when the problem is something the card
+                <b>does not</b> own — a preference gone wrong, a hand-added call gone bad — because that is exactly what
+                a merge keeps. It DISCARDS this card's whole stored setup, connections included.
             </small>
             <div class="flex-container flexnowrap" style="gap:6px;margin-top:4px;">
                 <div id="mvuh_export_config" class="menu_button" data-i18n="Export config to card">Export config → card</div>
@@ -179,26 +186,31 @@
             <div class="flex-container flexnowrap">
                 <label for="image_generation_insert_type" class="flex1" data-i18n="Image Insert Type">Image Insert Type</label>
                 <select id="image_generation_insert_type" class="text_pole widthNatural margin0">
-                    <option data-i18n="Insert In Current Message" value="inline">Insert In Current Message</option>
-                    <option data-i18n="Inline Replace Mode" value="replace">Inline Replace Mode</option>
-                    <option data-i18n="Create New Message" value="new">Create New Message</option>
                     <option data-i18n="Disable" value="disabled">Disable</option>
+                    <option data-i18n="Tags only" value="tags">Tags only</option>
+                    <option data-i18n="Insert In Current Message" value="inline">Insert In Current Message</option>
+                    <option data-i18n="Create New Message" value="new">Create New Message</option>
+                    <option data-i18n="Inline Replace Mode" value="replace">Inline Replace Mode</option>
                 </select>
             </div>
+            <!-- The four long hints are short on purpose: what the field does, plus a link to the README section
+                 that explains it in full. The link sits outside the data-i18n span, because a translation is
+                 applied with .text() and would wipe it. -->
+            <small class="mvuh-lore-hint">
+                <span data-i18n="Image Insert Type help">Per card. Turns pictures on, and picks where each one goes in
+                the chat. <b>Tags only</b> has the narrator write the tags, and draws nothing.</span>
+                <a href="https://github.com/KritBlade/mvu-helper/blob/main/doc/image_gen/README.md#image-insert-type" target="_blank" rel="noopener noreferrer" data-i18n="More detail">More detail</a>
+            </small>
             <div class="flex-container flexnowrap">
                 <label class="checkbox_label" for="mvuh_img_strip_tag">
                     <input type="checkbox" id="mvuh_img_strip_tag" class="checkbox">
                     <span data-i18n="Strip pic tag">Strip &lt;pic&gt; tag</span>
                 </label>
             </div>
-            <small class="mvuh-lore-hint" data-i18n="Strip pic tag help">
-                Removes the <code>&lt;pic&gt;</code> tag from the message — gone from the display, the saved
-                chat, and future context. Applies <b>even when Insert Type is Disable</b>, so galgame reads a
-                clean reply (a lingering tag stalls its text conversion). Turn OFF to keep the tag visible
-                in-chat for troubleshooting — in Replace mode it shows as escaped text (under the image for
-                drawn tags, in place for failed/over-cap ones), so galgame still reads a clean reply. Either
-                way, each prompt is logged to the console (imagegen debug domain), so you can read exactly
-                what was sent to /sd without keeping the tag.
+            <small class="mvuh-lore-hint">
+                <span data-i18n="Strip pic tag help">Hides the <code>&lt;pic&gt;</code> tag from the reply you read.
+                An invisible copy stays where it was. Turn it off to see the tag while troubleshooting.</span>
+                <a href="https://github.com/KritBlade/mvu-helper/blob/main/doc/image_gen/README.md#strip-pic-tag" target="_blank" rel="noopener noreferrer" data-i18n="More detail">More detail</a>
             </small>
             <div class="flex-container flexnowrap">
                 <label class="checkbox_label" for="mvuh_img_streaming">
@@ -233,40 +245,25 @@
                 <input id="mvuh_img_max_per_reply" class="text_pole widthUnset" type="number" min="1" max="10">
             </div>
             <div class="flex-container flexnowrap" style="align-items:center;">
-                <label for="mvuh_img_max_girls" class="flex1" data-i18n="Max girls per image">Max girls per image</label>
-                <select id="mvuh_img_max_girls" class="text_pole widthNatural margin0">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                </select>
+                <label for="mvuh_img_max_characters" class="flex1" data-i18n="Max characters per image">Max characters with DNA per image</label>
+                <input id="mvuh_img_max_characters" class="text_pole widthUnset" type="number" min="1" step="1">
             </div>
-            <div class="flex-container flexnowrap" style="align-items:center;">
-                <label for="mvuh_img_male_key" class="flex1" data-i18n="Main character entry">Main character entry</label>
-                <input id="mvuh_img_male_key" class="text_pole widthUnset" type="text" placeholder="">
-            </div>
-            <small class="mvuh-lore-hint" data-i18n="Main character entry help">
-                The Roster key of the man in frame — an ordinary DNA entry with its own
-                <code>[Body]</code> / <code>[Clothes]</code>, authored on the Roster tab like any character.
-                The narrator never names or registers him, so he is attached from here instead: whenever the
-                composition declares a man (<code>1boy</code>, already required in the header) his appearance is
-                appended as a closing sentence, and <code>outfitman=</code> picks his outfit exactly as
-                <code>outfit=</code> picks hers. Without a stored look he is a bare noun and loses to the girls'
-                descriptions — a two-girl beat naming a man rendered <b>two girls and no man</b>.
-                <b>The card normally declares this key in its <code>[Initmvuhelper]</code> config</b> — which
-                entry describes him depends on the card's own schema, so set it here only to override.
-                Blank on both means no stored look to attach: he is still drawn, just as a bare noun,
-                and the console says so.
+            <small class="mvuh-lore-hint">
+                <span data-i18n="Max characters per image help">The most people with a saved look (DNA) one picture
+                may hold, the main character included. A ceiling, not a target.</span>
+                <a href="https://github.com/KritBlade/mvu-helper/blob/main/doc/image_gen/README.md#max-characters-with-dna-per-image" target="_blank" rel="noopener noreferrer" data-i18n="More detail">More detail</a>
             </small>
-            <small class="mvuh-lore-hint" data-i18n="Max girls per image help">
-                The CEILING on how many registered girls may share ONE image — not a quota. The narrator still
-                picks per image, and a beat with one girl acting stays a one-girl tag. <b>1</b> is the
-                long-standing behaviour.
-                <b>2</b> unlocks <code>char2=</code>/<code>outfit2=</code>: the narrator names the LEFT girl in
-                <code>char=</code> and the RIGHT one in <code>char2=</code>, and each appearance is attached as
-                her own named sentence — the only wording that keeps one girl's hair and clothes off the other.
-                Shared garments (both in <code>gym</code>, both in uniform) are stated once.
+            <div class="flex-container flexnowrap" style="align-items:center;">
+                <label for="mvuh_img_mainchar_key" class="flex1" data-i18n="Main character entry">Main character entry</label>
+                <input id="mvuh_img_mainchar_key" class="text_pole widthUnset" type="text" placeholder="">
+            </div>
+            <small class="mvuh-lore-hint">
+                <span data-i18n="Main character entry help">The Roster entry holding the main character's look
+                ({{user}}). The card normally sets it. Fill it in only to override the card.</span>
+                <a href="https://github.com/KritBlade/mvu-helper/blob/main/doc/image_gen/README.md#main-character-entry" target="_blank" rel="noopener noreferrer" data-i18n="More detail">More detail</a>
             </small>
             <div class="flex-container flexnowrap">
-                <label for="mvuh_img_default_type" class="flex1" data-i18n="Default image type">Default image type</label>
+                <label for="mvuh_img_default_type" class="flex1" data-i18n="Image type">Image type</label>
                 <select id="mvuh_img_default_type" class="text_pole widthNatural margin0">
                     <option value="portrait">portrait</option>
                     <option value="landscape">landscape</option>
@@ -275,6 +272,10 @@
                     <option value="square">square</option>
                 </select>
             </div>
+            <small class="mvuh-lore-hint" data-i18n="Image type help">
+                Every picture on this card is drawn at this type's size (the presets below). The narrator does
+                not choose: a <code>type=</code> on a <code>&lt;pic&gt;</code> tag is ignored.
+            </small>
 
             <div class="flex-container flexnowrap">
                 <label class="checkbox_label" for="mvuh_img_bust_enabled">
@@ -283,10 +284,12 @@
                 </label>
             </div>
             <small class="mvuh-lore-hint" data-i18n="Send bust multiplier help">
-                Writes each girl's <code>[Bust]</code> value into a SillyTavern chat variable right before
-                <code>/sd</code>, for a workflow that loads a breast-size LoRA. Your ComfyUI workflow must map it:
-                a custom placeholder (<code>bust_strength</code> → <code>{{getvar::bust_strength}}</code>) feeding a
-                <b>typed FLOAT input</b> such as <code>LoraLoaderModelOnly.strength_model</code>. A raw rgthree
+                Writes the picture's <code>[Bust]</code> value into a SillyTavern chat variable right before
+                <code>/sd</code>, for a workflow that loads a bust LoRA. Ticking this adds the ComfyUI custom
+                placeholder (<code>bust_strength</code> → <code>{{getvar::bust_strength}}</code>) to SillyTavern's
+                Image Generation settings, and unticking removes it. Your workflow must put
+                <code>"%bust_strength%"</code> on a <b>typed FLOAT input</b> such as
+                <code>LoraLoaderModelOnly.strength_model</code>. A raw rgthree
                 widget will NOT work — nothing coerces the text there, so the LoRA silently does nothing.
                 The LoRA MULTIPLIES the cup size the appearance text already states.
                 Needs <b>Queue concurrency 1</b> — the variable is global, so parallel jobs would race.
@@ -298,21 +301,23 @@
                     <input id="mvuh_img_bust_var" class="text_pole widthUnset" type="text" placeholder="bust_strength">
                 </div>
                 <div class="flex-container flexnowrap" style="align-items:center;">
-                    <label for="mvuh_img_bust_default" class="flex1" data-i18n="Bust default">Default (no [Bust] in her entry)</label>
+                    <label for="mvuh_img_bust_default" class="flex1" data-i18n="Bust default">Default (nobody in the picture declares [Bust])</label>
                     <input id="mvuh_img_bust_default" class="text_pole widthUnset" type="number" min="0" max="100" step="0.1">
                 </div>
                 <div class="flex-container flexnowrap" style="align-items:center;">
-                    <label for="mvuh_img_bust_two" class="flex1" data-i18n="Bust two girls">Value when two girls share the image</label>
-                    <input id="mvuh_img_bust_two" class="text_pole widthUnset" type="number" min="0" max="100" step="0.1">
+                    <label for="mvuh_img_bust_shared" class="flex1" data-i18n="Bust shared">Shared value (two or more declare [Bust])</label>
+                    <input id="mvuh_img_bust_shared" class="text_pole widthUnset" type="number" min="0" max="100" step="0.1">
                 </div>
-                <small class="mvuh-lore-hint" data-i18n="Bust two girls help">
-                    The LoRA is one model-wide strength, so two girls cannot each get their own — this single value
-                    covers the pair. Their own cup sizes still differ in the prompt, and the multiplier scales both.
+                <small class="mvuh-lore-hint" data-i18n="Bust shared help">
+                    Only people whose entry declares <code>[Bust]</code> count: nobody uses the default, one uses
+                    their own value. The LoRA is one model-wide strength, so two or more cannot each get their own —
+                    this single value covers them all. Their own sizes still differ in the prompt, and the multiplier
+                    scales them all.
                 </small>
             </details>
 
             <details style="margin-top:4px;">
-                <summary data-i18n="Resolution presets">Resolution presets (type= → width × height)</summary>
+                <summary data-i18n="Resolution presets">Resolution presets (image type → width × height)</summary>
                 <div class="flex-container flexnowrap" style="align-items:center;"><span class="flex1">portrait</span><input id="mvuh_img_res_portrait_w" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"> × <input id="mvuh_img_res_portrait_h" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"></div>
                 <div class="flex-container flexnowrap" style="align-items:center;"><span class="flex1">landscape</span><input id="mvuh_img_res_landscape_w" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"> × <input id="mvuh_img_res_landscape_h" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"></div>
                 <div class="flex-container flexnowrap" style="align-items:center;"><span class="flex1">closeup</span><input id="mvuh_img_res_closeup_w" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"> × <input id="mvuh_img_res_closeup_h" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"></div>
@@ -320,25 +325,14 @@
                 <div class="flex-container flexnowrap" style="align-items:center;"><span class="flex1">square</span><input id="mvuh_img_res_square_w" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"> × <input id="mvuh_img_res_square_h" class="text_pole widthUnset" type="number" min="64" max="2048" step="16"></div>
             </details>
 
-            <div class="mvuh-section" style="--mvuh-sec-color:#9575cd;"><i class="fa-solid fa-film"></i><span data-i18n="Galgame companion">Galgame companion</span></div>
-            <!-- M2 adds the "Max stored backdrops" setting here (GALGAME_DUMB_TERMINAL_PLAN.md §M2). -->
-            <div class="flex-container flexnowrap" style="align-items:center;">
-                <label for="mvuh_img_force_type_path" class="flex1" data-i18n="Force image type path">Force image type path</label>
-                <input id="mvuh_img_force_type_path" class="text_pole widthNatural margin0" type="text" placeholder="Root.Field">
-            </div>
-            <small class="mvuh-lore-hint" data-i18n="Force image type help">
-                MVU cards only. A <code>stat_data</code> boolean that, while <b><code>true</code></b>, forces
-                <b>every</b> image to the <b>Default image type</b> set above — the narrator's per-<code>&lt;pic&gt;</code>
-                <code>type=</code> is ignored — so the galgame stage gets one uniform-aspect backdrop
-                (a <code>[0]</code> tuple is unwrapped). <b>The card declares this path in its
-                <code>[Initmvuhelper]</code> config</b> — set it here only to override. A blank path,
-                a non-MVU card, or an unknown path → the tag's own type is honored.
-            </small>
-
             <div class="mvuh-section" style="--mvuh-sec-color:#e0a458;"><i class="fa-solid fa-file-lines"></i><span data-i18n="Teaching contract">Teaching contract</span></div>
             <small class="mvuh-lore-hint" data-i18n="Contract editor help">
-                The teaching contract sent to the narrator. Shared across all cards (edit once). The
-                on/off switch lives on the <b>Roster</b> tab ("Teach narrator to write image prompts").
+                The teaching contract sent to the narrator. Kept per card: a card can carry its own in
+                <code>[Initmvuhelper]</code>, and a card upgrade refreshes it. <b>Reset to default</b> returns to the
+                built-in one, which follows mvu-helper updates. It is sent
+                while this card's Image Insert Type is anything but Disable. It opens the prompt, with the outfit
+                and picture-count rules, so a provider's prompt cache reuses it on every reply. Position and Depth
+                below place only <code>&lt;scene_roster&gt;</code>, the per-reply list of who is on screen.
             </small>
             <div class="">
                 <div class="flex-container flexnowrap" style="align-items:center;">
@@ -377,8 +371,9 @@
                 (a <code>[0]</code> tuple is unwrapped). The explicit-scene composition guidance is injected
                 only while this is <b>not <code>false</code></b>, so a SFW turn drops it and saves tokens every
                 reply. <b>Which field that is belongs to the card's schema, so the card declares it in its
-                <code>[Initmvuhelper]</code> config</b> — set it here only to override. A blank path, a non-MVU
-                card, or an unknown path → always injected. The checkbox below forces it always on.
+                <code>[Initmvuhelper]</code> config</b> — set it here only to override. A blank path → always
+                injected. A path not found in <code>stat_data</code>, or a reply with no <code>stat_data</code> yet →
+                withheld, and a missing path is named in the console. The checkbox below forces it always on.
             </small>
             <div class="flex-container flexnowrap">
                 <label class="checkbox_label" for="mvuh_img_h_always">
@@ -390,20 +385,7 @@
 
         <!-- ── Tab 2: Roster — character DNA registry (plan §1.4) ──────────── -->
         <div id="mvuh_panel_roster" class="mvuh-panel" style="display:none;">
-            <div class="mvuh-section" style="--mvuh-sec-color:#64b5f6;"><i class="fa-solid fa-graduation-cap"></i><span data-i18n="Teaching">Teaching</span></div>
-            <div class="flex-container flexnowrap">
-                <label class="checkbox_label" for="mvuh_img_teach">
-                    <input type="checkbox" id="mvuh_img_teach" class="checkbox">
-                    <span data-i18n="Teach narrator to write image prompts">Teach narrator to write image prompts</span>
-                </label>
-            </div>
-            <small class="mvuh-lore-hint" data-i18n="Teach narrator help">
-                Per card. When ON, the narrator is instructed to emit our image tags — and, with
-                auto-harvest, to register each new character's appearance once (stored below). This is
-                <b>independent of drawing</b>: turn it ON with Image Insert Type set to "Disable" to check
-                tag output or build the roster with <b>no image generation</b>. Drawing is controlled
-                separately by Image Insert Type on the Image gen tab.
-            </small>
+            <div class="mvuh-section" style="--mvuh-sec-color:#64b5f6;"><i class="fa-solid fa-user-plus"></i><span data-i18n="Registration">Registration</span></div>
             <div class="flex-container flexnowrap">
                 <label for="mvuh_img_route" class="flex1" data-i18n="Appearance route">Appearance route</label>
                 <select id="mvuh_img_route" class="text_pole widthNatural margin0">
@@ -413,22 +395,23 @@
             </div>
             <small class="mvuh-lore-hint" data-i18n="Appearance route help">
                 Per card. Characters are drawn from disabled <code>[mvu-helper-char-image] Name</code> lorebook
-                entries (never injected into context). <b>Predefined only</b>: the card author supplies them.
-                <b>+ auto-harvest</b>: the story describes each NEW character once and the entry is stored; a
-                character already on file is never asked for again.
+                entries (never injected into context). <b>Predefined only</b>: the card author supplies them, and
+                anyone else is described by the story for the pictures of that reply only. <b>+ auto-harvest</b>:
+                the story describes each NEW character once and the entry is stored; a character already on file
+                is never asked for again. Independent of the Image tab: harvest runs with images off too.
             </small>
             <div class="flex-container flexnowrap" style="align-items:center;">
                 <label for="mvuh_img_charimg_via" class="flex1" data-i18n="Harvest via">Harvest via</label>
                 <select id="mvuh_img_charimg_via" class="text_pole widthNatural margin0 mvuh-llm-task-select"></select>
             </div>
             <small class="mvuh-lore-hint" data-i18n="Harvest via help">
-                Route B only. Which LLM call writes the registration of a new character. While a target is picked,
-                the narrator ends each reply with one <code>&lt;cast name="…"&gt;</code> line per named character
-                present, and registrations ride on those lines. Defaults to <b>Off</b> — pick a target to start
-                harvesting (that pick writes the routing lorebook entry). <b>narrate</b>: the main reply — simplest,
-                no extra call, but it re-describes everyone it draws every reply. A <b>POST</b> call: a focused pass
-                told each turn who is already on file, so it describes only newcomers (define POST calls under
-                Extra LLM Calls). Switching re-points the single entry; Off deletes it.
+                "+ auto-harvest" only. Which LLM call writes a new character's look to store it. Defaults to
+                <b>Off</b> — pick a target to start harvesting. Whenever images are on or harvest is on, the
+                narrator ends each reply with one <code>&lt;cast name="…"&gt;</code> line per named character
+                present, and is shown who is ON FILE. <b>narrate</b>: the main reply describes everyone not on
+                file, once — no extra call. A <b>POST</b> call: a focused pass told each turn who is on file, so
+                it describes only newcomers, and pictures of a newcomer wait for it (define POST calls under Extra
+                LLM Calls). A POST target is routed by one lorebook entry; switching re-points it and Off deletes it.
             </small>
             <div class="flex-container flexnowrap" style="align-items:center;">
                 <label for="mvuh_img_collection" class="flex1" data-i18n="Roster collection">Roster collection</label>
@@ -442,8 +425,7 @@
                 by the present-flag record shape. <b>Naming it here also means its members are the cast</b>,
                 present flag or not — so a card whose characters have no presence field still gets correct
                 <code>char=</code> checking. When found, the on-screen characters are fed to the model so
-                <code>char=</code> uses their exact keys. Non-MVU cards ignore this and fall back to
-                describe-what-you-draw.
+                <code>char=</code> uses their exact keys. Non-MVU cards ignore this.
             </small>
             <div class="flex-container flexnowrap" style="align-items:center;">
                 <label for="mvuh_img_present_field" class="flex1" data-i18n="Present flag">Present flag</label>
@@ -458,9 +440,6 @@
                 console says so, and <code>char=</code> then goes unverified.
             </small>
             <div class="mvuh-section" style="--mvuh-sec-color:#4db6ac;"><i class="fa-solid fa-users"></i><span data-i18n="Character registry">Character registry</span><div id="mvuh_img_roster_refresh" class="menu_button" title="Refresh list" style="margin-left:4px;padding:0 6px;"><span class="fa-solid fa-rotate-right"></span></div></div>
-            <div class="flex-container flexnowrap" style="gap:6px;margin-top:4px;">
-                <div id="mvuh_img_import_vir" class="menu_button" data-i18n="Import from VIR">Import from VIR</div>
-            </div>
             <div id="mvuh_img_roster_list" style="margin-top:6px;"></div>
             <div id="mvuh_img_roster_pager" class="flex-container flexnowrap" style="gap:6px;justify-content:center;margin-top:4px;"></div>
         </div>
@@ -560,10 +539,10 @@
             </small>
             <div class="mvuh-section" style="--mvuh-sec-color:#64b5f6;"><i class="fa-solid fa-gears"></i><span data-i18n="LogicEngine">LogicEngine</span></div>
             <small class="mvuh-lore-hint" data-i18n="LogicEngine help">
-                Host a card's resolver (its wired <code>globalLogic</code> bundle) inside MVU Helper on the main
-                page, instead of baked into the card's stat menu. The code is stored per card in a silent
-                <code>[MVU_LogicEngine]</code> worldbook entry and never enters any prompt. <b>Uploaded code runs
-                with full page access — install engines only from cards you trust.</b>
+                Runs the card's game engine: the code a GameLogic Pack, or the card itself, stores in the silent
+                <code>[MVU_LogicEngine]</code> worldbook entry, which never enters any prompt. Every engine runs in
+                a dedicated Worker with no access to the page, no network and no imports. <b>An engine still decides
+                your game's state — install engines only from cards you trust.</b>
             </small>
             <label class="checkbox_label" style="margin-top:4px;">
                 <input type="checkbox" id="mvuh_le_enabled">
