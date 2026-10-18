@@ -3,11 +3,13 @@
 The stat box is a small summary at the end of every reply: which of your stats moved, and by how much. Only the ones that moved.
 
 ```text
-Critblade: CHA 51 (+1)
-Mitsuki Tachibana: Affection 18 (+3)
+Critblade: STR 51 (+1)
+Mana Arikawa: Affection 18 (+3)
 ```
 
-That's ArtificKoi's "Scene Stats" box, after a reply where you charmed Mitsuki a little.
+![alt text](../../image/stat_box/stat_box.jpg)
+
+That's ArtificKoi's "Scene Stats" box, after a reply where you charmed Mana a little.
 
 ## Why it's there
 
@@ -41,6 +43,8 @@ Some stats reset on purpose. In an RPG, Exp rolls over to what's left when you l
 So a stat can say what resets it. On the reply where you level up, the box shows `Level 5 (+1)`, and Exp either stays out of it, or shows plain `Exp 20`. Your call, because only your game knows what its reset value means.
 
 ## It works in galgame too
+
+![alt text](../../image/stat_box/stat_box_galgame.jpg)
 
 ArtificKoi's box uses galgame's own terminal block, so in the galgame GUI it shows up as a little terminal window after the last line of the story.
 
