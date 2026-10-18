@@ -92,7 +92,7 @@ Each row shows the character's name, a badge for each of their outfits, and the 
 
 The circle arrow next to the **Character registry** title refreshes the list.
 
-![A row in the Character registry: Airi, her 3 outfits, her other names after "also", and the row buttons](../../image/roster/roster_button.jpg)
+![alt text](../../image/roster/roster_button.jpg)
 
 ### Edit
 

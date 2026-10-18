@@ -114,6 +114,9 @@ You don't need to turn it off just to see what was sent to `/sd` though. The con
 
 **Starts drawing a picture the moment its tag is complete, while the AI is still writing.** For your whole PC, on by default.
 
+![alt text](../../image/image_gen/streaming.jpg)
+
+
 So by the time you've read the reply, the picture is usually done. Off, and drawing waits for the whole reply.
 
 A tag inside the AI's thinking doesn't count. And a tag with someone whose look isn't ready yet waits for the finished reply, so it's never drawn wrong.  
@@ -214,6 +217,8 @@ Pick portrait, landscape, closeup, scene or square. The sizes are in [Resolution
 ### Send bust multiplier to the backend
 
 **Hands each picture a number for a breast slider LoRA in your ComfyUI workflow.** For your whole PC, on by default.
+
+![alt text](../../image/image_gen/bust.jpg)
 
 Skip this one unless your workflow loads a breast slider LoRA. Without one, the number just sits in a chat variable and nothing happens.
 
