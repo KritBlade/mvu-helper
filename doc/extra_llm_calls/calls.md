@@ -35,6 +35,22 @@ Break one, and MVU Helper tells you which, then brings the form back with what y
 
 Why calls on one profile take turns: one profile is one endpoint. A local server with one slot chokes when 3 requests land on it at once. Different profiles still run side by side.
 
+## Give the call its prompt
+
+A new call has nothing to say yet. Its prompt is a lorebook entry, and you write it like any other one.
+
+So make a new entry in your card's lorebook, and put the call's name in brackets at the start of its comment: `[PRE2] Weather Forecast`. That's it. The call named `PRE2` picks it up by itself.
+
+Every reply, before the narrator starts, MVU Helper sends that entry to `PRE2`'s connection. `PRE2`'s answer then goes into the narrator's prompt as a note for that reply. So the narrator writes the scene already knowing it's going to rain this afternoon.
+
+- **The tag can sit anywhere** in the entry's comment or its keys, in any case.
+- **Several entries with the same tag** all go to that call, sorted by their Order.
+- **Disable the entry in SillyTavern.** The call still gets it, and the narrator never reads the rules meant for `PRE2`.
+
+A POST call works the same way, just after the reply: an entry tagged `[POST2]` goes to `POST2` once the reply is written.
+
+How the entries are put together, and how to hand the call the story, is on [What a call reads](prompts.md).
+
 ## Each call's fields
 
 | Field | What it does |
