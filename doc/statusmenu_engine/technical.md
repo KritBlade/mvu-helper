@@ -66,7 +66,7 @@ The StatusMenu Pack tab in MVU Status Menu Builder has 3 exports. Before you use
 
 | Button | You get | What's inside | Where it goes |
 | --- | --- | --- | --- |
-| Download `<id>-statusmenu-pack.json` | one file | the layout, a starter engine and the shell, all in one | MVU Helper > GameLogic Packs tab > Import. The shipping file |
+| Download `<id>-statusmenu-pack.json` | one file | the layout, a starter engine and the shell, all in one | MVU Helper > StatusMenu Packs tab > Import. The shipping file |
 | Bootstrap workspace .zip | `statusmenu.zip` | `pack.json`, the layout, both engine files and the shell | extract into an EMPTY `workspace/statusmenu/`, once |
 | Refresh .zip (layout + shell) | `statusmenu-refresh.zip` | the layout, `layoutFormatters.cjs` and the shell | extract into `workspace/statusmenu/`, any time |
 
@@ -76,7 +76,7 @@ The StatusMenu Pack tab in MVU Status Menu Builder has 3 exports. Before you use
 
 **The refresh is always safe.** It never carries `statusMenuLogic.cjs` or `pack.json`, so it can go over work in progress.
 
-MVU Helper's own GameLogic Packs tab > Add New Blank Packs > StatusMenu Pack gives you the same 2 engine files too, with an empty `layoutFormatters.cjs` until your first refresh fills it.
+MVU Helper's own Development tab > Add New Blank Packs > StatusMenu Pack gives you the same 2 engine files too, with an empty `layoutFormatters.cjs` until your first refresh fills it.
 
 ## When the layout changes
 

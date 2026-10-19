@@ -2,7 +2,7 @@
 
 > This page applies to any game. ArtificKoi shows up as a real example, not as a rule. See [A general design, with one real example](../gamelogic_engine/technical.md#a-general-design-with-one-real-example).
 
-A StatusMenu Pack goes into the library first, and from the library onto a card. Same as a GameLogic Pack, on the same GameLogic Packs tab. One menu per card.
+A StatusMenu Pack goes into the library first, and from the library onto a card. Both happen on its own tab, StatusMenu Packs. One menu per card.
 
 ## Import and install
 

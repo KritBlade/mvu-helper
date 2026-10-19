@@ -2,14 +2,14 @@
 
 > A plugin is written for any game. ArtificKoi shows up as a real host, not as a rule. See [Written for any game](technical.md#written-for-any-game).
 
-A plugin goes into the library first, and from the library onto a card. Everything happens on MVU Helper's GameLogic Packs tab, same as a GameLogic Pack.
+A plugin goes into the library first, and from the library onto a card. Both happen on MVU Helper's GameLogic Packs tab, same as a GameLogic Pack, since a plugin works with the game's engine.
 
 ## Get a starting point
 
 There are 2 ways to start:
 
 - **The template workspace.** It comes with 2 sample plugins that already work, next to a blank GameLogic Pack and the other pack types. See [The template workspace](../gamelogic_engine/install.md#the-template-workspace).
-- **A blank plugin.** GameLogic Packs tab > Add New Blank Packs > type GameLogic Plugin, then a name, a kebab-case id and a one-line description > Create archive. You get a ZIP of a `plugin-<id>/` folder that already passes every check. Unpack it into your workspace.
+- **A blank plugin.** Development tab > Add New Blank Packs > type GameLogic Plugin, then a name, a kebab-case id and a one-line description > Create archive. You get a ZIP of a `plugin-<id>/` folder that already passes every check. Unpack it into your workspace.
 
 The blank plugin's PRE and POST entries are empty shells with no call token yet. So nothing routes them, and install asks for no call. Add the token to the comment when you write one, or delete the ones your plugin doesn't need. The tokens are on [The plugin file](file.md#the-3-tokens).
 
@@ -25,7 +25,7 @@ Both are standalone. Install either one, play a few replies, and read its drawer
 ## Develop against a live card
 
 1. Keep your `plugin-<id>/` folder in your workspace, `c:\dev\my-game\workspace`. Then open CMD in `c:\dev\my-game` and run `npm run dev`. It watches `workspace/`.
-2. In SillyTavern: GameLogic Packs tab > Artifact dev loop > Watch the local dev server. The loop puts the folder together and adds it to the library.
+2. In SillyTavern: Development tab > Artifact dev loop > Watch the local dev server. The loop puts the folder together and adds it to the library.
 3. The first time it applies to a card, it asks whether to install the dev workspace on that card: **Install all** or **Not here**. From then on it applies every save to it, with no reload.
 
 How to set it up is on [Development Environment and Dev Loops](../dev_env/README.md).

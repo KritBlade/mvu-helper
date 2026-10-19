@@ -122,6 +122,6 @@ gamelogic/
 }
 ```
 
-With `engine/gameLogic.cjs` holding a `resolveTurn`, like the goblin example on [What is GameLogic Engine](README.md). GameLogic Packs tab > Add New Blank Packs gives you exactly this, plus an example entry, regex and schema. So does the template workspace, with a sample of every other pack type too. See [Get a starting point](install.md#get-a-starting-point).
+With `engine/gameLogic.cjs` holding a `resolveTurn`, like the goblin example on [What is GameLogic Engine](README.md). Development tab > Add New Blank Packs gives you exactly this, plus an example entry, regex and schema. So does the template workspace, with a sample of every other pack type too. See [Get a starting point](install.md#get-a-starting-point).
 
 [Back to How a GameLogic Engine works](technical.md) · [Back to index](../../README.md)

@@ -104,6 +104,22 @@ A lot of people ALWAYS get this wrong. They think having rules means the AI can'
 
 Here's the difference. Say you try to kiss her, and the engine says no because her Affection is too low. The AI is completely free in how she turns you down. She laughs it off. She steps back and changes the subject. She slaps you. She pretends she didn't hear. Every one of those is fine. The only thing the AI can't write is her kissing you back.  We just want to set the boundary that AI shouldn't do something stupid and not logical at all.  Most console game works the same way.
 
+That means, there is no more positive bias nor negative bias.  Just like a console game, if your stats are above the threshold, result will be positive.  On the other hand, if your stats are below the threshold, result will be negative.
+
+### True deterministic D20
+
+This is not the fake D20 roll you get in a regular SillyTavern card. There, a roll is just a number in the prompt, and the AI decides by itself what it means. Nothing checks what it did with it. And if the card only tells the AI to roll a D20, the AI isn't rolling anything, it's picking a number it likes.
+
+In MVU Helper, the dice come from a MVU Helper function, `MvuHelper.rollPool()`. It rolls with JavaScript's crypto random generator, and every face is equally likely. The AI is shown the die, and the logic engine checks the result with that exact same die.
+
+That adds a bit of variance on top of the stats. Your stats set the odds, and the die decides whether this time goes your way or not.
+
+The DC, the number the die has to beat, isn't fixed either. A game can set a different DC for every check, based on whatever conditions and criteria it wants. So a D20 roll is not just a 50/50 coin flip.
+
+Say you ask a girl out. With high affection and a good relationship stage, you get a favorable 80/20 chance. With low affection, it drops to 10/90. On a D20, that means you need a 5 or higher in the first case, and a 19 or higher in the second.
+
+The logic itself stays deterministic. The same stats and the same die give the same result, every single time. The die only adds the luck, and the rules decide what that luck means. How a card deals the dice is on [Where the engine runs](doc/gamelogic_engine/runtime.md#dice).
+
 
 
 ### The AI is only the observer

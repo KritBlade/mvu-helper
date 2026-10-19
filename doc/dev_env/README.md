@@ -111,9 +111,9 @@ The first time, it downloads MVU Helper's dev server, the same way `.mcp.json` d
 
 Port 6620 taken? Run `npm run dev -- --port 6621`, and change Dev server URL in MVU Helper to match.
 
-Then in SillyTavern: MVU Helper > GameLogic Packs tab > Artifact dev loop > turn on Watch the local dev server. Dev server URL is already filled in, `http://127.0.0.1:6620`. It should connect:
+Then in SillyTavern: MVU Helper > Development tab > Artifact dev loop > turn on Watch the local dev server. Dev server URL is already filled in, `http://127.0.0.1:6620`. It should connect:
 
-![The Artifact dev loop card on the GameLogic Packs tab, connected, with no chat open yet](../../image/dev_env/artifact_dev_loop.png)
+![The Artifact dev loop card on the Development tab, connected, with no chat open yet](../../image/dev_env/artifact_dev_loop.png)
 
 The row at the bottom is the status. The pill on the right tells you where you are, and the line under Dev server tells you what happens next.
 

@@ -68,7 +68,7 @@ If a plugin's code crashes, only that plugin's changes are dropped. The game and
 
 The technical walkthrough, from the plugin file to its code, is on [How a GameLogic Plugin works](technical.md).
 
-The [template workspace](../gamelogic_engine/install.md#the-template-workspace) comes with 2 sample plugins that already work. Or start a blank one from MVU Helper > GameLogic Packs tab > Add New Blank Packs > GameLogic Plugin.
+The [template workspace](../gamelogic_engine/install.md#the-template-workspace) comes with 2 sample plugins that already work. Or start a blank one from MVU Helper > Development tab > Add New Blank Packs > GameLogic Plugin.
 
 Basically, the game runs the game, and a plugin adds one more thing to it, on any card that can use it.
 

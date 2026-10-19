@@ -52,7 +52,7 @@ Say your menu only shows variables. Money, stats, who's in the scene. Nothing to
 
 Then you're done in the builder. On the StatusMenu Pack tab, click **Download `<id>-statusmenu-pack.json`**. A pack with the id `art` downloads as `art-statusmenu-pack.json`.
 
-Then in SillyTavern: MVU Helper > GameLogic Packs tab > Import > Load file, Validate, Add to library. Then Install to this card. That's it.
+Then in SillyTavern: MVU Helper > StatusMenu Packs tab > Import > Load file, Validate, Add to library. Then Install to this card. That's it.
 
 ### With logic: export a workspace
 

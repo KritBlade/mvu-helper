@@ -1,6 +1,6 @@
 # Import, install and uninstall
 
-Your pack goes into the library first, and from the library onto a card. Everything happens on the GameLogic Packs tab.
+Your pack goes into the library first, and from the library onto a card. Both happen on the GameLogic Packs tab. The tools for building one, the dev loop and the blank packs, are on the Development tab.
 
 ## Get a starting point
 
@@ -32,7 +32,7 @@ It also comes with a `CLAUDE.md`, the project rules for an AI coding assistant. 
 
 ### From the GUI
 
-MVU Helper > GameLogic Packs tab > Add New Blank Packs > type GameLogic Pack > Create archive.
+MVU Helper > Development tab > Add New Blank Packs > type GameLogic Pack > Create archive.
 
 The ZIP holds only a `gamelogic/` folder, the same blank pack as the template's: `pack.json`, an engine that exports `resolveTurn`, a disabled example entry, a sample regex and a sample schema. Extract it at your workspace root.
 
@@ -56,7 +56,7 @@ How to set it up is on [Development Environment and Dev Loops](../dev_env/README
 
 The library is a lorebook bound to no character, so it survives rebuilding the card. Think of it as your game shelf. Installing is putting a game in the console.
 
-Every door judges a pack the same way: the format rules and the source checks. See [Checks on every import](pack.md#checks-on-every-import). An event pack in a folder or ZIP goes to the Event Packs tab's own library instead.
+Every door judges a pack the same way: the format rules and the source checks. See [Checks on every import](pack.md#checks-on-every-import). A folder or ZIP can hold several packs. Each one is listed on its own tab: a plugin on this one, a StatusMenu Pack on the StatusMenu Packs tab, and an event pack goes to the Event Packs tab's own library.
 
 ## Install, Repair, Upgrade, Downgrade
 
