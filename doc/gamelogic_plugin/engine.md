@@ -82,7 +82,7 @@ Both are `null` when nothing was dealt. Then there's nothing to check. It's not 
 
 MVU Helper checks each op's shape, and hands them all to `Mvu.parseMessage` in one `<UpdateVariable>` block. So the card's Zod schema judges your ops like anyone else's:
 
-- A broken op, or one whose value isn't JSON, is dropped alone. The others still go.
+- A broken op, one whose value isn't JSON, or one whose path goes through `__proto__`, `constructor` or `prototype`, is dropped alone. The others still go.
 - An op can be **refused**, and the receipt says so. The console line reads `[RES2] plugin <mid:swipe>: "<id>" landed N/M op(s) (K refused)`. A warning lists every op that didn't take, with what was sent and what is stored now: `landed`, `coerced`, `changed`, `refused` or `absent`.
 
 So don't assume a write landed.

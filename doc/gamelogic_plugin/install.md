@@ -36,7 +36,7 @@ How to set it up is on [Development Environment and Dev Loops](../dev_env/README
 
 On the plugin's library row: Install to this card. The dialog asks for:
 
-- **State root,** the drawer name. It's filled in from your id. Letters, digits and `_`, starting with a letter.
+- **State root,** the drawer name. It's filled in from your id. Letters, digits and `_`, starting with a letter, and not `constructor` or `prototype`.
 - **One call per phase your entries use.** Only the phases whose token you used. When exactly one call fits, it's picked for you.
 
 Then the entries, the engine and the panel are written, the card's registry records every answer, and the plugin's empty drawer shows up in the open chat right away.
