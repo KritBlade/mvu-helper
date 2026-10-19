@@ -8,18 +8,22 @@ A call needs a name, a phase and a connection profile. Its prompt doesn't live h
 
 ## Add a call
 
-Click **+ Add call**. It asks for 2 things:
+Click **+ Add call**, under the list. It asks for 2 things:
 
-![A call's name and connection profile, and the Add call button](../../image/extra_llm_calls/addllmcall.png)
+- **Call name.** The tag on the lorebook entries this call reads, without the brackets. A call named `PRE2` reads every entry tagged `[PRE2]`.
+- **Phase.** **PRE (before reply)** or **POST (after reply)**.
 
-- **Call name.** The prefix of the lorebook entries this call reads. A call named `PRE2` reads every entry tagged `[PRE2]`.
-- **Phase.** PRE, before the reply is written, or POST, after it.
+Click **Add**, and the call shows up in the list as a card of its own. Pick its **Connection** there:
+
+![A new call's card: its Name, Phase and Connection, and the Add call button under the list](../../image/extra_llm_calls/addllmcall.png)
 
 The name has 3 rules, and each one is there for routing:
 
 - **it can't be empty.** An unnamed call is routed no entries, and quietly does nothing.
 - **no `[` or `]`.** MVU Helper adds the brackets itself when it looks for the entries.
 - **unique, whatever the case.** 2 calls named `pre` and `PRE` would both claim the same entries.
+
+Break one, and MVU Helper tells you which, then brings the form back with what you typed.
 
 ## The settings at the top
 
@@ -35,31 +39,33 @@ Why calls on one profile take turns: one profile is one endpoint. A local server
 
 | Field | What it does |
 | --- | --- |
-| name | the `[name]` this call reads, and the name groups list it by. It logs under `[small-llm] [<name>]` |
-| **On** | turns this one call on or off, without deleting it |
-| **Test** | runs the call right now against your last message, and shows the answer in a toast |
-| **✕** | deletes the call |
-| connection profile | the model the call runs on. Each player picks their own, it never travels with the card |
-| phase | **PRE (before reply)** or **POST (after reply)** |
-| **max tok** | the most tokens this call may answer with. Blank uses the profile's preset |
-| **temp** | the temperature for this call. Blank uses the profile's preset |
-| input filter regex | narrows what the call reads. With a capture group, the call reads group 1, otherwise the whole match. `<gametxt>([\s\S]*?)</gametxt>` sends only that slice |
-| output check regex | what a valid answer looks like. Prose that doesn't match is dropped, with a toast, instead of being passed on. Patch blocks are split out first, so they always survive |
+| **Name** | the `[name]` this call reads, and the name groups list it by. It logs under `[small-llm] [<name>]` |
+| the switch, left of the name | turns this one call on or off, without deleting it |
+| the play button | **Run this call now**: runs the call against your last message, and shows the answer in a toast |
+| the red bin | **Delete call**. It asks first, and says what's lost |
+| **Connection** | the model the call runs on. Each player picks their own, it never travels with the card |
+| **Phase** | **PRE (before reply)** or **POST (after reply)** |
+| **Max tokens** | the most tokens this call may answer with. Blank uses the profile's preset |
+| **Temperature** | the temperature for this call. Blank uses the profile's preset |
+| **Input filter** | narrows what the call reads. With a capture group, the call reads group 1, otherwise the whole match. `<gametxt>([\s\S]*?)</gametxt>` sends only that slice |
+| **Output check** | what a valid answer looks like. Prose that doesn't match is dropped, with a toast, instead of being passed on. Patch blocks are split out first, so they always survive |
 
-**There's no per-call preset, on purpose.** SillyTavern puts the preset inside the connection profile. So a different preset is a different profile: make one in Connection Manager, and pick it. MVU Helper never changes SillyTavern's own profiles. **max tok** and **temp** only ride along with the request.
+**There's no per-call preset, on purpose.** SillyTavern puts the preset inside the connection profile. So a different preset is a different profile: make one in Connection Manager, and pick it. MVU Helper never changes SillyTavern's own profiles. **Max tokens** and **Temperature** only ride along with the request.
+
+The card's header also says what keeps a call from running: a **No name** pill, or **No connection** while it's on.
 
 ## When a call actually runs
 
 All of these, every time:
 
-- **Enable Extra LLM Calls** is ticked,
-- the call has a name and is **On**,
+- **Enable Extra LLM Calls** is on,
+- the call has a name and its switch is on,
 - it has a connection profile,
 - at least one lorebook entry is tagged for it.
 
 A call with nothing tagged for it is skipped, and costs no request.
 
-MVU Helper says when a call won't run while entries are tagged for it. On chat load, and after any change in the tab, the console names that call and its entries. A call that's **On** with no profile also shows a warning next to its name, and a toast, because it was meant to run.
+MVU Helper says when a call won't run while entries are tagged for it. On chat load, and after any change in the tab, the console names that call and its entries. A call that's on with no profile also shows a **No connection** pill and a toast, because it was meant to run.
 
 ## Shared groups
 
@@ -82,24 +88,24 @@ ArtificKoi's group `llmshare` has 2 members, `PRE` and `POST`. It carries the ca
 You don't want every player to set up your calls by hand. So your card carries its setup:
 
 1. Set up your calls and groups.
-2. Main tab > Card config > **Export config → card**. It writes the setup into a `[Initmvuhelper]` lorebook entry, the same idea as MVU's `[InitVar]`.
+2. Main tab > Card config > **Export to card**. It writes the setup into a `[Initmvuhelper]` lorebook entry, the same idea as MVU's `[InitVar]`.
 3. Ship the card. A player who loads it gets your calls the first time they open a chat.
 
 Not everything travels the same way:
 
 | Kind | Extra LLM Calls fields | First load | A card upgrade |
 | --- | --- | --- | --- |
-| the card's | each call's phase, max tok, temp, input and output regex, and each group's members | from the card | refreshed from the card |
-| the player's | **Enable**, **Run calls in parallel**, **Call timeout**, and each call's **On** | from the card | kept as the player set them |
+| the card's | each call's phase, max tokens, temperature, input filter and output check, and each group's members | from the card | refreshed from the card |
+| the player's | **Enable Extra LLM Calls**, **Run calls in parallel**, **Call timeout (s)**, and each call's switch | from the card | kept as the player set them |
 | never travels | each call's connection profile | never | never |
 
 The card carries which calls exist and what they read. It never carries which server runs them. That's always the player's.
 
 Every chat load compares the card's `[Initmvuhelper]` with what this card last imported. A changed entry, from a card or pack upgrade, is imported again. An unchanged one is left alone, so a field you changed in the tab stays changed until the card's setup changes.
 
-2 more buttons, next to the export:
+2 more ways to take the card's setup in again:
 
-- **Re-import from card** imports it again now. Calls the card has and you don't come back, the card's fields are refreshed, and your connections and preferences are kept.
-- **Reset from card** forgets this card's setup, and installs the card's again, preferences included.
+- **Re-import**, right next to the export under **Re-import from card**, imports it again now. Calls the card has and you don't come back, the card's fields are refreshed, and your connections and preferences are kept.
+- **Reset from card**, in the **Card setup** danger zone at the bottom of the Main tab, forgets this card's setup, connections included, and installs the card's again, preferences included. It asks first.
 
 [Back to How Extra LLM Calls work](technical.md) · [Back to index](../../README.md)

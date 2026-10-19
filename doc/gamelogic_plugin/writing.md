@@ -65,7 +65,7 @@ Install decides that per card:
 | a schema its GameLogic Pack installed | skips yours. The game already declares the root open, and replacing its schema would drop every path the game declares | nothing |
 | exactly your schema | skips | nothing |
 | the schema your plugin wrote earlier | replaces it with this version | `updated its own schema` |
-| a schema from anywhere else (the card itself, another plugin) | **asks**. Yes replaces it with yours, and the card's own rules go. No keeps the card's, and installs without yours. The answer is recorded, so an upgrade or the dev loop never asks again | `replaced the card's schema` / `kept the card's schema` |
+| a schema from anywhere else (the card itself, another plugin) | **asks**, "Replace this card's own copies?". **Replace** puts yours in, and the card's own rules go. **Keep the card's schema** keeps the card's, and installs without yours. The answer is recorded, so an upgrade or the dev loop never asks again | `replaced the card's schema` / `kept the card's schema` |
 
 Nothing is written to the card until that question is answered.
 

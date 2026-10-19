@@ -157,8 +157,8 @@ Your entries share prompts with ArtificKoi's, so their text has to agree with th
 
 ## Testing a plugin against ArtificKoi
 
-1. **Serve it next to ArtificKoi.** Keep your `plugin-<id>/` folder in your workspace, `c:\dev\my-game\workspace`, and open ArtificKoi's card in SillyTavern. Run `npm run dev` in `c:\dev\my-game`, then GameLogic Packs tab > Artifact dev loop > Watch the local dev server. When the loop asks whether this is a dev card, answer No, so it doesn't install your workspace's other packs, like its blank GameLogic Pack, on ArtificKoi's card.
-2. **Install it once by hand.** Your plugin is already in the Pack library. Install to this card, then pick the drawer name and the calls: ArtificKoi's `PRE` and `POST`, or calls of your own. From then on, every save of your plugin applies to the open card.
+1. **Serve it next to ArtificKoi.** Keep your `plugin-<id>/` folder in your workspace, `c:\dev\my-game\workspace`, and open ArtificKoi's card in SillyTavern. Run `npm run dev` in `c:\dev\my-game`, then GameLogic Packs tab > Artifact dev loop > Watch the local dev server. When the loop asks to install the dev workspace on this card, answer **Not here**, so it doesn't install your workspace's other packs, like its blank GameLogic Pack, on ArtificKoi's card.
+2. **Install it once by hand.** Your plugin is already in the Pack library. Install to this card, then fill in the **State root** and pick the calls: ArtificKoi's `PRE` and `POST`, or calls of your own. From then on, every save of your plugin applies to the open card.
 3. **Play a few replies, then read your drawer.**
 4. **Read the console,** with the Pipeline debug domain on:
    - `[mvu-helper] [logic-engine] [RES2] plugin <mid:swipe>: "<id>" landed N/M op(s)` is your resolver's receipt. A warning lists every op that didn't land, with what was sent and what is stored.

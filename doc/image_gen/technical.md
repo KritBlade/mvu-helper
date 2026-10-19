@@ -25,7 +25,7 @@ The image model is whatever SillyTavern's Image Generation is set to. The built-
 | Part | What it is | Where it lives |
 | --- | --- | --- |
 | `<pic>` | one picture: who, what they wear, the camera, the composition | the reply |
-| the contract | the instruction that teaches the AI the tag | the Image tab per card, or the card's `[Initmvuhelper]` |
+| the contract | the instruction that teaches the AI the tag | the Image Generation tab per card, or the card's `[Initmvuhelper]` |
 | the fixed rules | `<outfit_rules>`, `<picture_count>`, `<camera>`, `<explicit_rules>` | MVU Helper's code, the same on every install |
 | `<scene_roster>` | who the game state says is on screen | the prompt, at Position and Depth |
 | a look (DNA) | one person's `[Body]`, outfits and `[Bust]` | the card's lorebook |
@@ -36,7 +36,7 @@ The image model is whatever SillyTavern's Image Generation is set to. The built-
 
 ## One picture, start to finish
 
-Take ArtificKoi on Inline Replace Mode, 1 picture per reply. You type: "I sit down next to Mitsuki on the rooftop bench."
+Take ArtificKoi on Inline replace mode, 1 picture per reply. You type: "I sit down next to Mitsuki on the rooftop bench."
 
 ### 1. The prompt carries the rules
 
@@ -83,13 +83,13 @@ At the end of the reply, MVU Helper writes `stat_data.mvuhelper.worn_outfit`: Mi
 
 ## The settings behind it
 
-Image Insert Type decides 2 things at once: whether the AI is sent the contract, and whether anything is drawn.
+Image insert type decides 2 things at once: whether the AI is sent the contract, and whether anything is drawn.
 
-| Insert Type | Contract sent | Drawn |
+| Image insert type | Contract sent | Drawn |
 | --- | --- | --- |
 | Disable | no | no |
 | Tags only | yes | no |
-| Insert In Current Message, Create New Message, Inline Replace Mode | yes | yes |
+| Insert in current message, Create new message, Inline replace mode | yes | yes |
 
 On Disable a `<pic>` in the reply isn't MVU Helper's at all, so it's neither drawn nor touched.
 

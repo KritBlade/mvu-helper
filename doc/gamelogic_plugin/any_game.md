@@ -70,7 +70,7 @@ MVU Helper is a blind matchmaker. It knows no interface names of its own. It com
 - **In a resolver or `renderPanel`:** `ctx.exposes` holds *your* declarations, matched. Nothing else.
 - **In EJS:** `globalThis.MvuHelper.exposes()` gives the game's whole map. Read only what you declared anyway. An interface you didn't declare gets no check at install, and no warning when it disappears.
 
-If an exposed path stops existing in the live `stat_data`, chat load warns and your plugin's light turns amber. Your resolver still runs, and has to cope with the missing node.
+If an exposed path stops existing in the live `stat_data`, chat load warns and your plugin's row gets a **Drift** pill. Your resolver still runs, and has to cope with the missing node.
 
 What each interface promises, and which ones exist today, is on [Exposes](../gamelogic_engine/exposes.md#the-interfaces).
 

@@ -22,10 +22,10 @@ So you pick one connection profile per call:
 
 1. Load the card and open a chat.
 2. Open MVU Helper > **Extra LLM Calls**.
-3. Make sure **Enable Extra LLM Calls** is ticked.
-4. For each call in the list, pick a connection profile in its dropdown.
+3. Make sure **Enable Extra LLM Calls** is on.
+4. For each call in the **Call list**, pick a connection profile in its **Connection** dropdown.
 
-That's it. A call that's on but has no profile shows a warning next to its name, and MVU Helper tells you with a toast too.
+That's it. A call that's on but has no profile shows a **No connection** pill on its card, and MVU Helper tells you with a toast too.
 
 Make the profiles in SillyTavern's Connection Manager first. One profile is one model plus its preset. A different preset is a different profile.
 
@@ -39,28 +39,27 @@ PRE and POST calls do small, focused jobs, so a cheap, fast model is usually fin
 
 ## The settings
 
-At the top of the tab:
+At the top of the tab, in the **Calls** card:
 
-![alt text](../../image/extra_llm_calls/settings.png)
+![The Calls card: Enable Extra LLM Calls, Run calls in parallel and Call timeout (s)](../../image/extra_llm_calls/settings.png)
 
 | Setting | What it does |
 | --- | --- |
-| **Enable Extra LLM Calls** | the master switch. Off, and no PRE or POST call runs |
+| **Enable Extra LLM Calls** | the master switch. Off, and no PRE or POST call runs. The pill at the top of the tab follows it: **Calls on** or **Calls off** |
 | **Run calls in parallel** | on, and the calls of one phase run at the same time, except calls sharing a profile, which take turns. Off, and they run one after another |
 | **Call timeout (s)** | how long to wait for each call before giving up on it, 60 seconds by default. A stuck call counts as empty, and the reply goes on without it |
 
-On each call:
+Each call is a card of its own in the **Call list**:
 
-![alt text](../../image/extra_llm_calls/llmcall.png)
+![A POST call's card: its switch, the POST pill, the play and bin buttons, and its fields](../../image/extra_llm_calls/llmcall.png)
 
 | Field | What it does |
 | --- | --- |
-| **On** | turns this one call on or off, without deleting it |
-| **Test** | runs the call right now, and shows the answer in a toast |
-| connection profile | the model this call runs on. Yours to pick |
-| **max tok**, **temp** | leave them blank to use the profile's preset. A number here overrides it for this call only |
+| the switch, left of the name | turns this one call on or off, without deleting it |
+| the play button | **Run this call now**: runs the call right away, and shows the answer in a toast |
+| **Connection** | the model this call runs on. Yours to pick |
 
-The rest of each call's fields belong to the card, and you can leave them as they are. All these settings are per card, so every card keeps its own calls.
+The rest of each call's fields belong to the card, **Max tokens** and **Temperature** included. Blank means the profile's preset decides. You can change them, but a card upgrade puts the card's values back. All these settings are per card, so every card keeps its own calls.
 
 ## What you'll see
 
@@ -70,7 +69,7 @@ When something goes wrong, MVU Helper tells you:
 
 - **PRE degraded**: a PRE call returned nothing usable, or timed out. The reply is written without it.
 - **POST slow**: the POST calls are taking a long time. If they don't finish in time, the reply's last touches, like the stat box, are written without them.
-- **a warning next to a call's name**: the call is on, but has no connection profile.
+- **a No connection pill on a call**: the call is on, but has no connection profile.
 
 ## Swipe, regenerate and delete just work
 

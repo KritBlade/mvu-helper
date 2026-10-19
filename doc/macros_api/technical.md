@@ -153,8 +153,8 @@ These aren't SillyTavern macros. MVU Helper fills them in itself, in one place e
 
 | Placeholder | Where | You get |
 | --- | --- | --- |
-| `{{maxImages}}` | the Image tab's contract template | the card's Max images per reply |
-| `{{castRules}}` | the Image tab's contract template | the `[CAST]` block: how many people one picture may hold |
+| `{{maxImages}}` | the Image Generation tab's Prompt template | the card's Max images per reply |
+| `{{castRules}}` | the Image Generation tab's Prompt template | the `[CAST]` block: how many people one picture may hold |
 | `%bust_strength%` | your ComfyUI workflow | the `[Bust]` number of the person drawn. MVU Helper adds this placeholder to SillyTavern for you |
 
 See [The contract and its 2 placeholders](../image_gen/prompt.md#the-contract-and-its-2-placeholders) and [The ComfyUI placeholder](../image_gen/drawing.md#the-comfyui-placeholder).
@@ -266,7 +266,7 @@ See [Your card's EJS can call the engine](../gamelogic_engine/runtime.md#your-ca
 | --- | --- |
 | `lastPre` | `[{ name, label, output }]`, this turn's PRE answers, filled before the reply |
 | `lastPost` | `[{ name, label, output }]`, this turn's POST answers. `[]` when no POST call ran |
-| `runLlmCall(call, input)` | runs one call right now. That's what the **Test** button uses |
+| `runLlmCall(call, input)` | runs one call right now. That's what a call's play button, **Run this call now**, uses |
 | `collectLorebookBlock(name)` | the entries a call named `name` would get |
 | `runPostPass()` | runs the POST pass by hand. For testing only: it skips the checks that keep POST off a greeting |
 | `mvuHelperInterceptor` | the hook SillyTavern calls before every generation. Never call it yourself |

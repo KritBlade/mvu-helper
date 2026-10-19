@@ -10,18 +10,20 @@ Each one has its own job, and this page goes through all 3.
 
 You install from MVU Helper > Event Packs. It has 3 sections, in the same order as the GameLogic Packs tab:
 
-- **On this card.** Every pack installed on the open card, with its version, its number of events and how many have fired. **Disable** keeps the pack but takes its events out of play. **Uninstall** removes it from this card.
-- **Pack library.** Every pack you ever imported. **Install to this card** puts one onto the open card. **Remove** only deletes the stored copy.
+- **On this card.** Every pack installed on the open card, with its version, its number of events and how many have fired. Its buttons are icons. **Disable**, the pause button, keeps the pack but takes its events out of play. **Uninstall**, the red bin, removes it from this card.
+- **Pack library.** Every pack you ever imported. **Install to this card** puts one onto the open card. **Remove from library**, the red bin, only deletes the stored copy. It asks first.
 - **Import.** Paste the pack text, or **Load file** (`.txt` or `.json`). Then **Validate**, then **Add & install**, which stores it in the library AND installs it on the open card in one go.
 
-The light next to each installed pack:
+Each installed pack carries a pill that says its state:
 
-| Light | Means |
+| Pill | Means |
 | --- | --- |
-| green | installed and complete |
-| grey | disabled |
-| red | the lorebook entry is missing. Reinstall or uninstall |
-| amber | installed, but there's no copy in the library. A card rebuild would lose it |
+| **Installed** | installed and complete |
+| **Disabled** | disabled |
+| **Entry missing** | the lorebook entry is gone. Install it again from the library, or uninstall it |
+| **No library copy** | installed, but there's no copy in the library. A card rebuild would lose it, so import it again to keep one |
+
+When the card's engine doesn't say where its trigger table is, the row reads "fired state unknown" instead of a count, and a **Fired counts are unknown** notice above the rows says why.
 
 Open a chat first. Installing writes into that card's lorebook and save.
 
@@ -102,7 +104,7 @@ Rebuilding or re-importing a card throws away its lorebook, and the packs with i
 
 **Upgrade.** Install a higher `version` of the same pack id. Its rows replace the old ones, wholesale. Rows the new version dropped are removed. Same or older versions are refused. Uninstall first to roll back.
 
-**Disable.** The pack stays installed, and its entry is switched off. Its rows leave every chat's `triggers`. **Enable** puts them back.
+**Disable.** The pack stays installed, and its entry is switched off. Its rows leave every chat's `triggers`. **Enable**, the play button that takes its place, puts them back.
 
 **Uninstall.** Deletes the pack's entry and its registry record. Its rows leave every chat. The library copy stays.
 

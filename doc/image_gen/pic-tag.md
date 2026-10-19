@@ -132,7 +132,7 @@ What's warned:
 
 ## How a tag is found
 
-The built-in regex, on the Image tab's **Regex** field:
+The built-in regex, on the Image Generation tab's **Regex** field:
 
 ```
 /<pic\b(?:"[^"]*"|[^"<])*?\bprompt\s*=\s*"([^"]*)"[^<>]*>/gi

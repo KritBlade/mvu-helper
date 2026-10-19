@@ -161,9 +161,9 @@ Don't test this one with a plain `/sd a cat` though. The workflow waits for the 
 
 ### Keep the bust multiplier on
 
-Both workflows already carry `"%bust_strength%"` on their breast slider LoRA. So keep **Send bust multiplier to the backend** ticked in MVU Helper's Image Generation tab. It's on by default.
+Both workflows already carry `"%bust_strength%"` on their breast slider LoRA. So keep **Send bust multiplier** on, in the Backend card of MVU Helper's Image Generation tab. It's on by default.
 
-Ticking it is what adds the matching placeholder to SillyTavern. Untick it, and the placeholder goes away, the text `%bust_strength%` reaches ComfyUI as it is, and ComfyUI refuses the job because that's not a number. See [Send bust multiplier to the backend](README.md#send-bust-multiplier-to-the-backend).
+Turning it on is what adds the matching placeholder to SillyTavern. Turn it off, and the placeholder goes away, the text `%bust_strength%` reaches ComfyUI as it is, and ComfyUI refuses the job because that's not a number. See [Send bust multiplier](README.md#send-bust-multiplier).
 
 Basically, ComfyUI Desktop, 4 extensions, one workflow pasted into SillyTavern, and you're drawing.
 

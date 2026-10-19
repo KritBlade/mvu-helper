@@ -79,7 +79,7 @@ Its engine is 3 files joined into one. How that works is on [Where the engine ru
 | `packType` | yes | Always `"gamelogic"` for this pack type. |
 | `id` | yes | Lowercase with dashes, like `my-game`. It goes in front of every lorebook comment the install writes, so keep it the same once you publish. `registry` is reserved. |
 | `name` | yes | The name people see, any language. |
-| `description` | yes | One line, shown in the library and the install dialog. |
+| `description` | yes | One line, shown on its library row. |
 | `version` | no, but warned | 2 or 3 whole numbers with dots, like `"1.4"` or `"1.4.0"`. `"v1.4"` or `"1.4-beta"` is refused. Install compares it number by number to tell Upgrade, Repair and Downgrade apart. |
 | `builtWith` | no | A note on which tool made the file. Stored, never read. |
 | `engine`, `entries`, `schema`, `regex`, `regexOrder` | no | Assembled from the folders. |

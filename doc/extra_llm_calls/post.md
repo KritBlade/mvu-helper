@@ -85,10 +85,10 @@ For your own scripts or extensions:
 | `globalThis.mvuHelper.lastPost` | `[{ name, label, output }]`, this turn's POST answers |
 | `mvuhelper:pre-done` | fired after `lastPre` is filled, with your line's message index. No reply exists yet |
 | `mvuhelper:post-done` | fired once per generated reply, after `lastPost` is filled, with the reply's message id |
-| `globalThis.mvuHelper.runLlmCall(call, input)` | runs one call now. That's what **Test** uses |
+| `globalThis.mvuHelper.runLlmCall(call, input)` | runs one call now. That's what a call's play button, **Run this call now**, uses |
 | `globalThis.mvuHelper.collectLorebookBlock(name)` | the entries a call named `name` would get |
 
-**The llm-task router** is for a feature that wants its own instruction to run on a call the player picks. You register a task, and you get a dropdown (Off, narrate, or any call), your instruction placed in the chosen call's prompt, and that call's raw answer handed back to you. MVU Helper's Roster tab uses it for its "Harvest via" setting.
+**The llm-task router** is for a feature that wants its own instruction to run on a call the player picks. You register a task, and you get a dropdown (Off, **narrate (main reply)**, or any call), your instruction placed in the chosen call's prompt, and that call's raw answer handed back to you. MVU Helper's Roster tab uses it for its "Harvest via" setting.
 
 The answer it hands you is untouched: no renaming, no stripping. A POST call's answer arrives after its output check.
 

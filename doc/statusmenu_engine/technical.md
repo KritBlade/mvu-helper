@@ -50,7 +50,7 @@ ArtificKoi's:
 | `format` | yes | the pack format. MVU Helper understands `"1.0"` |
 | `packType` | yes | always `"statusmenu"` |
 | `id` | yes | lowercase with dashes. It names the menu's styles and its lorebook entries, so keep it the same once you publish. `registry` is reserved |
-| `name`, `description` | yes | shown in the library and the install dialog |
+| `name`, `description` | yes | shown on its library row |
 | `version` | no, but warned | 2 or 3 whole numbers. Install compares it to tell an upgrade from a reinstall |
 | `builtWith` | no | which tool made it. Stored, never read |
 | `engineOrder` | yes, with an engine | the engine files in the order they load |

@@ -19,7 +19,7 @@ The Roster works with or without pictures. With [Auto Image Generation](../image
 1. Open a chat with your card.
 2. Open MVU Helper > **Roster**.
 3. Set **Appearance route** to **Predefined + auto-harvest new**.
-4. Set **Harvest via** to **narrate**.
+4. Set **Harvest via** to **narrate (main reply)**.
 5. Chat. New characters show up in the **Character registry** list as the story meets them.
 
 ![The Roster tab's Registration section: Appearance route on Predefined + auto-harvest new, Harvest via on a POST call](../../image/roster/registration.jpg)
@@ -50,8 +50,8 @@ Only matters on **Predefined + auto-harvest new**. While it's Off, nothing is sa
 | Value | What happens |
 | --- | --- |
 | **Off** | nothing is saved |
-| **narrate** | your main AI describes each new character in its own reply. No extra call |
-| a POST call | a separate call after the reply describes them. Only shows up when the card has a POST call, see [Extra LLM Calls](../extra_llm_calls/README.md) |
+| **narrate (main reply)** | your main AI describes each new character in its own reply. No extra call |
+| a POST call, listed by its name, like **POST (POST)** | a separate call after the reply describes them. It's listed only while that call is switched on and has a Connection, with Extra LLM Calls on, see [Extra LLM Calls](../extra_llm_calls/README.md) |
 
 **narrate** is the simple one, and it costs nothing extra. Your main AI is already writing the reply, so it adds a short description of anyone new at the end.
 
@@ -79,7 +79,7 @@ A card that uses another name and leaves this blank gets no on-screen list. The 
 
 This is the list of every character on file for this card, 10 to a page.
 
-Each row shows the character's name, a badge for each of their outfits, and the other names they go by, after "also". Then the buttons:
+Each row shows the character's name, and under it the other names they go by, after **Also known as**. Their outfits sit to the right, one blue pill each. Then the buttons:
 
 | Button | What it does |
 | --- | --- |
@@ -90,9 +90,9 @@ Each row shows the character's name, a badge for each of their outfits, and the 
 | circle arrow | re-harvest: delete the entry, so the story describes them again next time they show up |
 | bin | delete the entry |
 
-The circle arrow next to the **Character registry** title refreshes the list.
+The circle arrow at the right end of the **Character registry** header refreshes the list.
 
-![alt text](../../image/roster/roster_button.jpg)
+![A Character registry row: the name, Also known as, the outfit pills and the 6 buttons, under the card's refresh arrow](../../image/roster/roster_button.jpg)
 
 ### Edit
 

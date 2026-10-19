@@ -80,7 +80,7 @@ So when PRE records a verdict your engine will need later, put everything the ma
 
 ## The output check
 
-The call's **output check regex** says what valid prose looks like. It runs on the prose only, after the patch is split out:
+The call's **Output check** says what valid prose looks like. It runs on the prose only, after the patch is split out:
 
 - prose that doesn't match is dropped, with a toast, and the narrator runs without it,
 - the patch still applies.

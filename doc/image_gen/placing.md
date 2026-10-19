@@ -8,7 +8,7 @@ It remembers WHICH message it's drawing for, and checks it's still the same mess
 
 Think of a waiter carrying a plate to table 5. If table 5 got up and left, the plate goes back to the kitchen. It doesn't go to whoever sits down there next.
 
-## Inline Replace Mode
+## Inline replace mode
 
 The picture takes the tag's exact place. The tag is swapped for a wrap:
 
@@ -27,17 +27,17 @@ The tag is found by searching for its text at that moment, never by a position s
 
 SillyTavern's sanitizer renames classes in the chat to `custom-auto-img-wrap`, `custom-auto-img-regen` and so on. So style both names if your card styles the pictures.
 
-## Insert In Current Message
+## Insert in current message
 
 The picture is attached to the reply as SillyTavern media, the way SillyTavern attaches any picture, with the full prompt as its title. The reply's text isn't touched, apart from Strip `<pic>` tag.
 
-## Create New Message
+## Create new message
 
 `/sd` runs without quiet, so SillyTavern posts the picture as a message of its own, right after the reply. This mode is never pre-generated, see [From tag to `/sd`](drawing.md#when-drawing-starts).
 
 ## Tags only
 
-Nothing is drawn. Each tag's composition is logged to the console, in the Image gen debug domain, and the tag is handled by Strip `<pic>` tag like in any other mode.
+Nothing is drawn. Each tag's composition is logged to the console, when **Image gen** is on in the Main tab's Debug card, and the tag is handled by Strip `<pic>` tag like in any other mode.
 
 ## Strip `<pic>` tag and the invisible trace
 
@@ -47,7 +47,7 @@ With Strip on, a tag that leaves the text doesn't vanish. It becomes an invisibl
 <span class="auto-img-wrap" data-rawtag="&lt;pic …&gt;"><span class="auto-img-trace"></span></span>
 ```
 
-That's what happens to a drawn tag in Insert In Current Message and Create New Message, and to every tag in Tags only. In Inline Replace Mode the picture's own wrap already carries the tag, so it needs no trace.
+That's what happens to a drawn tag in Insert in current message and Create new message, and to every tag in Tags only. In Inline replace mode the picture's own wrap already carries the tag, so it needs no trace.
 
 Every insert mode keeps the same record this way:
 
@@ -59,14 +59,14 @@ With Strip off, the tag stays visible, for troubleshooting:
 
 | Mode | Strip off |
 | --- | --- |
-| Insert In Current Message, Create New Message, Tags only | the raw tag stays in the reply |
-| Inline Replace Mode | an escaped copy, `<code class="auto-img-pictag">`, shows under the picture |
+| Insert in current message, Create new message, Tags only | the raw tag stays in the reply |
+| Inline replace mode | an escaped copy, `<code class="auto-img-pictag">`, shows under the picture |
 
-A picture that failed in Insert In Current Message or Create New Message always keeps its raw tag, Strip or not. You can see something went wrong, and where.
+A picture that failed in Insert in current message or Create new message always keeps its raw tag, Strip or not. You can see something went wrong, and where.
 
-## Leftovers in Inline Replace Mode
+## Leftovers in Inline replace mode
 
-Some tags in Inline Replace Mode never get a picture: one over the cap, or one whose drawing failed. Those can't stay as raw `<pic>` markup either. galgame companion holds back its backdrop while a raw tag remains, so 4 tags over a cap of 2 would leave a blank stage.
+Some tags in Inline replace mode never get a picture: one over the cap, or one whose drawing failed. Those can't stay as raw `<pic>` markup either. galgame companion holds back its backdrop while a raw tag remains, so 4 tags over a cap of 2 would leave a blank stage.
 
 | Strip | A leftover becomes |
 | --- | --- |
@@ -77,7 +77,7 @@ Only the exact tags this pass found at its start are touched. The finished messa
 
 ## The redraw button
 
-Inline Replace Mode only. Clicking it draws that picture again, and swaps in the new one.
+Inline replace mode only. Clicking it draws that picture again, and swaps in the new one.
 
 The prompt is rebuilt from `data-rawtag`, with every look as it is NOW. So when you fix a character's look, every old picture you redraw gets the fix. The bust number is worked out again too, and the size is the card's Image type, same as a first draw.
 
@@ -103,7 +103,7 @@ That's named in the console, once per picture, with the file's path. It's never 
 
 ## Saving
 
-When the text changed (a picture spliced in, a tag stripped, a leftover traced), the reply is redrawn and saved with the turn's other edits. A picture attached without touching the text, in Insert In Current Message or Create New Message, is saved too.
+When the text changed (a picture spliced in, a tag stripped, a leftover traced), the reply is redrawn and saved with the turn's other edits. A picture attached without touching the text, in Insert in current message or Create new message, is saved too.
 
 The toasts say how it went: "Generating 2 image(s)...", then "2 image(s) generated", or "Image generation produced no image" when none made it.
 

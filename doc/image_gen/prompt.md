@@ -2,13 +2,13 @@
 
 > This page applies to any card. ArtificKoi shows up as a real example, not as a rule.
 
-While Image Insert Type is anything but Disable, every prompt SillyTavern builds gets the picture rules added. MVU Helper adds them when SillyTavern's Chat Completion prompt is ready, so it takes a Chat Completion API. The saved chat is never changed, only the prompt that goes out.
+While Image insert type is anything but Disable, every prompt SillyTavern builds gets the picture rules added. MVU Helper adds them when SillyTavern's Chat Completion prompt is ready, so it takes a Chat Completion API. The saved chat is never changed, only the prompt that goes out.
 
 ## One block at the very top
 
 The fixed rules go out as ONE system message, at the very top of the prompt, in this order:
 
-1. the contract, the Image tab's **Prompt Template**, with its 2 placeholders filled in,
+1. the contract, the Image Generation tab's **Prompt template**, with its 2 placeholders filled in,
 2. `<outfit_rules>`,
 3. `<picture_count>`,
 4. `<camera>`,
@@ -23,7 +23,7 @@ Think of a printed menu and the specials board. The menu is the same every day, 
 | Placeholder | Filled with |
 | --- | --- |
 | `{{maxImages}}` | the card's Max images per reply |
-| `{{castRules}}` | the `[CAST]` block, built from Max characters with DNA per image and the main character's outfits |
+| `{{castRules}}` | the `[CAST]` block, built from Max characters per image and the main character's outfits |
 
 A card with its own template should keep both. A template without `{{castRules}}` never tells the AI how many people a picture may hold.
 
@@ -33,7 +33,7 @@ The other 4 blocks ship from code, whatever the template says. A saved copy of a
 
 ## `[CAST]`: who may be in one picture
 
-Built per card from Max characters with DNA per image. It's a ceiling, never a target. One person alone is a normal shot, and nobody is added to reach the number.
+Built per card from Max characters per image. It's a ceiling, never a target. One person alone is a normal shot, and nobody is added to reach the number.
 
 At a ceiling of 1, it's one person per picture: one named character, or the main character, never both. When 2 people touch, the shot shows one of them alone, or it's shot pov when one of them is the main character.
 
@@ -96,7 +96,7 @@ The block is big, and a normal reply doesn't need it. So it's gated on a true/fa
 
 | State | `<explicit_rules>` |
 | --- | --- |
-| **Always inject H guidance** ticked | sent, the latch isn't even read |
+| **Always inject H guidance** on | sent, the latch isn't even read |
 | path blank | sent. A card with no latch claims nothing about its turns, and a non-MVU card has no state to read |
 | path found, reads `false` | not sent |
 | path found, reads anything else | sent |

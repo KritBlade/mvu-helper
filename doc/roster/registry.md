@@ -32,7 +32,7 @@ Mitsuki Tachibana
 | `[Clothes]` | their default outfit. Picked as `default` |
 | `[Clothes:<name>]` | a named outfit, like `school-uniform`. Picked by its name |
 | `[Alias]` | other names for the same character, one per line. The story can write any of them |
-| `[Bust]` | a number for the breast slider LoRA, see [Auto Image Generation](../image_gen/README.md#send-bust-multiplier-to-the-backend). Never part of the prompt |
+| `[Bust]` | a number for the breast slider LoRA, see [Auto Image Generation](../image_gen/README.md#send-bust-multiplier). Never part of the prompt |
 | `[AllowUpdate]` | `true` lets the story correct their saved clothes. Absent means `false` |
 
 The name in the entry is the story's own spelling, in the story's own script. `[Body]` and the clothes are always English tags, whatever language the story is in, because the image model only reads English.
@@ -98,7 +98,7 @@ A card built for MVU Helper usually ships its main cast with their outfits alrea
 
 Saved clothes are never overwritten by the story. Not by default.
 
-The reason is that the AI can't tell a correction from a paraphrase. "brown blazer, brown skirt" and "brown skirt, brown blazer" are one outfit and 2 different strings. So instead of guessing, the entry has a switch, the lock and shirt button on the Roster tab.
+The reason is that the AI can't tell a correction from a paraphrase. "brown blazer, brown skirt" and "brown skirt, brown blazer" are one outfit and 2 different strings. So instead of guessing, the entry has a toggle, the lock and shirt button on the Roster tab.
 
 With `[AllowUpdate]` on, the story may correct a saved outfit:
 

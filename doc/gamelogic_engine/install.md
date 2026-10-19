@@ -62,9 +62,9 @@ Every door judges a pack the same way: the format rules and the source checks. S
 
 On the library row: Install to this card.
 
-The On this card row then offers Export and Uninstall. Repair shows up when pieces are missing from the card, and Upgrade when the library holds a newer version.
+The On this card row then shows the pack's state as a pill: **Installed**, **Pieces missing** or **No library copy**. It offers Export, the file icon, and Uninstall, the red bin. Repair shows up when pieces are missing from the card, and Upgrade when the library holds a newer version.
 
-The pack's `version` decides which one it is. Same version is Repair, newer is Upgrade, older is Downgrade, and Downgrade asks first.
+The pack's `version` decides which one an install is. Same version is Repair, newer is Upgrade, older is Downgrade, and Downgrade asks first. An older library copy offers no button of its own, so going back a version is Uninstall, then Install.
 
 All 4 write the same way:
 

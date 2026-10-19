@@ -17,8 +17,8 @@ It's like ordering coffee while you're still in line. By the time you reach the 
 
 Pre-generation draws a tag mid-stream only when all of these hold:
 
-- **Streaming pre-generation** is on, and Image Insert Type draws,
-- the mode isn't Create New Message. `/sd` posts that picture as its own message, so the draw pass has to start it,
+- **Streaming pre-generation** is on, and Image insert type draws,
+- the mode isn't Create new message. `/sd` posts that picture as its own message, so the draw pass has to start it,
 - the tag is complete,
 - it isn't inside an unfinished `<think>` block. Draft tags in the AI's reasoning don't count,
 - everyone in its slots has a look MVU Helper can build right now. A look that only arrives with the end of the reply can't exist mid-stream, so that tag waits for the draw pass.
@@ -31,7 +31,7 @@ A job that fails during the stream isn't retried on every new token. The draw pa
 
 The draw pass takes the first tags in text order, up to the card's Max images per reply. The rest aren't drawn, and the console says so once for that message.
 
-In Inline Replace Mode, a tag over the cap doesn't stay in the reply as raw markup, see [Where the picture goes](placing.md#leftovers-in-inline-replace-mode).
+In Inline replace mode, a tag over the cap doesn't stay in the reply as raw markup, see [Where the picture goes](placing.md#leftovers-in-inline-replace-mode).
 
 ## The queue
 
@@ -109,7 +109,7 @@ A period inside a look's text becomes a comma, so a look never ends early. A dec
 
 ### Over the ceiling
 
-Before anything is built, the people are cut to the card's Max characters with DNA per image:
+Before anything is built, the people are cut to the card's Max characters per image:
 
 1. a name in 2 slots counts once,
 2. over the ceiling, the main character goes first,
@@ -123,7 +123,7 @@ Every picture is drawn at the card's **Image type**, with that type's width and 
 
 ## The bust variable
 
-With **Send bust multiplier to the backend** on, each job writes one number into a SillyTavern chat variable right before its `/sd` call:
+With **Send bust multiplier** on, each job writes one number into a SillyTavern chat variable right before its `/sd` call:
 
 ```
 /setvar key=bust_strength 1.7
@@ -131,7 +131,7 @@ With **Send bust multiplier to the backend** on, each job writes one number into
 
 | People in the picture with a `[Bust]` | Number sent |
 | --- | --- |
-| nobody | the **Default**, 1 |
+| nobody | the **Default value**, 1 |
 | 1 | theirs |
 | 2 or more | the **Shared value**, 1.5 |
 
@@ -145,7 +145,7 @@ A blank variable name skips it with a warning. Off, and nothing is written, so t
 
 The workflow can only read a chat variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor. SillyTavern keeps those in one list for every workflow, `extension_settings.sd.comfy_placeholders`, and at each call it swaps `"%<find>%"` in the workflow for the macro-resolved replace, as a quoted string. That's why the input has to be a typed FLOAT, which converts the string.
 
-The checkbox owns the entry MVU Helper needs:
+The switch owns the entry MVU Helper needs:
 
 ```json
 { "find": "bust_strength", "replace": "{{getvar::bust_strength}}" }
@@ -153,9 +153,9 @@ The checkbox owns the entry MVU Helper needs:
 
 | When | What happens |
 | --- | --- |
-| load, while the box is ticked | added if it isn't there. The box is on by default, so a new install never ticks it |
-| the box is ticked | added if it isn't there |
-| the box is unticked | removed |
+| load, while the switch is on | added if it isn't there. The switch is on by default, so a new install never has to turn it on |
+| the switch is turned on | added if it isn't there |
+| the switch is turned off | removed |
 | the variable is renamed | the old name's entry goes, the new name's comes |
 
 It's added the way SillyTavern's own "+" adds one, and removed from the same list, so the Workflow Editor shows it like one you typed.
@@ -166,13 +166,13 @@ The workflow file itself is never touched. `"%bust_strength%"` on the LoRA's str
 
 ## The call
 
-MVU Helper calls `/sd`, or `/imagine` when that's what's there, with the width, the height and the full prompt. It runs quiet, so SillyTavern posts nothing itself, except on Create New Message, where `/sd` posts the picture as its own message.
+MVU Helper calls `/sd`, or `/imagine` when that's what's there, with the width, the height and the full prompt. It runs quiet, so SillyTavern posts nothing itself, except on Create new message, where `/sd` posts the picture as its own message.
 
 No `/sd` command at all means SillyTavern's Image Generation isn't set up, and that's warned. An empty answer is "no image", warned with the tag.
 
 ## Checking a picture
 
-Turn on the **Image gen** debug domain in the Main tab. Every job logs one line before it calls `/sd`:
+Turn on **Image gen** in the Main tab's Debug card. Every job logs one line before it calls `/sd`:
 
 ```
 gen [landscape 1152x768] drawn=1:"Mitsuki"[school-uniform|body stored|clothes stored] mainchar="Mainchar"[school-uniform|body stored|clothes stored] camera=eye-level ("eye level" added) prefix="Default" bust=1.7

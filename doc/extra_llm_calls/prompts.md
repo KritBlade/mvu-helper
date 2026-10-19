@@ -57,7 +57,7 @@ An entry with no `<%` in it skips the EJS pass. A broken template logs the error
 
 **POST gets the finished reply,** with every patch block taken out: the narrator's `<UpdateVariable>`, any `<POSTUpdateVariable>`, and a bare `<JSONPatch>`. The stat box comes out too. A call that keeps records must not read back numbers it's about to record, and must never copy a patch that already landed.
 
-**The input filter regex narrows it further.** It runs on what's left. With a capture group, the call reads group 1, otherwise the whole match. A regex that doesn't compile sends the full text, with a warning.
+**The Input filter narrows it further.** It runs on what's left. With a capture group, the call reads group 1, otherwise the whole match. A regex that doesn't compile sends the full text, with a warning.
 
 ## OOC commands
 

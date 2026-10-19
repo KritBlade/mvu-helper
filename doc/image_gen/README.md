@@ -46,41 +46,43 @@ Using your own workflow instead? Test `/sd` first. Type `/sd a cat sitting on a 
 
 1. Open a chat with your card.
 2. Open MVU Helper > **Image Generation**.
-3. Set **Image Insert Type** to **Inline Replace Mode**.
+3. Set **Image insert type** to **Inline replace mode**.
 4. Pick a **/sd prompt prefix** that fits your checkpoint, or just use the Default one.
 5. Send a message.
 
-![The Image Generation tab: Inline Replace Mode, Streaming pre-generation on, and 1 image per reply](../../image/image_gen/image_gen_quickstart.jpg)
+![The Image Generation tab on ArtificKoi: Image insert type on Inline replace mode, and Strip <pic> tag on](../../image/image_gen/image_gen_quickstart.jpg)
 
 That's it. The picture shows up right under the sentence it belongs to, with a small redraw button next to it.  **You can stop reading below if you are not interested in knowing what each of the field means**.
 
 ## Per card, or for your whole PC
 
-Most fields are per card. Each card keeps its own, and switching cards switches them. A card built for MVU Helper can bring its own values with it.
+Most fields are per card. Each card keeps its own, and switching cards switches them. The **Card:** chip at the top of the tab names the card you're editing, so open that card's chat first. With no chat open, there's no card to save them to. A card built for MVU Helper can bring its own values with it.
 
-A few fields describe your PC instead, and those are the same for every card: **Streaming pre-generation**, **Queue concurrency**, the list of **/sd prompt prefix** presets, the bust multiplier and **Resolution presets**. A card never changes them, because only you know what your GPU can handle.
+A few fields describe your PC instead, and those are the same for every card. They sit together in the **Backend** card, the one with the **Global** chip: **Streaming pre-generation**, **Queue concurrency**, **Send bust multiplier** and **Resolution presets**. The list of **/sd prompt prefix** presets is shared by every card too, only the pick is per card. A card never changes them, because only you know what your GPU can handle.
 
 ## Rendering
 
-### Image Insert Type
+### Image insert type
 
-**The main switch for pictures on this card, and where each picture goes.** Per card.
+**Turns pictures on for this card, and picks where each one goes.** Per card.
 
 | Value | What happens |
 | --- | --- |
 | **Disable** | no pictures. The AI isn't asked for tags, and nothing is drawn. A new card starts here |
 | **Tags only** | the AI writes the tags, and nothing is drawn |
-| **Insert In Current Message** | the picture is attached to the reply |
-| **Create New Message** | each picture becomes its own chat message, right after the reply |
-| **Inline Replace Mode** | the picture takes the tag's place, right under the sentence it belongs to |
+| **Insert in current message** | the picture is attached to the reply |
+| **Create new message** | each picture becomes its own chat message, right after the reply |
+| **Inline replace mode** | the picture takes the tag's place, right under the sentence it belongs to |
+
+The pill at the top of the tab follows it: **Images on**, **Tags only** or **Images off**.
 
 Anything but Disable asks the AI for tags. That's an instruction block in the prompt on every reply, so it costs some tokens, even on Tags only.
 
-**Inline Replace Mode** is the one I'd pick. The picture sits right where the story is. A manga panel next to the line it belongs to reads way better than all the panels stacked at the end of the chapter. It's also the only mode with a redraw button on each picture.
+**Inline replace mode** is the one I'd pick. The picture sits right where the story is. A manga panel next to the line it belongs to reads way better than all the panels stacked at the end of the chapter. It's also the only mode with a redraw button on each picture.
 
-**Insert In Current Message** attaches the picture the way SillyTavern attaches any picture to a message. It doesn't sit at the sentence. How several pictures on one reply show up is SillyTavern's own setting.
+**Insert in current message** attaches the picture the way SillyTavern attaches any picture to a message. It doesn't sit at the sentence. How several pictures on one reply show up is SillyTavern's own setting.
 
-**Create New Message** posts each picture as a message of its own. It's the one mode that never starts drawing before the reply is finished, see [Streaming pre-generation](#streaming-pre-generation).
+**Create new message** posts each picture as a message of its own. It's the one mode that never starts drawing before the reply is finished, see [Streaming pre-generation](#streaming-pre-generation).
 
 **Tags only** is for checking what the AI writes, without a GPU. Each tag's prompt goes to the console, and the tag itself is handled by [Strip `<pic>` tag](#strip-pic-tag). Handy while you set up a card, or while your GPU is busy with something else.
 
@@ -98,7 +100,7 @@ The tag is markup for MVU Helper, not for you. It looks like this:
 
 You don't want to read that between your sentences. So with this on, the tag leaves the text you see.
 
-It's not deleted though. An invisible copy stays where the tag was, inside the picture in Inline Replace Mode. MVU Helper keeps it for 3 reasons:
+It's not deleted though. An invisible copy stays where the tag was, inside the picture in Inline replace mode. MVU Helper keeps it for 3 reasons:
 
 - **The redraw button** draws the picture again from it, with everyone's look as it is now.
 - **The next pictures** know what each person wore last time. So Mitsuki doesn't change clothes between 2 pictures of the same scene.
@@ -106,28 +108,9 @@ It's not deleted though. An invisible copy stays where the tag was, inside the p
 
 It works with **Tags only** too. If you use galgame companion, keep it on. A raw tag left in the reply holds galgame up while it converts the text.
 
-Turn it off only to troubleshoot. The tag then stays visible in the chat. In Inline Replace Mode it shows as plain text under the picture, or in place of a picture that failed, so galgame still reads a clean reply.
+Turn it off only to troubleshoot. The tag then stays visible in the chat. In Inline replace mode it shows as plain text under the picture, or in place of a picture that failed, so galgame still reads a clean reply.
 
 You don't need to turn it off just to see what was sent to `/sd` though. The console already has every prompt in full, see [When something goes wrong](#when-something-goes-wrong).
-
-### Streaming pre-generation
-
-**Starts drawing a picture the moment its tag is complete, while the AI is still writing.** For your whole PC, on by default.
-
-![alt text](../../image/image_gen/streaming.jpg)
-
-
-So by the time you've read the reply, the picture is usually done. Off, and drawing waits for the whole reply.
-
-A tag inside the AI's thinking doesn't count. And a tag with someone whose look isn't ready yet waits for the finished reply, so it's never drawn wrong.  
-
-One catch is that some proxy or lower end model vendor might cut off the reply from time to time.  For these lower end ai model vendor, you might want to turn this off.
-
-### Queue concurrency
-
-**How many pictures your GPU draws at the same time.** For your whole PC, 1 by default, up to 4.
-
-Leave it at 1 unless you know your backend handles more. ComfyUI on one GPU is most stable at 1. The other pictures just wait in line.
 
 ## Prompt & size
 
@@ -137,11 +120,11 @@ Leave it at 1 unless you know your backend handles more. ComfyUI on one GPU is m
 
 Every checkpoint wants different tags. An anime checkpoint wants "anime screencap, cel-shading", a realistic one wants something else. So you keep one preset per checkpoint or art style, written once, and each card picks the one it uses. An anime card and a realistic card each keep their own, with no re-picking when you switch.
 
-- **New** makes a preset, and this card picks it.
-- **Rename** renames the picked one.
-- **Delete** deletes the picked one. The list is shared by every card, so any card that used it goes to no prefix. MVU Helper asks first.
-- **The text box** edits the picked preset's tags.
-- **none**, at the top of the list, sends no prefix on this card.
+- **New**, the + button beside the list, asks for a name, makes the preset, and this card picks it.
+- **Rename**, the pen, renames the picked one.
+- **Delete**, the red bin, deletes the picked one. The list is shared by every card, so any card that used it goes to no prefix. MVU Helper asks first.
+- **The text box** under them edits the picked preset's tags.
+- **none**, at the top of the list, sends no prefix on this card. While it's picked, Rename, Delete and the text box are greyed out.
 
 The built-in **Default** preset is anime style: `masterpiece, best quality, highly detailed, 2D anime style, clean cel-shading, sharp line art, anime screencap, very aesthetic`.
 
@@ -159,7 +142,7 @@ With more scenes than pictures, the last scene always gets one, because that's w
 
 A tag past the limit isn't drawn, and the console says so.
 
-### Max characters with DNA per image
+### Max characters per image
 
 **The most people with a saved look one picture may hold, the main character included.** Per card, 3 by default.
 
@@ -214,79 +197,7 @@ How a look is written is on [How the character registry works](../roster/registr
 
 Pick portrait, landscape, closeup, scene or square. The sizes are in [Resolution presets](#resolution-presets). The AI doesn't choose, so every picture on the card has the same shape, redraws included.
 
-### Send bust multiplier to the backend
-
-**Hands each picture a number for a breast slider LoRA in your ComfyUI workflow.** For your whole PC, on by default.
-
-![alt text](../../image/image_gen/bust.jpg)
-
-Skip this one unless your workflow loads a breast slider LoRA. Without one, the number just sits in a chat variable and nothing happens.
-
-A character's look can carry a `[Bust]` value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default.
-
-Your workflow reads that variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor: find `bust_strength`, replace `{{getvar::bust_strength}}`. You don't type it in yourself. Ticking this box adds it to SillyTavern's Image Generation settings, and unticking removes it. If you already wrote your own under the same name, MVU Helper leaves yours alone.
-
-The one part that's still yours is the workflow. Put `"%bust_strength%"` on the strength input of the LoRA node, like `LoraLoaderModelOnly.strength_model`. The Workflow Editor ticks `%bust_strength%` in its Custom list once the workflow has it.
-
-It has to be a typed FLOAT input. A raw rgthree widget won't work. It doesn't convert the text, so the LoRA silently does nothing.
-
-The LoRA multiplies the size the look already states. It doesn't replace it.
-
-It needs **Queue concurrency 1**. There's only one variable, so 2 pictures drawing at once would grab each other's number. MVU Helper warns you when you turn this on above 1.
-
-**Breast Slider Lora Config** is folded under it:
-
-| Field | Default | What it does |
-| --- | --- | --- |
-| **Bust variable name** | `bust_strength` | the chat variable it writes |
-| **Default** | 1 | the number when nobody in the picture has a `[Bust]` |
-| **Shared value** | 1.5 | the number when 2 or more people have one |
-
-Only people with a `[Bust]` count. With 1 of them, the picture gets theirs. 2 or more can't each get their own, because the LoRA is one strength for the whole picture. So they share one number, and their own sizes still differ in the prompt.
-
-### Resolution presets
-
-**The width and height of each image type.** For your whole PC.
-
-| Type | Default |
-| --- | --- |
-| portrait | 768 × 1152 |
-| landscape | 1152 × 768 |
-| closeup | 768 × 960 |
-| scene | 1152 × 672 |
-| square | 1024 × 1024 |
-
-These are about 1 megapixel, native for SDXL class checkpoints. Change them to what your GPU and checkpoint handle.
-
-## Teaching contract
-
-The teaching contract is the instruction that teaches the AI how to write a picture tag. MVU Helper ships a built-in one, and a card can carry its own. Most people never touch this section.
-
-### Prompt Template
-
-**The instruction text the AI gets.** Per card.
-
-It's sent on every reply while Image Insert Type is anything but Disable. It goes at the very top of the prompt, so your provider's prompt cache can reuse it every reply.
-
-**Reset to default** goes back to the built-in one. While a card is on the built-in one, it follows MVU Helper's updates, so a better contract in a later version reaches you by itself.
-
-Some rules always come from MVU Helper, whatever this box says: outfits, how many pictures, the camera, and the explicit scene rules. So an old copy of the template can never miss them.
-
-### Regex
-
-**How MVU Helper finds the picture tags in a reply.** Per card.
-
-Leave it alone unless the card tells you otherwise. **Reset to default** goes back to the built-in one.
-
-### Position and Depth
-
-**Where the on-screen list goes in the prompt.** Per card.
-
-On a card that tracks who is in the scene, MVU Helper adds a short list of who's on screen right now, so the AI draws someone who's actually there. That list changes every reply, so it doesn't go at the top with the rest.
-
-**Position** picks the role it's sent as: system, user or AI. **Depth** is how far back from the end of the prompt. 0 is the very end, and that's the default.
-
-## Scene gates (MVU)
+## Scene gates
 
 ### Intimacy latch path
 
@@ -308,18 +219,112 @@ The card normally sets this in its own config. Set it here only to override.
 
 A path that isn't found holds the rules back on purpose. A card that set a path asked for a gate, so a broken gate fails safe. No explicit rules at all is easy to spot. Explicit rules on every SFW reply isn't.
 
-### Always inject H guidance (ignore the latch)
+### Always inject H guidance
 
 **Always sends the explicit rules, whatever the latch says.** Per card, off by default.
 
+## Teaching contract
+
+The teaching contract is the instruction that teaches the AI how to write a picture tag. MVU Helper ships a built-in one, and a card can carry its own. Most people never touch this section.
+
+### Prompt template
+
+**The instruction text the AI gets.** Per card.
+
+It's sent on every reply while Image insert type is anything but Disable. It goes at the very top of the prompt, so your provider's prompt cache can reuse it every reply.
+
+**Reset to default** goes back to the built-in one. While a card is on the built-in one, it follows MVU Helper's updates, so a better contract in a later version reaches you by itself.
+
+Some rules always come from MVU Helper, whatever this box says: outfits, how many pictures, the camera, and the explicit scene rules. So an old copy of the template can never miss them.
+
+### Regex
+
+**How MVU Helper finds the picture tags in a reply.** Per card.
+
+Leave it alone unless the card tells you otherwise. **Reset to default** goes back to the built-in one, and a pattern that doesn't work falls back to it too.
+
+### Scene roster placement
+
+**Where the on-screen list goes in the prompt.** Per card.
+
+On a card that tracks who is in the scene, MVU Helper adds a short list of who's on screen right now, so the AI draws someone who's actually there. That list changes every reply, so it doesn't go at the top with the rest.
+
+**Position** picks the role it's sent as: system, user or AI, shown as a gear, a person and a robot in the list. **Depth** is how far back from the end of the prompt. 0 is the very end, and that's the default.
+
+## Backend
+
+Everything in this card is for your whole PC. That's what its **Global** chip means.
+
+### Streaming pre-generation
+
+**Starts drawing a picture the moment its tag is complete, while the AI is still writing.** For your whole PC, on by default.
+
+![The Backend card: the Streaming pre-generation switch, on](../../image/image_gen/streaming.jpg)
+
+So by the time you've read the reply, the picture is usually done. Off, and drawing waits for the whole reply.
+
+A tag inside the AI's thinking doesn't count. And a tag with someone whose look isn't ready yet waits for the finished reply, so it's never drawn wrong.  
+
+One catch is that some proxy or lower end model vendor might cut off the reply from time to time.  For these lower end ai model vendor, you might want to turn this off.
+
+### Queue concurrency
+
+**How many pictures your GPU draws at the same time.** For your whole PC, 1 by default, up to 4.
+
+Leave it at 1 unless you know your backend handles more. ComfyUI on one GPU is most stable at 1. The other pictures just wait in line.
+
+### Send bust multiplier
+
+**Hands each picture a number for a breast slider LoRA in your ComfyUI workflow.** For your whole PC, on by default.
+
+![The Backend card: the Send bust multiplier switch, with Breast slider LoRA config folded under it](../../image/image_gen/bust.jpg)
+
+Skip this one unless your workflow loads a breast slider LoRA. Without one, the number just sits in a chat variable and nothing happens.
+
+A character's look can carry a `[Bust]` value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default.
+
+Your workflow reads that variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor: find `bust_strength`, replace `{{getvar::bust_strength}}`. You don't type it in yourself. Turning the switch on adds it to SillyTavern's Image Generation settings, and turning it off removes it. If you already wrote your own under the same name, MVU Helper leaves yours alone.
+
+The one part that's still yours is the workflow. Put `"%bust_strength%"` on the strength input of the LoRA node, like `LoraLoaderModelOnly.strength_model`. The Workflow Editor ticks `%bust_strength%` in its Custom list once the workflow has it.
+
+It has to be a typed FLOAT input. A raw rgthree widget won't work. It doesn't convert the text, so the LoRA silently does nothing.
+
+The LoRA multiplies the size the look already states. It doesn't replace it.
+
+It needs **Queue concurrency 1**. There's only one variable, so 2 pictures drawing at once would grab each other's number. MVU Helper warns you when you turn this on above 1.
+
+**Breast slider LoRA config** is folded right under it. Click it open:
+
+| Field | Default | What it does |
+| --- | --- | --- |
+| **Bust variable name** | `bust_strength` | the chat variable it writes |
+| **Default value** | 1 | the number when nobody in the picture has a `[Bust]` |
+| **Shared value** | 1.5 | the number when 2 or more people have one |
+
+Only people with a `[Bust]` count. With 1 of them, the picture gets theirs. 2 or more can't each get their own, because the LoRA is one strength for the whole picture. So they share one number, and their own sizes still differ in the prompt.
+
+### Resolution presets
+
+**The width and height of each image type.** For your whole PC. It's folded at the bottom of the Backend card.
+
+| Type | Default |
+| --- | --- |
+| portrait | 768 × 1152 |
+| landscape | 1152 × 768 |
+| closeup | 768 × 960 |
+| scene | 1152 × 672 |
+| square | 1024 × 1024 |
+
+These are about 1 megapixel, native for SDXL class checkpoints. Change them to what your GPU and checkpoint handle.
+
 ## When something goes wrong
 
-Turn on the **Image gen** debug domain in MVU Helper's Main tab first. The console then shows every picture: the shot the AI wrote, and the exact prompt sent to `/sd`.
+Turn on **Image gen** in the Debug card of MVU Helper's Main tab first. The console then shows every picture: the shot the AI wrote, and the exact prompt sent to `/sd`.
 
 - **No picture, and no toast.** The reply has no tag, so the AI skipped the instruction. A card's own output format can crowd it out. The console says so.
-- **"Image generation produced no image".** `/sd` failed. Check SillyTavern's image generation, and run the test workflow inside ComfyUI, see [Set up ComfyUI](comfyui_setup.md#test-it-in-comfyui). With my workflows, also check **Send bust multiplier to the backend** is still ticked.
+- **"Image generation produced no image".** `/sd` failed. Check SillyTavern's image generation, and run the test workflow inside ComfyUI, see [Set up ComfyUI](comfyui_setup.md#test-it-in-comfyui). With my workflows, also check **Send bust multiplier** is still on.
 - **A character looks like a stranger.** She has no look on file. The console names her.
-- **Someone is missing from the picture.** The tag had more people than Max characters with DNA per image. The console says who was left out.
+- **Someone is missing from the picture.** The tag had more people than Max characters per image. The console says who was left out.
 
 ## For card authors
 

@@ -26,7 +26,7 @@ Both are standalone. Install either one, play a few replies, and read its drawer
 
 1. Keep your `plugin-<id>/` folder in your workspace, `c:\dev\my-game\workspace`. Then open CMD in `c:\dev\my-game` and run `npm run dev`. It watches `workspace/`.
 2. In SillyTavern: GameLogic Packs tab > Artifact dev loop > Watch the local dev server. The loop puts the folder together and adds it to the library.
-3. The first time it applies to a card, it asks whether that card is a dev card. From then on it applies every save to it, with no reload.
+3. The first time it applies to a card, it asks whether to install the dev workspace on that card: **Install all** or **Not here**. From then on it applies every save to it, with no reload.
 
 How to set it up is on [Development Environment and Dev Loops](../dev_env/README.md).
 
@@ -36,7 +36,7 @@ How to set it up is on [Development Environment and Dev Loops](../dev_env/README
 
 On the plugin's library row: Install to this card. The dialog asks for:
 
-- **The drawer name,** the state root. It's filled in from your id. Letters, digits and `_`, starting with a letter.
+- **State root,** the drawer name. It's filled in from your id. Letters, digits and `_`, starting with a letter.
 - **One call per phase your entries use.** Only the phases whose token you used. When exactly one call fits, it's picked for you.
 
 Then the entries, the engine and the panel are written, the card's registry records every answer, and the plugin's empty drawer shows up in the open chat right away.
@@ -58,7 +58,7 @@ Both reinstall from the library copy:
 
 1. The entries the last install recorded are deleted first. So an entry you renamed can't survive under its old name.
 2. The new entries are written.
-3. The drawer name and the call bindings are reused. The player picks nothing again.
+3. The form opens again with the drawer name locked and the calls already picked. The player just clicks **Upgrade** or **Repair**.
 
 The drawer can't move, because what's inside it is a live game.
 
@@ -78,9 +78,9 @@ The plugin's schema is removed only if its own install wrote it, and the card st
 
 The player can rename or delete the call your entries are bound to. Then your entries route to nothing.
 
-When that happens, every chat load warns and names the missing call, and the plugin's light on its row turns amber. A rebind link rewrites your entries' comments to another call.
+When that happens, every chat load warns and names the missing call, and the plugin's row gets a **Drift** pill, with a line naming the call that's gone. A **Rebind PRE call** or **Rebind POST call** button on the row rewrites your entries' comments to another call. Pick the call, then **Rebind**.
 
-An interface the plugin uses that the game stops exposing turns the light amber too.
+An interface the plugin uses that the game stops exposing gets the **Drift** pill too, with a line naming it. There's no Rebind for that one.
 
 ## Import someone else's plugin
 

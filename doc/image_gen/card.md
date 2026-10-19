@@ -6,7 +6,7 @@ You don't want every player to set up pictures by hand. So the card carries its 
 
 ## What travels with your card
 
-Set it up on the Image tab, then Main tab > Card config > **Export config → card**. The `imagegen` section goes into `[Initmvuhelper]`.
+Set it up on the Image Generation tab, then Main tab > Card config > **Export to card**. The `imagegen` section goes into `[Initmvuhelper]`.
 
 | Kind | Fields | First load | A card upgrade |
 | --- | --- | --- | --- |
@@ -56,7 +56,7 @@ These used to exist. A card that still carries one gets it named in the console 
 | `storyDatePath`, `defaultOutfits` | every picture names what each person wears |
 | `maleRegistryKey` | renamed `maincharRegistryKey` |
 | `maxGirlsPerImage` | renamed `maxCharactersPerImage` |
-| `teachNarrator` | Image Insert Type decides whether the contract is sent |
+| `teachNarrator` | Image insert type decides whether the contract is sent |
 
 ## The state MVU Helper keeps
 
@@ -85,7 +85,7 @@ That's what `same-as-last-picture` draws. Someone no picture has drawn in more t
 
 ## Checking your work
 
-Turn on the **Image gen** debug domain in MVU Helper's Main tab.
+Turn on **Image gen** in the Debug card of MVU Helper's Main tab.
 
 | You see | It means |
 | --- | --- |
