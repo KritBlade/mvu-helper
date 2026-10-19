@@ -64,13 +64,15 @@ On the library row: Install to this card.
 
 The On this card row then shows the pack's state as a pill: **Installed**, **Pieces missing** or **No library copy**. It offers Export, the file icon, and Uninstall, the red bin. Repair shows up when pieces are missing from the card, and Upgrade when the library holds a newer version.
 
+The engine and the `Scheme` script count as pieces, so removing the engine makes the row read Pieces missing. If something else replaces either one, such as an engine dev upload or a hand edit, the row gets a **Drift** pill naming it. Repair writes the pack's copy back.
+
 The pack's `version` decides which one an install is. Same version is Repair, newer is Upgrade, older is Downgrade, and Downgrade asks first. An older library copy offers no button of its own, so going back a version is Uninstall, then Install.
 
 All 4 write the same way:
 
 1. Every entry the previous install recorded is deleted, then the pack's entries are written.
 2. The engine goes into `[MVU_LogicEngine]`, the schema into the `Scheme` script, and the regexes into the card's regex list. Regexes an older version installed and this one no longer ships are removed.
-3. `[GameLogicPack:Registry]` records what was written and owned, the `state`, the `exposes` map and the pack's identity.
+3. `[GameLogicPack:Registry]` records what was written and owned, a fingerprint of the engine and schema text it wrote, the `state`, the `exposes` map and the pack's identity.
 4. The card's state is synced, the `[InitVar]` seed and the `force` map. Then the engine reloads.
 
 ## Pieces the card already has

@@ -11,6 +11,8 @@ A StatusMenu Pack goes into the library first, and from the library onto a card.
 
 Then Install to this card on its library row.
 
+Its row in On this card reads **Pieces missing** when one of its pieces is gone, the engine included. If something else replaced the engine, such as a StatusMenu Engine dev upload, the row gets a **Drift** pill naming it. Repair writes the pack's copy back.
+
 **Installing the regexes reloads the chat.** Regexes are only written at install, not on every save.
 
 ## What install writes
