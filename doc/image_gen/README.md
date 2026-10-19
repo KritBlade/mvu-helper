@@ -56,7 +56,7 @@ That's it. The picture shows up right under the sentence it belongs to, with a s
 
 ## Per card, or for your whole PC
 
-Most fields are per card. Each card keeps its own, and switching cards switches them. The **Card:** chip at the top of the tab names the card you're editing, so open that card's chat first. With no chat open, there's no card to save them to. A card built for MVU Helper can bring its own values with it.
+Most fields are per card. Each card keeps its own, and switching cards switches them. The **Card:** chip at the top of the tab names the card you're editing, so open that card's chat first. With no chat open, there's no card to save them to, so those cards grey out and the tab tells you to open a chat. A card built for MVU Helper can bring its own values with it.
 
 A few fields describe your PC instead, and those are the same for every card. They sit together in the **Backend** card, the one with the **Global** chip: **Streaming pre-generation**, **Queue concurrency**, **Send bust multiplier** and **Resolution presets**. The list of **/sd prompt prefix** presets is shared by every card too, only the pick is per card. A card never changes them, because only you know what your GPU can handle.
 
