@@ -4,6 +4,21 @@ An event pack is new story for your game, written by somebody else. A player ins
 
 Think of mods for a PC game. The modder never needed the original developer to change anything. The game opened a few doors, and the mod walks through them.
 
+## Quick start for content creators
+
+You don't need to write any code to make events. You build them by clicking, in MVU Status Menu Builder's **Event Pack** tab.
+
+1. **Get the game card.** Export the MVU character card from SillyTavern, as `.json` or `.png`, with its GameLogic Engine installed.
+2. **Upload it.** MVU Status Menu Builder > **Event Pack** tab > Upload a complete MVU character card.
+3. **Make your events.** For each one, click together when it happens (the conditions), what it changes (the effects), and the scene the narrator plays. The builder only offers what that game allows, so you can't pick something it can't do.
+4. **Generate and share.** Download the pack text, and share that one file. A player installs it in MVU Helper > **Event Packs**.
+
+That's it. With a card built on the GameLogic Engine, it just works. The builder reads the game's engine, its schema and its starting variables, and fills the pickers with real paths and the real cast. The one thing it needs is an engine that hosts event packs, like ArtificKoi's. A card whose engine opened no doors for them is refused, and the builder says so.
+
+An event pack is built for ONE card. Its events are tied to that card's characters and story. A beach date with Mitsuki means nothing in a fantasy RPG with no Mitsuki in it, so build a separate pack for each game.
+
+Every field, every section of the tab and how to test your pack are on [Build events in MVU Status Menu Builder](builder.md).
+
 ## What an event is
 
 An event is a checkpoint with conditions. When every condition is true, the event happens. Until then, you play whatever you want.

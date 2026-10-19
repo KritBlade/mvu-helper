@@ -2,6 +2,7 @@
 
 **Development Features**
 
+- [QuickStart Guide](doc/quickstart.md)
 - [What is Tavern Helper, ST-Prompt-Template and MVU](doc/st_extensions/README.md)
 - [Development Environment and Dev Loops](doc/dev_env/README.md)
 - [MVU Squad](doc/mvu_squad/README.md)
