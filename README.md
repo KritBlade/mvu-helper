@@ -23,6 +23,10 @@
 - [Extra LLM Calls](doc/extra_llm_calls/README.md)
 
 
+## Installation instructions
+
+MVU Helper needs 2 other SillyTavern extensions first like all other MVU extensions, Tavern Helper and ST-Prompt-Template, plus one setting you must not skip, Environmental isolation. It's 6 short steps, all on [Install MVU Helper](doc/install.md).
+
 ## What is MVU Helper
 
 MVU Helper is a SillyTavern extension that lets you build a game inside a character card. Not a bot, a game.  Only 3 functions are end users facing as the table above shown,  the rest of the extenion is mainly for development use.  **If you are normal users, please click the "User Facing Features above"**.
