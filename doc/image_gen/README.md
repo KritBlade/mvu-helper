@@ -74,7 +74,7 @@ A few fields describe your PC instead, and those are the same for every card. Th
 | **Create new message** | each picture becomes its own chat message, right after the reply |
 | **Inline replace mode** | the picture takes the tag's place, right under the sentence it belongs to |
 
-The pill at the top of the tab follows it: **Images on**, **Tags only** or **Images off**.
+The pill at the top of the tab follows it: **Images on**, **Tags only** or **Images off**. With no chat open it hides.
 
 Anything but Disable asks the AI for tags. That's an instruction block in the prompt on every reply, so it costs some tokens, even on Tags only.
 

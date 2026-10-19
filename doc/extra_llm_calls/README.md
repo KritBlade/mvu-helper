@@ -45,7 +45,7 @@ At the top of the tab, in the **Calls** card:
 
 | Setting | What it does |
 | --- | --- |
-| **Enable Extra LLM Calls** | the master switch. Off, and no PRE or POST call runs. The pill at the top of the tab follows it: **Calls on** or **Calls off** |
+| **Enable Extra LLM Calls** | the master switch. Off, and no PRE or POST call runs. The pill at the top of the tab follows it: **Calls on** or **Calls off**, and hides with no chat open |
 | **Run calls in parallel** | on, and the calls of one phase run at the same time, except calls sharing a profile, which take turns. Off, and they run one after another |
 | **Call timeout (s)** | how long to wait for each call before giving up on it, 60 seconds by default. A stuck call counts as empty, and the reply goes on without it |
 
