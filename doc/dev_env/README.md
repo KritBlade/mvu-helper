@@ -109,18 +109,28 @@ npm run dev
 
 The first time, it downloads MVU Helper's dev server, the same way `.mcp.json` downloads the Chrome tool. It lands in npm's own cache, not in your game's folder. That's on purpose. Your AI never sees MVU Helper's code, so it never mistakes it for something it should change to make your engine work. Then the server watches `c:\dev\my-game\workspace`.
 
-Port 6620 taken? Run `npm run dev -- --port 6621`, and change the address in MVU Helper to match.
+Port 6620 taken? Run `npm run dev -- --port 6621`, and change Dev server URL in MVU Helper to match.
 
-Then in SillyTavern: MVU Helper > GameLogic Packs tab > Artifact dev loop > check Watch the local dev server. The address is already filled in, `http://127.0.0.1:6620`. It should connect:
+Then in SillyTavern: MVU Helper > GameLogic Packs tab > Artifact dev loop > turn on Watch the local dev server. Dev server URL is already filled in, `http://127.0.0.1:6620`. It should connect:
 
-![The Artifact dev loop section of the GameLogic Packs tab, connected](../../image/dev_env/artifact_dev_loop.png)
+![The Artifact dev loop card on the GameLogic Packs tab, connected, with no chat open yet](../../image/dev_env/artifact_dev_loop.png)
 
-The status line tells you where you are. In this one:
+The row at the bottom is the status. The pill on the right tells you where you are, and the line under Dev server tells you what happens next.
 
-- **connected** > MVU Helper is talking to the dev server.
-- **not installing "test-series", "lane-probe", "standalone-probe" here (answered no this session)** > the workspace has 3 packs this card doesn't have, and I said no when the loop asked to install them here.
-- **what this card already has still updates** > the packs already on this card still get every save.
-- **build #7 · 1 applied** > the dev server rebuilt 7 times, and the last build put 1 pack onto the card.
+In this one, no chat is open yet. So the pill says **No chat open**, and the loop just waits with the workspace in hand. Build #1 is the dev server's first build. Open your game's chat, and it applies there.
+
+The pills you will see:
+
+- **Connected** > it's talking to the dev server, and the last save went in fine. Right after you open a card, the line says nothing is applied to this card yet. Your next save lands there.
+- **Applying** > a save is going onto the card right now.
+- **Updates only** > you answered Not here for this card. It only updates the packs the card already has, and the line names the ones it left out.
+- **Not applied** > a pack was skipped, most of the time because it has errors. The line names it and says why.
+- **Setup needed** > a pack needs one thing from you first. The line says what.
+- **Apply failed** > a pack didn't make it onto the card. The console names each reason.
+- **Card not ready** > the chat is still loading. It applies again once it's done.
+- **Not connected** > it can't reach the dev server. The line says why. Most of the time, `npm run dev` isn't running.
+
+Under the line, something like **Build #7 · 2 applied** means the dev server rebuilt 7 times, and the last build put 2 packs onto this card.
 
 ## What the dev loop does
 
@@ -132,7 +142,7 @@ How it works:
 
 1. **`npm run dev` starts a small server on your PC.** It only listens on your own machine, `127.0.0.1`, port 6620. It watches your workspace folder.
 2. **Every time you save, it rebuilds your packs,** and runs the same checks an import runs. A pack with errors is skipped, and the error is shown.
-3. **MVU Helper, with the checkbox on, listens to that server.** Each rebuild, it installs the changed pack onto the open card, through the same install the Install to this card button uses.
+3. **MVU Helper, with the switch on, listens to that server.** Each rebuild, it installs the changed pack onto the open card, through the same install the Install to this card button uses.
 
 What a save changes on the card:
 
@@ -143,10 +153,11 @@ What a save changes on the card:
 
 It's built to be safe to leave on:
 
-- **It asks before installing anything new on a card.** The first time it applies to a card that doesn't have one of your packs yet, it asks once whether this is a dev card. Yes, and it installs the whole workspace there on every save. No, and it only updates what the card already has. The new packs still land in your Pack library, one Install click away.  I usually choose "No" so that I can handpick which pack I want to install to the character card.  It will still auto sync whatever that is installed anyway.
+- **It asks before installing anything new on a card.** The first time it applies to a card that doesn't have one of your packs yet, it asks once whether to install the dev workspace on this card. Install all, and it installs the whole workspace there on every save. Not here, and it only updates what the card already has. The new packs still land in your Pack library, one Install to this card click away.  I usually choose "Not here" so that I can handpick which pack I want to install to the character card.  It will still auto sync whatever that is installed anyway.
 - **The answer lasts until you restart the dev server.** Restarting it is how you get asked again.
 - **It never uninstalls anything,** and it does nothing in the lobby. It waits until a chat is open.
-- **It's off for everyone else.** With the checkbox off, MVU Helper opens no connection at all.
+- **It stops when you switch cards.** Change chats in the middle of an apply, and it stops writing to the card you left, then applies again on the one you opened.
+- **It's off for everyone else.** With the switch off, MVU Helper opens no connection at all.
 
 A plugin needs one install by hand first, because the loop never picks your LLM calls for you. See [Build, install and uninstall](../gamelogic_plugin/install.md#develop-against-a-live-card).
 
