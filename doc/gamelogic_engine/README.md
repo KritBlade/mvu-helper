@@ -1,6 +1,6 @@
 # What is GameLogic Engine
 
-The GameLogic Engine is the heart of MVU Engine v2. It is the game.
+The GameLogic Engine is the heart of **MVU Game Engine v2.0**. It is the game.
 
 It's a JavaScript file you write, and it holds your game mechanics and game logic. What a stat means. How damage is worked out. When a girl agrees to a date. What time it is. When an event fires. All of that lives in the engine, not in the prompt.
 
