@@ -45,7 +45,7 @@ Game Content - If you want to make a Konosuba game and want to play as the main 
 
 Event Trigger - When you first come to the town with Aqua in Konosuba, you are supposed to meet Megumin in a restaurant after numerous people refuse to join your party. This is an event triggered after you are in the restaurant and after numerous people refuse to join your party. You can't do this kind of event triggering with prose alone in SillyTavern. This is an event trigger.
 
-MVU Helper rides on [MVU (MagVarUpdate)](https://github.com/MagicalAstrogy/MagVarUpdate), the stat and state tracking framework a lot of Chinese game cards are built on.  MVU Helper houses the **[MVU Game Engine v2.0](doc/gamelogic_engine/README.md)**.
+MVU Helper rides on [MVU (MagVarUpdate)](https://github.com/MagicalAstrogy/MagVarUpdate), the stat and state tracking framework a lot of Chinese game cards are built on.  MVU Helper houses the **[MVU Game Engine v2.0](doc/gamelogic_engine/README.md)*.
 
 ### Why a plain lorebook is not enough
 
@@ -54,6 +54,16 @@ Most English character cards are a plain lorebook with a few alt greetings. Ther
 An AI model executes instructions. If the lorebook gives it stats but no instruction what they mean, the AI just guesses. Your warrior with 50 STR hits a goblin for 12 damage on reply 5 and 60 damage on reply 50. Does Affection 40 allow a kiss? The AI doesn't know, so it makes something up, and something different every time.
 
 That's the drift. The character you met on reply 5 is not the same character on reply 50.
+
+### Why do people focus on the prose?
+
+A lot of users care about the prose of their AI model more than anything else. The reason is simple. With a plain card, there's pretty much nothing else you can tweak besides the text.
+
+With a game engine in place, you can focus on everything else: the story, the game content, the game mechanics, the character design, the image generation, the quality of the events.
+
+Think of a console game. Nobody cares how a console game words its text. You care how good the content is, how fun the mechanics are, and how good the graphics look.
+
+MVU Game Engine v2.0 tries to mimic that console game experience, with AI generation on top of it.
 
 ### Why putting the whole engine in the prompt is not the answer either
 
