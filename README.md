@@ -45,7 +45,7 @@ Game Content - If you want to make a Konosuba game and want to play as the main 
 
 Event Trigger - When you first come to the town with Aqua in Konosuba, you are supposed to meet Megumin in a restaurant after numerous people refuse to join your party. This is an event triggered after you are in the restaurant and after numerous people refuse to join your party. You can't do this kind of event triggering with prose alone in SillyTavern. This is an event trigger.
 
-MVU Helper rides on [MVU (MagVarUpdate)](https://github.com/MagicalAstrogy/MagVarUpdate), the stat and state tracking framework a lot of Chinese game cards are built on.
+MVU Helper rides on [MVU (MagVarUpdate)](https://github.com/MagicalAstrogy/MagVarUpdate), the stat and state tracking framework a lot of Chinese game cards are built on.  MVU Helper houses the **[MVU Game Engine v2.0](doc/gamelogic_engine/README.md)**.
 
 ### Why a plain lorebook is not enough
 
