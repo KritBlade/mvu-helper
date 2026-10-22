@@ -27,7 +27,7 @@ So you pick one connection profile per call:
 
 That's it. A call that's on but has no profile shows a **No connection** pill on its card, and MVU Helper tells you with a toast too.
 
-Make the profiles in SillyTavern's Connection Manager first. One profile is one model plus its preset. A different preset is a different profile.
+**Make the profiles in SillyTavern's Connection Manager first**. One profile is one model plus its preset. A different preset is a different profile.
 
 ## Which model for which call
 
@@ -60,6 +60,16 @@ Each call is a card of its own in the **Call list**:
 | **Connection** | the model this call runs on. Yours to pick |
 
 The rest of each call's fields belong to the card, **Max tokens** and **Temperature** included. Blank means the profile's preset decides. You can change them, but a card upgrade puts the card's values back. All these settings are per card, so every card keeps its own calls.
+
+## How to use it
+
+A call has no prompt box. Its prompt is a lorebook entry.
+
+So make a new entry in your card's lorebook, and put the call's name in brackets in its comment, like `[PRE] Weather Forecast`. That's the name you gave the call in the **Call list**. Every lorebook entry with that tag is sent out with the call: before the reply for a PRE call, after it for a POST call.
+
+You can disable the entry in SillyTavern, so the main LLM call never reads it. MVU Helper still reads it, as long as the tag is there. So the rules meant for PRE stay out of your expensive model's prompt.
+
+More on how these entries are put together is on [What a call reads](prompts.md).
 
 ## What you'll see
 
