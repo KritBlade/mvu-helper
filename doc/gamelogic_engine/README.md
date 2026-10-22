@@ -2,6 +2,10 @@
 
 The GameLogic Engine is the heart of **MVU Game Engine v2.0**. It is the game.
 
+MVU Game Engine v2.0 is built for rapid development, and it's meant for vibe coding. You tell your AI what you want, it writes the code, and the game on your screen runs it a second after every save.
+
+Your engine runs heavily sandboxed. It can't read, write or reach the network anywhere outside the game chat and the game's MVU variables. So it's safe even when the worst AI model writes it. How to start is on the [QuickStart Guide](../quickstart.md).
+
 It's a JavaScript file you write, and it holds your game mechanics and game logic. What a stat means. How damage is worked out. When a girl agrees to a date. What time it is. When an event fires. All of that lives in the engine, not in the prompt.
 
 Every reply, MVU Helper hands your engine 2 things: the game state, and the narrator's report of what just happened. Your engine decides the result, does the math and hands back the new state. MVU Helper saves it.

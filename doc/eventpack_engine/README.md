@@ -2,6 +2,10 @@
 
 An event pack is new story for your game, written by somebody else. A player installs it inside MVU Helper, and your game plays it, without you changing one single line of code.
 
+Event packs are part of MVU Game Engine v2.0, which is built for rapid development and meant for vibe coding. You tell your AI what you want, it writes the code, and the game on your screen runs it a second after every save.
+
+The engine that plays your events runs heavily sandboxed. It can't read, write or reach the network anywhere outside the game chat and the game's MVU variables, and an event pack itself is data, not code. So it's safe even when the worst AI model writes the game. How to start is on the [QuickStart Guide](../quickstart.md).
+
 Think of mods for a PC game. The modder never needed the original developer to change anything. The game opened a few doors, and the mod walks through them.
 
 ## Quick start for content creators

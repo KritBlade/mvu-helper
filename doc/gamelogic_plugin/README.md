@@ -2,6 +2,10 @@
 
 A GameLogic Plugin is a small add-on you install onto a game card. It adds one feature to a game it didn't write: weather, a diary, a travel map, anything that makes sense on more than one game.
 
+Plugins are part of MVU Game Engine v2.0, which is built for rapid development and meant for vibe coding. You tell your AI what you want, it writes the code, and the game on your screen runs it a second after every save.
+
+A plugin's code runs in the same heavy sandbox as the game engine. It can't read, write or reach the network anywhere outside the game chat and the game's MVU variables. So it's safe even when the worst AI model writes it. How to start is on the [QuickStart Guide](../quickstart.md).
+
 It works like a mod for a PC game. The modder never needed the original developer to change a line, and the game's own files stay the way they were. Same here. A plugin never touches the game's GameLogic Pack. It sits next to it.
 
 And it doesn't even need a game. A plugin can run on a card that has nothing but MVU and MVU Helper.

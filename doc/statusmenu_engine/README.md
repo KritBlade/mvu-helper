@@ -2,6 +2,10 @@
 
 The Status Menu Engine is your game's screen. The status menu the player opens inside the chat: stats, money, the cast, the inventory, buttons to equip an item or edit a record.
 
+The status menu is part of MVU Game Engine v2.0, which is built for rapid development and meant for vibe coding. You tell your AI what you want, it writes the code, and the menu on your screen updates a second after every save.
+
+The menu's code runs in the same heavy sandbox as the game engine. It can't read, write or reach the network anywhere outside the game chat and the game's MVU variables. So it's safe even when the worst AI model writes it. How to start is on the [QuickStart Guide](../quickstart.md).
+
 The GameLogic Engine is the game. The status menu is how the player sees it, and pokes at it. The status menu shows at the end of each reply in SillyTavern.
 
 Here's ArtificKoi's, on the Classmates tab. Every value on it comes straight from `stat_data`, and the pencil on the portrait is a button:
