@@ -57,13 +57,13 @@ That's the drift. The character you met on reply 5 is not the same character on 
 
 ### Why do people focus on the prose?
 
-A lot of users care about the prose of their AI model more than anything else. The reason is simple. With a plain card, there's pretty much nothing else you can tweak besides the text.
+A lot of users care about the prose of their AI model more than anything else. The reason is simple. With a plain card, there's pretty much nothing else you can tweak besides the text.....and battling with memory of the story.
 
-With a game engine in place, you can focus on everything else: the story, the game content, the game mechanics, the character design, the image generation, the quality of the events.
+With a game engine in place, you can focus on everything else: the story, the game content, the game mechanics, the character design, the image generation, the quality of the events. Chinese and Korea Sillytavern card has been doing this for more than a year.
 
 Think of a console game. Nobody cares how a console game words its text. You care how good the content is, how fun the mechanics are, and how good the graphics look.
 
-MVU Game Engine v2.0 tries to mimic that console game experience, with AI generation on top of it.
+MVU Game Engine v2.0 tries to mimic that console game experience, with AI generation on top of it.  [Vectfox](https://github.com/KritBlade/VectFox) is the extension to take care of the memory for the story side. 
 
 ### Why putting the whole engine in the prompt is not the answer either
 
