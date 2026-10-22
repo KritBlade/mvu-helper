@@ -1,5 +1,7 @@
 # MVU Helper
 
+![alt text](image/mvu-helper-logo.png)
+
 **Development Features**
 
 - [QuickStart Guide](doc/quickstart.md)
