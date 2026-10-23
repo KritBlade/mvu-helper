@@ -110,6 +110,14 @@ Even the schema a pack installs is filtered. The schema runs on the page as a Ta
 
 Therefore, you only build the part that makes your game different. Everything else is already there. Sounds good?
 
+### Why not build a standalone app?
+
+There is no reason to build a standalone app when SillyTavern already provides every single piece of groundwork a standalone app would need: the connection manager, the chat interface, extension management and multi-language support.
+
+The only thing missing is the game logic and a framework to create game content.
+
+Moreover, one framework that works inside SillyTavern means content creators can build 1000+ different character cards on the same platform. A standalone app means the dev has to build 1000+ different standalone apps for 1000+ games.
+
 ### It's a game, not a bot
 
 A character card built with MVU Helper is not a single character to chat with. It's a game, and that means rules and regulations are enforced.
