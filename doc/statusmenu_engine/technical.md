@@ -67,8 +67,8 @@ The StatusMenu Pack tab in MVU Status Menu Builder has 3 exports. Before you use
 | Button | You get | What's inside | Where it goes |
 | --- | --- | --- | --- |
 | Download `<id>-statusmenu-pack.json` | one file | the layout, a starter engine and the shell, all in one | MVU Helper > StatusMenu Packs tab > Import. The shipping file |
-| Bootstrap workspace .zip | `statusmenu.zip` | `pack.json`, the layout, both engine files and the shell | extract into an EMPTY `workspace/statusmenu/`, once |
-| Refresh .zip (layout + shell) | `statusmenu-refresh.zip` | the layout, `layoutFormatters.cjs` and the shell | extract into `workspace/statusmenu/`, any time |
+| Download statusmenu.zip | `statusmenu.zip` | `pack.json`, the layout, both engine files and the shell | extract into an EMPTY `workspace/statusmenu/`, once |
+| Download refresh .zip | `statusmenu-refresh.zip` | the layout, `layoutFormatters.cjs` and the shell | extract into `workspace/statusmenu/`, any time |
 
 **Copy pack JSON** copies the same file as the download, to paste into MVU Helper's Import box.
 
@@ -83,7 +83,7 @@ MVU Helper's own Development tab > Add New Blank Packs > StatusMenu Pack gives y
 A new cell, a new formula, a new tab:
 
 1. Change it in the builder.
-2. Export **Refresh .zip (layout + shell)**, and extract it into `workspace/statusmenu/`.
+2. Click **Download refresh .zip**, and extract it into `workspace/statusmenu/`.
 3. The dev loop picks it up, and the menu on the card redraws.
 
 A cell that names a formatter the engine doesn't export is an error, and it names the cell.

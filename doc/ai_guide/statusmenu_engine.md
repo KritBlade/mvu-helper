@@ -41,7 +41,7 @@ A hand-written regex page (School's start screen) must keep the shape the lift n
 
 ```
 <clone>/
-├── design/layout-<game>.json      builder project file (Export Config). Outside workspace/
+├── design/layout-<game>.json      builder project file (Export config). Outside workspace/
 └── workspace/statusmenu/
     ├── pack.json
     ├── layout/layout.json
@@ -59,7 +59,7 @@ A hand-written regex page (School's start screen) must keep the shape the lift n
 | `regex/StatusMenu.json` | builder, every Refresh | NO |
 | `regex/_GameStartMenu__.json` | hand-written (School only) | yes, keep the lift shape |
 | `regex/regex-order.json` | you. The dev loop also rewrites it when regexes are dragged into a new order in SillyTavern | yes |
-| builder project file | builder Export Config | yes, as JSON, then Import Config |
+| builder project file | builder Export config | yes, as JSON, then Import config |
 
 The template ships the project file as `workspace/statusmenu/sample-layout-schoolv4.json`, a byte copy of School's. At that spot the dev server refuses the whole pack. Move it out first (Step 0).
 
@@ -82,20 +82,20 @@ The builder is a browser app. The user runs it, or the AI drives it through the 
 
 | Builder control | Downloads | Goes where |
 | --- | --- | --- |
-| Export Config (top bar) | the project file, named `layout.json` | rename to `design/layout-<game>.json`. NEVER into `layout/` |
-| StatusMenu Pack tab > Refresh .zip (layout + shell) | `statusmenu-refresh.zip`: `layout/layout.json`, `engine/layoutFormatters.cjs`, `regex/StatusMenu.json` | extract INTO `workspace/statusmenu/`, any time |
-| StatusMenu Pack tab > Bootstrap workspace .zip | `statusmenu.zip`: all of the above plus `pack.json` and a starter `statusMenuLogic.cjs` with NO actions | an empty `workspace/statusmenu/` only |
+| Data Configuration page > Config file card > Export config | the project file, named `layout.json` | rename to `design/layout-<game>.json`. NEVER into `layout/` |
+| StatusMenu Pack page > Refresh workspace card > Download refresh .zip | `statusmenu-refresh.zip`: `layout/layout.json`, `engine/layoutFormatters.cjs`, `regex/StatusMenu.json` | extract INTO `workspace/statusmenu/`, any time |
+| StatusMenu Pack page > Bootstrap workspace card > Download statusmenu.zip | `statusmenu.zip`: all of the above plus `pack.json` and a starter `statusMenuLogic.cjs` with NO actions | an empty `workspace/statusmenu/` only |
 | Download `<id>-statusmenu-pack.json` | the single shipping file (starter engine, no actions) | not used in the workspace loop |
 
 The Export HTML tab is a different output. It is not a StatusMenu Pack.
 
 Layout change, every time:
 
-1. Import Config the project file. The project file is plain JSON: `layout` (the tabs), `mvuData` (sample `stat_data` as a JSON string), `selectedPaths`, `collectionPaths`, `lockedPaths`, `globalCss` (unscoped), `staticLocale` (unprefixed), `customTemplates`. The AI may edit it directly (for example, rewrite every `mappedKey`) before the user imports it.
+1. Import config the project file (Data Configuration page > Config file card). It asks first, because it replaces the whole project. The project file is plain JSON: `layout` (the tabs), `mvuData` (sample `stat_data` as a JSON string), `selectedPaths`, `collectionPaths`, `lockedPaths`, `globalCss` (unscoped), `staticLocale` (unprefixed), `customTemplates`. The AI may edit it directly (for example, rewrite every `mappedKey`) before the user imports it.
 2. Change the layout in the Builder tab. Cell formulas are the cells' `customLogic`, and they live only in the project file.
 3. StatusMenu Pack tab: type Name and **Id = `pack.json` id**, tick every tab the menu shows (when some are ticked, only those export), read the "What the lift did" panel and the warnings.
-4. Export Config, and save over `design/layout-<game>.json`.
-5. Refresh .zip (layout + shell), extract into `workspace/statusmenu/`, overwrite the 3 files.
+4. Export config, and save over `design/layout-<game>.json`.
+5. Download refresh .zip, extract into `workspace/statusmenu/`, overwrite the 3 files.
 6. Verify (below).
 
 On export, a formula that computes becomes a formatter in `layoutFormatters.cjs` and the cell keeps only `formatters: { text | image | lorebookKey: "<name>" }`. A formula that is a bare literal becomes the cell's `staticValue`. The name comes from the cell's `mappedKey` or title in camelCase (`Mainchar.Money` > `maincharMoney`, an Image cell adds `Image`), so renaming a `mappedKey` renames its formatter.

@@ -44,7 +44,7 @@ You draw the menu in [MVU Status Menu Builder](../statusmenu_builder/README.md),
 
 Then the **StatusMenu Pack** tab turns it into something MVU Helper can install.
 
-Save your work as you go with **Export Config** at the top. It downloads your layout as `layout.json`. Next time, **Import Config** loads it back, and you carry on where you left off. Keep that file. It's the master copy of your menu's design.
+Save your work as you go with **Export config**, at the top of the Data Configuration page. It downloads your layout as `layout.json`. Next time, **Import config** loads it back, and you carry on where you left off. Keep that file. It's the master copy of your menu's design.
 
 ## Part 2: export it
 
@@ -62,7 +62,7 @@ Then in SillyTavern: MVU Helper > StatusMenu Packs tab > Import > Load file, Val
 
 Say a button has to do something. Equip a sword, delete a quest, give an item to a classmate. That's menu logic, and logic is code.
 
-So on the StatusMenu Pack tab, click **Bootstrap workspace .zip**. It downloads `statusmenu.zip`. Extract it into your workspace as `workspace/statusmenu/`, and you have the folder above.
+So on the StatusMenu Pack tab, in the Bootstrap workspace card, click **Download statusmenu.zip**. Extract it into your workspace as `workspace/statusmenu/`, and you have the folder above.
 
 From then on you work in VS Code, with the dev loop: save a file, and the menu on the card updates. How to set that up is on [Development Environment and Dev Loops](../dev_env/README.md).
 
@@ -75,7 +75,7 @@ The menu's code lives in 2 files, and each one has its own owner:
 - **`layoutFormatters.cjs` belongs to the builder.** It's the formulas behind your cells, like "show money with a yen sign". The builder writes it on every export. Never edit it.
 - **`statusMenuLogic.cjs` belongs to you.** What each button does. The builder writes it once, as a starter, and never touches it again.
 
-That split is the whole point. You change the menu logic in `statusMenuLogic.cjs` without touching the layout at all. And when the layout changes, you redraw it in the builder, export a **Refresh .zip**, and extract it over your folder. It carries the layout and the builder's file, and never your logic.
+That split is the whole point. You change the menu logic in `statusMenuLogic.cjs` without touching the layout at all. And when the layout changes, you redraw it in the builder, click **Download refresh .zip**, and extract it over your folder. It carries the layout and the builder's file, and never your logic.
 
 It's like repainting a car. The body shop changes how it looks, and the engine under the hood stays exactly the way you tuned it.
 

@@ -8,7 +8,7 @@ You start by uploading the game card. From then on, the builder only offers what
 
 It's like ordering at a kiosk instead of shouting at the kitchen. The kiosk only shows what the kitchen can actually make.
 
-The tab has 4 numbered sections, and you go through them top to bottom. **How this builder works**, at the top, is a short version of this page.
+The tab has 4 numbered cards, and you go through them top to bottom. Each card has a link to its guide, and each field has a **More detail** link.
 
 ## What you need first
 
@@ -22,21 +22,20 @@ A card whose engine declares no `EVENT_PACK_ADAPTER` is refused. Nothing can be 
 
 ## 1 · Target card
 
-Click **Upload a complete MVU character card (.json / .png)**. When it reads, a row of badges shows what the game declares:
+Click **Upload card**, and pick the `.json` or `.png`. When it reads, the card's name shows at the top of the page, and the card lists what the game declares:
 
-![1 · Target card, with the badges the game declares](../../image/eventpack_engine/builder_target_card.png)
+![1 · Target card, with what the game declares, and the card's name at the top](../../image/eventpack_engine/builder_target_card.png)
 
-| Badge | Means |
+| Line | Means |
 | --- | --- |
-| the card's name | which card you're building for |
-| `format` | the pack format the game's engine runs, like `1.2` |
-| `gate` | the armed pointer every scene body is gated on, like `EngineDerived.EventArmed` |
-| `writes` | the paths a pack may write, like `Mainchar.Quests · Mainchar.Inventory · WorldRecord.NPCs · WorldRecord.Locations` |
-| `scopes` | the `scope` values the game knows, like `save · arc` |
-| `pays` | the reward kinds the game pays, like `stat · money · heroine (per Classmate) · appearance (per Classmate) ✎ text` |
-| condition paths | how many paths the condition picker offers |
+| **Format** | the pack format the game's engine runs, like `1.2` |
+| **Gate** | the armed pointer every scene body is gated on, like `EngineDerived.EventArmed` |
+| **Writes** | the paths a pack may write, like `Mainchar.Quests` `Mainchar.Inventory` `WorldRecord.NPCs` `WorldRecord.Locations` |
+| **Scopes** | the `scope` values the game knows, like `save` `arc` |
+| **Pays** | the reward kinds the game pays, like `stat` `money` `heroine (per Classmate)` `appearance (per Classmate) (text)` |
+| **Condition paths** | how many paths the condition picker offers |
 
-If a badge says `(none declared)`, the game doesn't offer that. No writes means events can only play scenes and fire. No scopes means the Scope box is free text.
+If a line says `none declared`, the game doesn't offer that. No writes means events can only play scenes and fire. No scopes means the Scope box is free text.
 
 ## 2 · Pack identity
 
@@ -58,11 +57,11 @@ If your pack needs a newer format than the game's engine runs, a red line says s
 
 Put at least one latin word in Creator and Event. A name written only in Chinese turns into nothing in the prefix, and is refused.
 
-**Editing an existing pack:** **Load event pack (file)…** or **Paste text…** reads any pack back into the GUI, including one you generated earlier. Bump the Version before you install the edit.
+**Editing an existing pack:** **Load pack file** reads any pack back into the GUI, or **Paste text** and then **Load pasted pack** does the same from pasted text, including one you generated earlier. Bump the Version before you install the edit.
 
 ## 3 · Events
 
-Click **+ Add event** for each event. One pack is one series, up to 20 events.
+Click **Add event** for each event. One pack is one series, up to 20 events.
 
 ### The event's own fields
 
@@ -82,7 +81,7 @@ Click **+ Add event** for each event. One pack is one series, up to 20 events.
 
 ![PREREQ conditions](../../image/eventpack_engine/builder_prereq.png)
 
-All conditions here must hold. AND only. **+ AND condition** adds one.
+All conditions here must hold. AND only. **AND condition** adds one.
 
 Put durable story state here: an earlier event fired, a quest reached a step. Step 1 of a series usually has no PREREQ at all.
 
@@ -90,7 +89,7 @@ Put durable story state here: an earlier event fired, a quest reached a step. St
 
 ![WHEN conditions and OR groups](../../image/eventpack_engine/builder_when.png)
 
-All conditions in a group must hold. **+ AND condition** adds one to the group. **+ OR group** adds another group, and then any one group is enough.
+All conditions in a group must hold. **AND condition** adds one to the group. **OR group** adds another group, and then any one group is enough.
 
 Put the moment here: the time, the place, who's in the scene. The engine can tell the story which single WHEN condition is still missing, so it can steer toward it. Put the moment in PREREQ, and it can't. See [prereq vs when](file.md#prereq-vs-when).
 
@@ -129,16 +128,16 @@ What each kind means, exactly, is on [The condition language](dsl.md).
 - **Summary.** One line naming what this event does. It's a label for you and for the pack list. Nothing writes it into the save.
 - **Scope.** The values the game declares, or **(card default)**. On ArtificKoi, `save` fires once ever, and `arc` can fire again after the story loops. See [scope](file.md#scope-save-or-arc).
 
-**+ add write** adds a write:
+**Add write** adds a write:
 
 - **Write to** lists the paths the game opens.
 - **Record key** shows for a collection: the record you're writing. Type the name the player reads, like `Ruinblade` or `Beach_Day`. Nothing is put in front of it. On a shared registry, like the NPC and location books, type the key the world already uses, like `School_Cafeteria`.
-- **remove this record** shows only on a path the game marks removable.
+- **Remove this record** is a switch, and shows only on a path the game marks removable.
 - **The fields** come from the game's schema. A number field takes a number, a true/false field is a dropdown, and a `[value, label]` field is written as a pair for you. Greyed fields are written by the engine. Fields the game locks don't show at all.
-- **set / add** shows next to a field the game lets you add to.
-- **+ extra field** shows on a record with open fields, or a path the schema doesn't describe.
+- **Set or add** is a toggle on each field the game lets you add to.
+- **Extra field** shows on a record with open fields, or a path the schema doesn't describe.
 
-**+ add reward** adds a payout. It's greyed out when the game pays nothing.
+**Add reward** adds a payout. It's greyed out when the game pays nothing.
 
 - **Reward** is the kind, like `money` or `heroine`.
 - **To** shows for a kind paid to one member: name who, like `Mitsuki`. Or pick a selector like `Classmate.*.Is_present`, and the engine pays whoever that field marks.

@@ -13,7 +13,7 @@ Think of mods for a PC game. The modder never needed the original developer to c
 You don't need to write any code to make events. You build them by clicking, in MVU Status Menu Builder's **Event Pack** tab.
 
 1. **Get the game card.** Export the MVU character card from SillyTavern, as `.json` or `.png`, with its GameLogic Engine installed.
-2. **Upload it.** MVU Status Menu Builder > **Event Pack** tab > Upload a complete MVU character card.
+2. **Upload it.** MVU Status Menu Builder > **Event Pack** tab > **Upload card**.
 3. **Make your events.** For each one, click together when it happens (the conditions), what it changes (the effects), and the scene the narrator plays. The builder only offers what that game allows, so you can't pick something it can't do.
 4. **Generate and share.** Download the pack text, and share that one file. A player installs it in MVU Helper > **Event Packs**.
 
