@@ -2,26 +2,26 @@ import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/ta
 // zod and lodash are available globally as `z` and `_`
 
 /**
- * The lane probe declares ONE root: GameLogicPlugin, the platform namespace every installed plugin
- * keeps its state in, OPEN because the keys inside it are chosen at install time.
+ * Your MVU variable name is `stat_data`, so this describes the VALUE of that variable directly.
  *
- * Rule 7 asks this of EVERY plugin, and the reason is the card the probe is NOT usually run on.
- * On School the GameLogic Pack already declares this root, so install skips this file and it costs
- * that card nothing. On a card with no pack nothing else declares it, MVU falls back to a schema
- * derived from the shape of stat_data, and that one freezes every object to the keys it held at
- * derivation — including this plugin's drawer, which is created empty, so every resolver op is
- * refused one key at a time.
+ * The platform roots are declared, and nothing else: GameLogicPlugin, the namespace every installed
+ * plugin keeps its state in, and $mvuhelper, mvu-helper's own. Both are OPEN because the keys inside
+ * them are chosen by someone else (one drawer per plugin, named at INSTALL time; mvu-helper's parts)
+ * — a closed shape here strips them on the next write.
  *
- * Nothing else belongs here. Every other root on whatever card this lands on passes through
- * untouched because THIS ROOT IS DECLARED LOOSE. A plain `z.object` root strips every key it was
- * never told about, and on a card whose only schema is this one that is the whole game. Never wrap
- * it in `.prefault({})`: mvu_zod re-wraps a root only when it is `instanceof z.ZodObject`, and a
- * prefault is not one, so the rewrap silently does not fire (zod 4.4.3). Declaring a GAME root here is what
- * breaks the next card the probe is installed on.
+ * THE ROOT ITSELF IS `looseObject`, and must stay that way: a plain `z.object` root drops every key
+ * it was never told about, and this file names only the platform roots — so on a card where it is the
+ * only schema, a strict root throws away every write into the game's own roots. Never wrap it in `.prefault({})`
+ * either: mvu_zod re-wraps a root as looseObject only when it is `instanceof z.ZodObject`, and a
+ * prefault is not one, so the rewrap silently does not fire.
+ *
+ * DO NOT add a GAME root here. A plugin that describes a game it was not written for is a plugin
+ * that breaks the next card it is installed on.
  */
 const StatDataSchema = z
   .looseObject({
     GameLogicPlugin: z.record(z.string(), z.any()).prefault({}),
+    $mvuhelper: z.record(z.string(), z.any()).prefault({}),
   });
 
 // -------------------------

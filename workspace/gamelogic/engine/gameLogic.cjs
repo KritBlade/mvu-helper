@@ -1,4 +1,4 @@
-// MyGame GameLogic Engine
+// test GameLogic Engine
 //
 // The engine DECLARES its own identity and exports it. mvu-helper reads these off the
 // running module, and reads these same lines when checking a pack that is not loaded
@@ -6,8 +6,8 @@
 // a computed value cannot be read back from source. Bump ENGINE_VERSION on every change;
 // it is reported and logged, never compared.
 const ENGINE_VERSION = 'v0.1.0';
-const ENGINE_NAME = 'mygame';   // WHICH GAME — the one name plugins branch on
-const ENGINE_TYPE = 'mygame';   // WHICH FAMILY it belongs to, beside the game
+const ENGINE_NAME = 'test';   // WHICH GAME — the one name plugins branch on
+const ENGINE_TYPE = 'test';   // WHICH FAMILY it belongs to, beside the game
 //
 // resolveTurn IS the game: mvu-helper hosts this text in a Worker and calls it once per
 // resolved turn. statData is a structured clone of the chat's stat_data — mutate it freely

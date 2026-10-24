@@ -5,6 +5,7 @@ validates nothing. Your schema describes the VALUE of stat_data directly, so eve
 root your game writes must appear in it - a field the schema does not name is STRIPPED
 on the next write, with no error anywhere.
 
-Leave GameLogicPlugin declared OPEN as shipped. It is the platform root installed
-plugins write into, they name their own keys at install time, and a closed shape there
-strips every plugin state on the next write. The pack validator refuses a closed one.
+Leave GameLogicPlugin and $mvuhelper declared OPEN as shipped. They are the platform
+roots: installed plugins name their own keys in GameLogicPlugin at install time, and
+mvu-helper keeps its own parts in $mvuhelper. A closed shape strips them on the next
+write. The pack validator refuses a closed one.

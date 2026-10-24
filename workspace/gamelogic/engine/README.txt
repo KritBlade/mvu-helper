@@ -21,10 +21,10 @@ this game keeps event state, and calls it.
    The bare minimum. This whole file replaces the blank gameLogic.cjs and runs events:
 
 ----- gameLogic.cjs, with event packs wired in -----
-// MyGame GameLogic Engine, with event packs wired in.
+// test GameLogic Engine, with event packs wired in.
 const ENGINE_VERSION = 'v0.2.0';
-const ENGINE_NAME = 'mygame';
-const ENGINE_TYPE = 'mygame';
+const ENGINE_NAME = 'test';
+const ENGINE_TYPE = 'test';
 
 // eventpack.cjs ran first (pack.json engineOrder) and left its functions here.
 const EVENTS = globalThis.__EVENTPACK__ || null;
@@ -118,5 +118,5 @@ module.exports = {
    event. Your card's prompt must say where that lands: here, the value half of the pair,
    /Intent/eventFire/0. That report is the only way the engine learns an event was played.
 
-The full contract is in mvu-helper's doc/event-pack-engine.md (this engine's side) and
-doc/event-pack-format.md (what a pack contains).
+The full contract is in mvu-helper's devdoc/event-pack-engine.md (this engine's side) and
+devdoc/event-pack-format.md (what a pack contains).

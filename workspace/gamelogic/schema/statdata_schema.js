@@ -40,24 +40,27 @@ const castSchema = z.record(z.string(), castMemberSchema).prefault({});
 // -------------------------
 // stat_data itself
 //
-// LOOSE, and never `.prefault({})` on this root. `z.object` STRIPS a key it was never told about,
-// and your pack is not the only writer on the card: mvu-helper keeps GameLogicPlugin, a plugin
-// names its own drawer inside it, and a later artifact may add a root of its own. mvu_zod does
-// re-wrap a registered root as looseObject for that reason — but only when it is `instanceof
-// z.ZodObject`, and a prefault is not one, so the rewrap silently does not fire and every root you
-// did not name is dropped on the next write. Declaring it loose here does not depend on the rewrap.
+// LOOSE, and never `.prefault({})` on this root. `z.object` drops a key it was never told about,
+// and your pack is not the only writer on the card: mvu-helper keeps $mvuhelper and GameLogicPlugin,
+// a plugin names its own drawer inside GameLogicPlugin, and a later artifact may add a root of its own.
+// mvu_zod does re-wrap a registered root as looseObject for that reason — but only when it is
+// `instanceof z.ZodObject`, and a prefault is not one, so the rewrap silently does not fire and every
+// write into a root you did not name is dropped. Declaring it loose here does not depend on the rewrap.
 // Closing the root ON PURPOSE is allowed — freezing the top level so nobody can invent
-// stat_data.<key> at will — but only alongside the GameLogicPlugin declaration below. Rule 7b warns
-// there instead of refusing: what a lock still costs is every root that arrives LATER, and nothing
-// logs the loss.
+// stat_data.<key> at will — but only alongside the two platform-root declarations below. Rule 7b
+// warns there instead of refusing: what a lock still costs is every root that arrives LATER, and
+// nothing logs the loss.
 // -------------------------
 const StatDataSchema = z
   .looseObject({
     Cast: castSchema,
-    // mvu-helper platform root. DECLARED so tooling sees it exists, OPEN because its keys belong
+    // The plugins' platform root. DECLARED so tooling sees it exists, OPEN because its keys belong
     // to installed plugins, which name them at install time. A strict shape here would silently
     // strip every plugin state on the next write.
     GameLogicPlugin: z.record(z.string(), z.any()).prefault({}),
+    // mvu-helper's own platform root: what each character wears, the character registry. OPEN because
+    // mvu-helper names its parts as it grows; the leading $ keeps it out of TavernHelper's variable macros.
+    $mvuhelper: z.record(z.string(), z.any()).prefault({}),
   });
 
 // -------------------------
