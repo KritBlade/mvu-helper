@@ -52,7 +52,7 @@ The rules that come with it:
 - **A body part brings its owner**, except the main character's pov hands. See [The `<pic>` tag](pic-tag.md#the-main-character).
 - **Keep them separable.** Each person in their own clause, by name, doing their own thing: "Mitsuki leaning back on the desk, grinning, Mana standing beside Mitsuki, hands clasped". Never one shared subject like "both smiling", because that's the shape that bleeds.
 
-The main character's values come from their entry's outfits. `default` is offered only when that entry has a plain `[Clothes]`, or when the card names no entry at all. An entry with only named outfits has no default, and `mainchar="default"` would draw him with no clothes.
+The main character's values come from their entry's outfits. `default` is offered only when that entry has a `default` outfit, or when the card names no entry at all. An entry with only named outfits has no default, and `mainchar="default"` would draw him with no clothes.
 
 ## `<picture_count>`
 

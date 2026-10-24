@@ -98,7 +98,7 @@ Every slot names what that person wears in this shot:
 | `outfit=` | Draws them in |
 | --- | --- |
 | an outfit on file, like `school-uniform` | those stored clothes |
-| `default` | their plain `[Clothes]` |
+| `default` | their `default` outfit |
 | `same-as-last-picture` | what they wore in their last picture, from `worn_outfit` |
 | `newclothes` | clothes none of the above are, because the story just changed them. The clothes are written down in the same reply |
 | `undressed` | no clothes. It outranks every other value, and the composition then says how |

@@ -129,7 +129,7 @@ With **Send bust multiplier** on, each job writes one number into a SillyTavern 
 /setvar key=bust_strength 1.7
 ```
 
-| People in the picture with a `[Bust]` | Number sent |
+| People in the picture with a Bust value | Number sent |
 | --- | --- |
 | nobody | the **Default value**, 1 |
 | 1 | theirs |
@@ -172,7 +172,7 @@ No `/sd` command at all means SillyTavern's Image Generation isn't set up, and t
 
 ## Checking a picture
 
-Turn on **Image gen** in the Main tab's Debug card. Every job logs one line before it calls `/sd`:
+Turn on **Image gen** in the Main tab's Debug card. Every job logs one line before it calls `/sd`, and the redraw button logs the same line as `regen […]`:
 
 ```
 gen [landscape 1152x768] drawn=1:"Mitsuki"[school-uniform|body stored|clothes stored] mainchar="Mainchar"[school-uniform|body stored|clothes stored] camera=eye-level ("eye level" added) prefix="Default" bust=1.7
@@ -182,7 +182,7 @@ gen [landscape 1152x768] drawn=1:"Mitsuki"[school-uniform|body stored|clothes st
 
 | Part | What it tells you |
 | --- | --- |
-| `drawn=` | who was resolved, in slot order: the outfit the tag wrote, and where their body and clothes came from. `NO LOOK` means drawn from the scene alone |
+| `drawn=` | who was resolved, in slot order: the outfit the tag wrote, and where their body and clothes came from. `NO LOOK` means drawn from the scene alone. On a redraw, `clothes saved` means what that reply saved for them |
 | `mainchar=` | the main character the same way, or `not-in-picture`, `none written` or `dropped (over the ceiling)` |
 | `camera=` | the value, and whether its words were added or already in the composition |
 | `prefix=` | the preset name, `none`, or `MISSING:<id>` for a preset that's gone |

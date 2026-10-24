@@ -16,7 +16,7 @@ Read them in this order, or jump to the one you need:
 
 ## Any card, any image model
 
-Image generation works on any card, MVU or not. 3 parts read the game state, so they need MVU: the explicit gate, the on-screen list, and the memory of what each person wore last.
+Image generation works on any card, MVU or not. 4 parts read the game state, so they need MVU: the explicit gate, the on-screen list, the saved looks, and the memory of what each person wore last.
 
 The image model is whatever SillyTavern's Image Generation is set to. The built-in contract is written for Anima, Krea 2 and Qwen-Image: short comma-separated phrases, subject first.
 
@@ -28,10 +28,10 @@ The image model is whatever SillyTavern's Image Generation is set to. The built-
 | the contract | the instruction that teaches the AI the tag | the Image Generation tab per card, or the card's `[Initmvuhelper]` |
 | the fixed rules | `<outfit_rules>`, `<picture_count>`, `<camera>`, `<explicit_rules>` | MVU Helper's code, the same on every install |
 | `<scene_roster>` | who the game state says is on screen | the prompt, at Position and Depth |
-| a look (DNA) | one person's `[Body]`, outfits and `[Bust]` | the card's lorebook |
+| a look (DNA) | one person's body, outfits and bust | `stat_data.$mvuhelper.character_registry`, seeded from the card's `[InitVar]` |
 | the prefix preset | quality and style tags | your PC's settings, picked per card |
 | the trace | the tag, kept invisibly where it stood | the reply, in `data-rawtag` |
-| `worn_outfit` | what each person wore in their last picture | `stat_data.mvuhelper.worn_outfit` |
+| `worn_outfit` | what each person wore in their last picture | `stat_data.$mvuhelper.worn_outfit` |
 | `/sd` | the drawing | SillyTavern's Image Generation |
 
 ## One picture, start to finish
@@ -71,7 +71,7 @@ The prefix comes first, then the camera's words, then the composition, then each
 
 ### 5. `/sd` draws it
 
-At the card's Image type, landscape, so 1152 × 768. Mitsuki's look carries `[Bust] 1.7` and nobody else in the picture has one, so `bust_strength` is set to 1.7 right before the call.
+At the card's Image type, landscape, so 1152 × 768. Mitsuki's look carries a bust of 1.7 and nobody else in the picture has one, so `bust_strength` is set to 1.7 right before the call.
 
 ### 6. The picture takes the tag's place
 
@@ -79,7 +79,7 @@ The reply finishes, and the draw pass waits on the same job instead of starting 
 
 ### 7. The state remembers what they wore
 
-At the end of the reply, MVU Helper writes `stat_data.mvuhelper.worn_outfit`: Mitsuki in `school-uniform`, the main character in `school-uniform`, both stamped with this message. Next picture, `same-as-last-picture` draws them in it.
+At the end of the reply, MVU Helper writes `stat_data.$mvuhelper.worn_outfit`: Mitsuki in `school-uniform`, the main character in `school-uniform`, both stamped with this message. Next picture, `same-as-last-picture` draws them in it.
 
 ## The settings behind it
 

@@ -79,7 +79,7 @@ Only the exact tags this pass found at its start are touched. The finished messa
 
 Inline replace mode only. Clicking it draws that picture again, and swaps in the new one.
 
-The prompt is rebuilt from `data-rawtag`, with every look as it is NOW. So when you fix a character's look, every old picture you redraw gets the fix. The bust number is worked out again too, and the size is the card's Image type, same as a first draw.
+The prompt is rebuilt from `data-rawtag`, with every look as it is NOW. So when you fix a character's look or one of their outfits, every old picture you redraw gets the fix. What each person wears in their last picture of that reply comes from what the reply saved, so a **Wearing now** change in the Roster shows when you redraw that picture; older pictures keep what they wore then. The bust number is worked out again too, and the size is the card's Image type, same as a first draw.
 
 Only the clicked picture is swapped. It's found by its `data-rawtag` when that's unique in the message, else by its place among the message's pictures. When neither settles it, the swap is refused rather than guessed, and the new file stays on disk. A wrong swap would be silent, and you'd only find it when you scroll up.
 

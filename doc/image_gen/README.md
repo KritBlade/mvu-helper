@@ -8,7 +8,7 @@ Most auto image generation just draws whatever the AI describes this reply. Ours
 
 Every NPC registers their clothes. Then, when the story calls for it, they change into something else: a gown at the banquet, a swimsuit at the beach, casual wear for the weekend shopping trip. And those one-off clothes stick with the NPC for the rest of the scene. When the story goes back to the main line, they're back in their normal outfit. All by itself, nobody has to tell it.  NPC's face, hair style and overall look stay consistent in every single picture when you use the Krea 2 model, because the NPC's DNA is recorded.
 
-That means a classmate wears her uniform, wear sportswear during gym class from Mon to Fri, and some casual wear on Sat when she meets you for a date. The casual wear sticks with her for the rest of Sat. When you meet her again on Mon, she's back in her **SAME** uniform.  During the gym class, she will also wear the **SAME** sportswear.  And the next week, when you date her again, she naturally changes into a **new** casual outfit on Sat.  Every character's look and wardrobe are saved once, in the lorebook: her face, hair and body, plus each outfit she owns, such as her school uniform, gym clothes and swimsuit. What she wore in her last picture is saved in the chat's MVU variables, with every message and every swipe.  No ugly hack to track the state if outfit should be removed or not when a message is deleted.  MVU variable goes poof automatically when a message is deleted, all by itself.
+That means a classmate wears her uniform, wear sportswear during gym class from Mon to Fri, and some casual wear on Sat when she meets you for a date. The casual wear sticks with her for the rest of Sat. When you meet her again on Mon, she's back in her **SAME** uniform.  During the gym class, she will also wear the **SAME** sportswear.  And the next week, when you date her again, she naturally changes into a **new** casual outfit on Sat.  Every character's look and wardrobe are saved once, in the chat's MVU variables: her face, hair and body, plus each outfit she owns, such as her school uniform, gym clothes and swimsuit. What she wore in her last picture is saved there too, with every message and every swipe.  No ugly hack to track the state if outfit should be removed or not when a message is deleted.  MVU variable goes poof automatically when a message is deleted, all by itself.
 
 When the AI draws a picture, it never describes anyone it already knows. It picks an outfit name from a short list (we support more than 1 outfit) and mvu-helper pastes her saved description into the image prompt word for word. A brand-new outfit is described once, on the picture that first shows it. After that it is offered back to the AI so it can keep her in it.
 
@@ -102,7 +102,7 @@ You don't want to read that between your sentences. So with this on, the tag lea
 
 It's not deleted though. An invisible copy stays where the tag was, inside the picture in Inline replace mode. MVU Helper keeps it for 3 reasons:
 
-- **The redraw button** draws the picture again from it, with everyone's look as it is now.
+- **The redraw button** draws the picture again from it, with everyone's look as it is now, and what they wear as that reply saved it.
 - **The next pictures** know what each person wore last time. So Mitsuki doesn't change clothes between 2 pictures of the same scene.
 - **The AI** sees its own earlier tags in the chat history, and copies the right shape next time.
 
@@ -146,7 +146,7 @@ A tag past the limit isn't drawn, and the console says so.
 
 **The most people with a saved look one picture may hold, the main character included.** Per card, 3 by default.
 
-DNA is a character's saved look: their body and their outfits, kept in a lorebook entry. Someone with DNA looks the same in every picture. Someone without it is drawn from the story words alone, and comes out different every time.
+DNA is a character's saved look: their body and their outfits, kept in the chat's character registry, the Roster tab. Someone with DNA looks the same in every picture. Someone without it is drawn from the story words alone, and comes out different every time.
 
 This number is a ceiling, not a target. The AI still decides who's in each shot, and one person alone is a normal shot. Nobody is added just to reach 3.
 
@@ -164,9 +164,9 @@ Raise it when your image model handles long prompts well. Models with an LLM tex
 
 ### Main character entry
 
-**The lorebook entry that holds your own character's look.** Per card.
+**The Roster entry that holds your own character's look.** Per card.
 
-The main character is you, `{{user}}`. Your look is written like any other character's DNA: a `[Body]`, and one or more outfits. This field names that entry. ArtificKoi's is `Mainchar`.
+The main character is you, `{{user}}`. Your look is kept like any other character's DNA: a body, and one or more outfits. This field names that entry. ArtificKoi's is `Mainchar`.
 
 The AI never writes your name in a tag. It writes `mainchar=` on every single tag instead:
 
@@ -177,13 +177,13 @@ Here's why it works this way. If you're in the shot but your look isn't attached
 
 | `mainchar=` | Draws you |
 | --- | --- |
-| `default` | in your entry's plain `[Clothes]`, when it has one |
+| `default` | in your entry's `default` outfit, when it has one |
 | an outfit name, like `town-casual` | in that outfit from your entry |
 | `same-as-last-picture` | in what you wore in your last picture |
 | `undressed` | without clothes. The scene says how |
 | `not-in-picture` | not at all |
 
-Give the entry an `[Alias]` line for every name the story calls you. MVU Helper then knows those names are you, and never treats them as a new character.
+Put every name the story calls you in the entry's **Aliases** (Roster > Edit). MVU Helper then knows those names are you, and never treats them as a new character.
 
 The card normally sets this in its own config, so most of the time it's already filled in. Type a name here only to override the card.
 
@@ -281,7 +281,7 @@ Leave it at 1 unless you know your backend handles more. ComfyUI on one GPU is m
 
 Skip this one unless your workflow loads a breast slider LoRA. Without one, the number just sits in a chat variable and nothing happens.
 
-A character's look can carry a `[Bust]` value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default.
+A character's look can carry a **Bust** value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default.
 
 Your workflow reads that variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor: find `bust_strength`, replace `{{getvar::bust_strength}}`. You don't type it in yourself. Turning the switch on adds it to SillyTavern's Image Generation settings, and turning it off removes it. If you already wrote your own under the same name, MVU Helper leaves yours alone.
 
@@ -298,10 +298,10 @@ It needs **Queue concurrency 1**. There's only one variable, so 2 pictures drawi
 | Field | Default | What it does |
 | --- | --- | --- |
 | **Bust variable name** | `bust_strength` | the chat variable it writes |
-| **Default value** | 1 | the number when nobody in the picture has a `[Bust]` |
+| **Default value** | 1 | the number when nobody in the picture has a Bust value |
 | **Shared value** | 1.5 | the number when 2 or more people have one |
 
-Only people with a `[Bust]` count. With 1 of them, the picture gets theirs. 2 or more can't each get their own, because the LoRA is one strength for the whole picture. So they share one number, and their own sizes still differ in the prompt.
+Only people with a Bust value count. With 1 of them, the picture gets theirs. 2 or more can't each get their own, because the LoRA is one strength for the whole picture. So they share one number, and their own sizes still differ in the prompt.
 
 ### Resolution presets
 

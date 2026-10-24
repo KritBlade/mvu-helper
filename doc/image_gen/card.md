@@ -60,10 +60,10 @@ These used to exist. A card that still carries one gets it named in the console 
 
 ## The state MVU Helper keeps
 
-What each person wore in their last picture lives in your card's own state, under MVU Helper's root:
+What each person wore in their last picture lives in your card's own state, under MVU Helper's root. The same root holds every character's look, `character_registry`, which your card seeds from its `[InitVar]` (see [How the character registry works](../roster/registry.md)):
 
 ```json
-"mvuhelper": {
+"$mvuhelper": {
   "worn_outfit": {
     "Mitsuki":  { "outfit": "school-uniform", "clothes": "", "last_picture_message": 42 },
     "Mainchar": { "outfit": "school-uniform", "clothes": "", "last_picture_message": 42 }
@@ -77,11 +77,11 @@ What each person wore in their last picture lives in your card's own state, unde
 | `clothes` | the one-off's clothes. Empty for an outfit on file |
 | `last_picture_message` | the message of their last picture |
 
-It's written at the end of every reply while pictures are drawn. MVU saves the state with every message and every swipe, so a swipe, a regenerate, a deleted reply and a reload are all right by themselves. Nothing reads old reply text to rebuild it.
+It's written at the end of every reply while pictures are drawn, and the Roster's **Wearing now** line edits it. Clothes MVU Helper saves into a character's look from a reply are held here by their outfit name, so editing that outfit in the Roster reaches the next picture. MVU saves the state with every message and every swipe, so a swipe, a regenerate, a deleted reply and a reload are all right by themselves. Nothing reads old reply text to rebuild it.
 
 That's what `same-as-last-picture` draws. Someone no picture has drawn in more than 100 replies is dropped at the end of a reply, so the record never keeps everyone ever drawn in a long chat.
 
-**Declare it in your Zod schema.** A schema that strips roots it doesn't list strips `mvuhelper` too, and then nothing anyone wore is ever offered back. The console says so once per chat. A schema that keeps the record but strips `last_picture_message` loses every entry at the end of the reply, and the console names that field.
+**Declare it open in your Zod schema:** `$mvuhelper: z.record(z.string(), z.any()).prefault({})`. A schema that strips roots it doesn't list strips `$mvuhelper` too, and so does one that declares it with only some parts: then nothing anyone wore is ever offered back, and every look registered in play is lost. The console says so once per chat. A schema that keeps the record but strips `last_picture_message` loses every entry at the end of the reply, and the console names that field.
 
 ## Checking your work
 
@@ -89,7 +89,7 @@ Turn on **Image gen** in the Debug card of MVU Helper's Main tab.
 
 | You see | It means |
 | --- | --- |
-| `gen [landscape 1152x768] drawn=…` | one line per picture, with what the AI wrote and what `/sd` got. Read it on [From tag to `/sd`](drawing.md#checking-a-picture) |
+| `gen [landscape 1152x768] drawn=…` | one line per picture, with what the AI wrote and what `/sd` got; the redraw button logs the same line as `regen […]`. Read it on [From tag to `/sd`](drawing.md#checking-a-picture) |
 | `injecting image prompt: …` | the rules went into the prompt, and where `<scene_roster>` went |
 | `<explicit_rules> ON (…)` or `OFF (…)` | what the gate decided, and why |
 | `msg 12 carries NO <pic> tag` | the AI skipped the contract this reply |
@@ -106,6 +106,6 @@ Some things are warned whatever the debug setting:
 
 A reply with no tag at all is the one to watch. The contract makes a tag mandatory every reply, so no tag means the AI dropped the instruction. Usually the card's own output format crowds it out, or a custom template lost a rule.
 
-Basically, ship the latch path and the main character entry, declare `mvuhelper` in your schema, and the rest follows MVU Helper.
+Basically, ship the latch path and the main character entry, declare `$mvuhelper` open in your schema, and the rest follows MVU Helper.
 
 [Back to How Auto Image Generation works](technical.md) · [Back to index](../../README.md)
