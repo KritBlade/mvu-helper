@@ -79,7 +79,7 @@ const LAYOUT_FORMATTERS = (() => {
             return _output;
         },
         "classmateSecret"(stat, root, scopePath) {
-            // /layout/1/blocks/0/cards/1/cards/47 — drives the cell's "text"
+            // /layout/1/blocks/0/cards/1/cards/46 — drives the cell's "text"
             const itemKey = itemKeyOf(scopePath, "Classmate");
             let _output = undefined;
             _output = (['Dating','Girlfriend','Friends_With_Benefits','Loyal_Puppy'].includes(getV(stat, 'RelationshipStage', ''))) ? getV(stat, 'Secret', '') : 'Hidden - reveals at Dating+';

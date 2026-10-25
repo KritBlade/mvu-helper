@@ -4,8 +4,8 @@
   "id": "artifickoi",
   "name": "ArtificKoi",
   "description": "ArtificKoi",
-  "version": "1.5",
-  "builtWith": "MvuStatMenuBuilder 2.5.2",
+  "version": "1.6.1",
+  "builtWith": "MvuStatMenuBuilder 2.0.0",
   "engineOrder": [
     "layoutFormatters.cjs",
     "statusMenuLogic.cjs"
