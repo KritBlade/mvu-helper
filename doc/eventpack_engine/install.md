@@ -75,7 +75,7 @@ The engine runs in a sandbox, and it reads the save, not the lorebook. So the ro
 | `installed` | which rows belong to which pack, and its version | MVU Helper |
 | `fired` | one done-marker per event that fired: `state`, `scope` and the game clock `at` | the engine, when an event fires |
 
-**`triggers`** is the table `scanEvents` reads, every reply. The game's own events are in it too. ArtificKoi seeds its story events there from its starting state, and packs add theirs beside them.
+**`triggers`** is the table `scanEvents` reads, every reply. The game's own events are in it too. ArtificKoi seeds its story events there from its starting state, and packs add theirs beside them. When the game itself updates, it can push its own changed rows into running chats, see [Your own events](host.md#your-own-events). That push replaces only the game's rows and deletes nothing, so a pack's rows stay put.
 
 **`installed`** is how the engine knows which pack a row belongs to. When a row creates a record, the engine stamps that pack's id on it, see [Who owns a record](writes.md#who-owns-a-record). It's also the collision fence: a pack can never claim a key another pack, or the game, already owns.
 

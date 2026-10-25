@@ -54,7 +54,7 @@ A workspace can hold more than one pack. A folder with its own `pack.json` is on
   "id": "school-v4",
   "name": "ArtificKoi — School v4",
   "description": "Koikatu-style school dating sim: LogicEngine, schema, worldview and PRE/POST entries. The heroine profiles ship on the card itself.",
-  "version": "5.132.0",
+  "version": "5.151.1",
   "builtWith": "Tools/build_workspace.cjs",
   "engineOrder": ["i18n.cjs", "eventpack.cjs", "globalLogic.cjs"],
   "exposes": {
@@ -65,7 +65,7 @@ A workspace can hold more than one pack. A folder with its own `pack.json` is on
     "chronicle@1": "WorldRecord.Events",
     "clock@1": "World"
   },
-  "state": { "version": "0.1.0", "force": {} }
+  "state": { "version": "0.2.0", "force": {}, "forceFromInitVar": ["EventPack.triggers"] }
 }
 ```
 

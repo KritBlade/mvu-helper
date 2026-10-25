@@ -56,7 +56,7 @@ Create these 3 before any engine logic. The blank pack ships none of them. The l
 { "comment": "[InitVar] MVU Init", "type": "selective", "keys": [], "position": "before_character_definition", "order": 100, "enabled": false }
 ```
 
-**How it reaches the card.** The dev loop writes it into the card's lorebook as `[GameLogicPack:<id>] [InitVar] MVU Init`. MVU builds a NEW chat's `stat_data` from it. MVU Helper re-applies it on every chat load and every install (each dev-loop apply included), create-only at any depth: a missing key is added, an existing value is never overwritten. So a new field reaches running chats by itself. A changed starting value reaches only new chats. To fix a value in old saves, use `state.force` ([State corrections](../gamelogic_engine/state.md)). If the user's card already carries its own `[InitVar]`, start from its content and ask the user before you remove or disable the card's copy.
+**How it reaches the card.** The dev loop writes it into the card's lorebook as `[GameLogicPack:<id>] [InitVar] MVU Init`. MVU builds a NEW chat's `stat_data` from it. MVU Helper re-applies it on every chat load and every install (each dev-loop apply included), create-only at any depth: a missing key is added, an existing value is never overwritten. So a new field reaches running chats by itself. A changed starting value reaches old saves only when `state` pushes it, once per save per `state.version` bump: `forceFromInitVar` pushes `[InitVar]`'s own value at a path (a definitions table such as `EventPack.triggers`, row by row, deleting nothing), and `force` writes a literal value ([State corrections](../gamelogic_engine/state.md)). If the user's card already carries its own `[InitVar]`, start from its content and ask the user before you remove or disable the card's copy.
 
 ### 3.2 The `[Initmvuhelper]` card config
 
@@ -377,7 +377,7 @@ Filter the console by `[mvu-helper]` for the whole turn, by `[RES]` for the engi
 | `getvar('X')` empty in a PRE / POST entry | short path | `getvar('stat_data.X')` |
 | A `{{...}}` comparison in EJS is always false | EJS runs before macros | `MvuHelper.engineInfo()` |
 | `[Initmvuhelper] is not valid JSON` toast, or edits not taking effect | `#` lines inside the wrapper, or no re-import yet | comments outside the wrapper, reopen the chat or Re-import |
-| A changed seed value never shows in the open chat | `[InitVar]` is create-only | a new chat, or `state.force` for old saves |
+| A changed seed value never shows in the open chat | `[InitVar]` is create-only | a new chat; for old saves, `state.forceFromInitVar` (or `state.force`) with a `state.version` bump |
 | A boolean the model wrote as `"false"` reads `true` | `z.coerce.boolean` | JSON `true` / `false` in the vocabulary |
 | A die in the reply is not in the dealt pool | the narrator invented it, or EJS rolled it without `rollPool` | deal with `rollPool`, check `ctx.dice` |
 | The narrator copies `<RES_Variable>` or `<POSTUpdateVariable>` into its reply | the block reaches its prompt | a prompt-only detag regex |

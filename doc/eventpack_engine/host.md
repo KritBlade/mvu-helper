@@ -134,6 +134,8 @@ Your own rows are never owner-gated. That's how an official event can take back 
 
 ArtificKoi seeds its story events into `EventPack.triggers` from its starting state, and installed packs land beside them.
 
+A row you add reaches running chats on their next load. A row you change doesn't, until you push it: list your trigger table in `pack.json`'s `state.forceFromInitVar` and bump `state.version`. MVU Helper then replaces the rows your starting state carries, once per save, and deletes none, so every installed pack's rows stay. See [State corrections](../gamelogic_engine/state.md#forcefrominitvar-pushes-what-you-changed). ArtificKoi pushes `EventPack.triggers` this way.
+
 ## Do
 
 - **Load `eventpack.cjs` unchanged,** and declare only the adapter.

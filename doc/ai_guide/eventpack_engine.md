@@ -316,7 +316,7 @@ function pickSameRoundEvent(statData, ctx) {
 
 ### 4.7 Your game's own events
 
-Seed your own rows in `[InitVar]` under `triggerRoot`, with bodies in your own entries gated the same way. They are never owner-gated. MVU Helper re-applies `[InitVar]` on every chat load, create-only: a NEW row reaches running saves, a CHANGED row does not. Test an edited own row in a new chat, or fix live saves with `state.force` ([State corrections](../gamelogic_engine/state.md)).
+Seed your own rows in `[InitVar]` under `triggerRoot`, with bodies in your own entries gated the same way. They are never owner-gated. MVU Helper re-applies `[InitVar]` on every chat load, create-only: a NEW row reaches running saves by itself. A CHANGED row reaches them only when `pack.json` lists the table in `state.forceFromInitVar` and `state.version` moves: the push replaces the rows `[InitVar]` carries, once per save, and deletes none, so installed packs keep theirs ([State corrections](../gamelogic_engine/state.md#forcefrominitvar-pushes-what-you-changed)). List the table (`EventPack.triggers`), never its root, and bump `state.version` with every change to your own rows.
 
 ### 4.8 Workflow B
 
