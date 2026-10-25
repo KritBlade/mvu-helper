@@ -23,7 +23,7 @@ You are an AI coding assistant in a clone of the `mvu-helper-template` workspace
 | --- | --- |
 | `workspace/gamelogic/pack.json` | identity and `engineOrder` (section 6) |
 | `workspace/gamelogic/engine/gameLogic.cjs` | the engine. Blank: exports `resolveTurn` returning `applied: false` |
-| `workspace/gamelogic/engine/README.txt` | how to wire event packs (`eventpack.cjs`, not public yet). Ignored by the assembler |
+| `workspace/gamelogic/engine/README.txt` | how to wire event packs (`eventpack.cjs` downloads from MVU Helper's [`eventpack_lib/`](https://github.com/KritBlade/mvu-helper/tree/main/eventpack_lib)). Ignored by the assembler |
 | `workspace/gamelogic/entries/` | prompt entries, `<name>.txt` + `<name>.json`, any subfolders. Ships one disabled `example-window` |
 | `workspace/gamelogic/schema/statdata_schema.js` | the Zod schema, exactly one file. Ships a placeholder `Cast` root |
 | `workspace/gamelogic/regex/` | one regex per `.json`. Ships `HideFarFloor.json` (a sample) |

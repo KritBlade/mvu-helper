@@ -209,9 +209,9 @@ for (const m of text.matchAll(/<mvueventpack>([\s\S]*?)<\/mvueventpack>/g)) {
 
 ### 4.1 Load the library
 
-**Getting `eventpack.cjs` today.** There is no public download yet: `engine/README.txt` says the link is "to come", and [Host event packs](../eventpack_engine/host.md) points back at that README. So ask the user for the file (the MVU Helper author distributes it). Never write, rebuild or paste one together, and never cut it out of another card's `[MVU_LogicEngine]` entry: that entry is several files joined with no separator. Until the file arrives you can write everything else in 4.2 to 4.6. Keep `engineOrder` at `["gameLogic.cjs"]` and keep the `EVENTS` null guard: the engine then logs `eventpack.cjs is not loaded` each turn and nothing arms.
+**Getting `eventpack.cjs`.** Download it from MVU Helper's repository, folder [`eventpack_lib/`](https://github.com/KritBlade/mvu-helper/tree/main/eventpack_lib). The raw file is `https://raw.githubusercontent.com/KritBlade/mvu-helper/main/eventpack_lib/eventpack.cjs`. Never write, rebuild or paste one together, and never cut it out of another card's `[MVU_LogicEngine]` entry: that entry is several files joined with no separator. Keep the `EVENTS` null guard: without the file, the engine logs `eventpack.cjs is not loaded` each turn and nothing arms.
 
-When you have it: save it as `workspace/gamelogic/engine/eventpack.cjs`, byte for byte, then in `pack.json`:
+Save it as `workspace/gamelogic/engine/eventpack.cjs`, byte for byte, then in `pack.json`:
 
 ```json
 "engineOrder": ["eventpack.cjs", "gameLogic.cjs"]

@@ -18,7 +18,7 @@ Need a feature it doesn't have? Raise a PR on [MVU Helper's repository](https://
 
 The blank GameLogic Pack's `engine/README.txt` walks you through all 3, with a whole working `gameLogic.cjs`. In short:
 
-**1. Get the file.** Save `eventpack.cjs` as `engine/eventpack.cjs`, and never edit it, see above. To update it, replace the whole file with the new release. Where to download it is in that README.
+**1. Get the file.** Save `eventpack.cjs` as `engine/eventpack.cjs`, and never edit it, see above. To update it, replace the whole file with the new release. Download it from MVU Helper's [`eventpack_lib/`](https://github.com/KritBlade/mvu-helper/tree/main/eventpack_lib) folder.
 
 **2. Load it before your engine,** in `pack.json`:
 
