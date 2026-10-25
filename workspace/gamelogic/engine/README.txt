@@ -8,8 +8,7 @@ conditions, arms the next event, and applies a fired event's writes. Your engine
 this game keeps event state, and calls it.
 
 1. GET THE FILE
-   eventpack.cjs is MvuGameMaker's maker-app/GameLogic/_engine/eventpack.cjs.
-   Download: (link to come: the public repository that will carry it is not published yet)
+   Download: https://github.com/KritBlade/mvu-helper/tree/main/eventpack_lib
    Save it as engine/eventpack.cjs and never edit it. To update it, replace the whole file.
 
 2. LOAD IT BEFORE YOUR ENGINE (pack.json)
