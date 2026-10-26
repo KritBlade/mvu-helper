@@ -5,3 +5,4 @@
 .context/gain.ndjson
 .context/usage.json
 node_modules/
+.gitignore
