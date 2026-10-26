@@ -98,6 +98,10 @@ Think of a relay race. Every runner knows who they hand the baton to, and nobody
 
 Plugins and event packs work like mods for a PC game. The modders never needed the original developer to change a line. Basically, the end user can download a plugin or an event pack from some other 3rd party content creator and install it right inside MVU Helper, that's it.
 
+**The dev loop comes with it.** Run `npm run dev` in the template workspace, turn on the dev loop in MVU Helper, and every time you save a file in VS Code, the new code is installed onto the card you have open. No export, no import, no reload. Without it, every change is export the pack, import it, install it, reload the chat. That's fine once a day. It's painful 50 times an hour.
+
+Your AI can join the loop too. The template hooks your AI assistant up to a Chrome window it can see, so it can change the engine, play a reply and read the console by itself, instead of you copying logs back and forth. See [Development Environment and Dev Loops](doc/dev_env/README.md).
+
 **Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and ST-Prompt-Template, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables. The game logic engine is heavily locked down.
 
 The logic engine inherits NOTHING from the parent page except the chat and the MVU variables. It has no network access at all. No `fetch`, no `XMLHttpRequest`, no `WebSocket`, no `import()`, no reading or writing SillyTavern's settings files.
