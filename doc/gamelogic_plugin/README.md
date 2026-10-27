@@ -4,7 +4,7 @@ A GameLogic Plugin is a small add-on you install onto a game card. It adds one f
 
 Plugins are part of MVU Game Engine v2.0, which is built for rapid development and meant for vibe coding. You tell your AI what you want, it writes the code, and the game on your screen runs it a second after every save.
 
-A plugin's code runs in the same heavy sandbox as the game engine. It can't read, write or reach the network anywhere outside the game chat and the game's MVU variables. So it's safe even when the worst AI model writes it. How to start is on the [QuickStart Guide](../quickstart.md).
+A plugin's own code, its JavaScript file, runs in the same heavy sandbox as the game engine. It can't read, write or reach the network anywhere outside the game chat and the game's MVU variables. So it's safe even when the worst AI model writes it. How to start is on the [QuickStart Guide](../quickstart.md).
 
 It works like a mod for a PC game. The modder never needed the original developer to change a line, and the game's own files stay the way they were. Same here. A plugin never touches the game's GameLogic Pack. It sits next to it.
 
@@ -64,9 +64,11 @@ Sharing the game's PRE and POST calls is the usual way, so a small plugin costs 
 
 ## Where its code runs
 
-A plugin's code runs in the same locked sandbox as the game engine. No network, no access to the SillyTavern page. It can't even call the game engine's functions. It only reads the state and hands back changes. The full story is in the Security point of the [README](../../README.md).
+A plugin's own code runs in the same locked sandbox as the game engine. No network, no access to the SillyTavern page. It can't even call the game engine's functions. It only reads the state and hands back changes. The full story is in the Security point of the [README](../../README.md).
 
-If a plugin's code crashes, only that plugin's changes are dropped. The game and every other plugin keep going.
+If a plugin's own code crashes, only that plugin's changes are dropped. The game and every other plugin keep going.
+
+Its entries are different. The EJS in them runs on the SillyTavern page, like any card's. So before a plugin installs, MVU Helper reads that code, and when it can reach outside the game, the [install warning](../gamelogic_engine/install.md#the-install-warning) asks the player first.
 
 ## Getting started
 

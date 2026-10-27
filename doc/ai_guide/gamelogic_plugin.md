@@ -12,11 +12,12 @@ You are an AI coding assistant in a clone of the `mvu-helper-template` workspace
 6. **Every degrade path is written.** `engine.name === null` (no game), `exposes` = `{}`, an optional interface missing, and "declared but absent from stat_data" each get a branch that returns. A resolver that throws loses all its patches.
 7. **Dice are dealt in entries, from your own pool.** `MvuHelper.rollPool(n, null, 'YOURPOOL')`. The resolver only checks them in `ctx.dicePools` and never rolls.
 8. **One EJS scope per pass, shared with the game.** Prefix every top-level `const`/`let` in an entry with a prefix unique to your plugin, or declare inside a block. Never `setvar`.
-9. **Exact work goes in `resolveRelay`.** A model only observes, one simple judgment at a time. Never ask a model to compute, count or decide a number.
-10. **Write like a guest** (section 9). Your prompt text shares a system block with the game's.
-11. **No `console.*`.** Log with `globalThis.MvuHelper.log` (`.child('<id>')` in entries). In engine code, always write `globalThis.MvuHelper`: a bare `MvuHelper` throws `MvuHelper is not defined` inside the Worker.
-12. **No fallback or migration logic without asking the user** (template `CLAUDE.md`).
-13. **Run `npm test` before you call anything done.**
+9. **Entry code never touches SillyTavern's settings or global variables.** Read MVU Helper's settings with `MvuHelper.settings.get(name)`, never `SillyTavern.extensionSettings`. No global variable in any form: no `{{getglobalvar::…}}` / `{{setglobalvar::…}}` or their family, no `getvar` with the `global` scope, no Tavern Helper variable call with `type: 'global'`. Any of these, or a Tavern Helper call that changes SillyTavern outside this chat, makes every install of your plugin ask the player first ([The install warning](../gamelogic_engine/install.md#the-install-warning)).
+10. **Exact work goes in `resolveRelay`.** A model only observes, one simple judgment at a time. Never ask a model to compute, count or decide a number.
+11. **Write like a guest** (section 9). Your prompt text shares a system block with the game's.
+12. **No `console.*`.** Log with `globalThis.MvuHelper.log` (`.child('<id>')` in entries). In engine code, always write `globalThis.MvuHelper`: a bare `MvuHelper` throws `MvuHelper is not defined` inside the Worker.
+13. **No fallback or migration logic without asking the user** (template `CLAUDE.md`).
+14. **Run `npm test` before you call anything done.**
 
 ## 2. What a plugin is and is not
 
@@ -281,7 +282,7 @@ Plugin:
 - [ ] `pack.json`: `packType` `plugin`, kebab-case `id` not used by another workspace folder, numeric `version`, `engineOrder` matching `engine/`.
 - [ ] Schema file is the probe's, unchanged.
 - [ ] Each window's need is declared only by its token. Routed entries are `selective` with no keys. The narrate entry is `constant`.
-- [ ] Every top-level EJS name carries your prefix. No `setvar`. No macro read inside `<% %>`.
+- [ ] Every top-level EJS name carries your prefix. No `setvar`. No macro read inside `<% %>`. No SillyTavern settings or global variables (hard rule 9).
 - [ ] Every write is inside your drawer, and nothing is written when the drawer is missing.
 - [ ] Ops use the shapes that land on both card kinds.
 - [ ] Dice come from your own named pool, dealt in an entry. The resolver only checks `dicePools`.

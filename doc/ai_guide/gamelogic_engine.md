@@ -12,10 +12,11 @@ You are an AI coding assistant in a clone of the `mvu-helper-template` workspace
 6. **Every path anyone writes is declared in the Zod schema AND seeded in `[InitVar]`.** An undeclared field is stripped on the next write, with no error anywhere.
 7. **Engine identity is 3 string literals**, each on its own line, exported. Inside the engine the host API is `globalThis.MvuHelper`. A bare `MvuHelper` throws `MvuHelper is not defined`.
 8. **One EJS scope per pass.** Prefix every top-level `let`/`const` in an entry, or declare inside a block. Never `setvar`. Always `await LogicEngine.<fn>(...)`.
-9. **Dice are dealt in EJS with `MvuHelper.rollPool`.** The engine only checks them in `ctx.dice` / `ctx.dicePools`. No `Math.random` for anything the prose shows.
-10. **No `console.*`.** Log with `globalThis.MvuHelper.log.child('<stage>')` in the engine, `MvuHelper.log.child('EJS')` in entries.
-11. **No fallback or migration logic without asking the user** (template `CLAUDE.md`).
-12. **Run `npm test` before you call anything done.**
+9. **Entry code never touches SillyTavern's settings or global variables.** Read MVU Helper's settings with `MvuHelper.settings.get(name)`, never `SillyTavern.extensionSettings`. No global variable in any form: no `{{getglobalvar::…}}` / `{{setglobalvar::…}}` or their family, no `getvar` with the `global` scope, no Tavern Helper variable call with `type: 'global'`. Any of these, or a Tavern Helper call that changes SillyTavern outside this chat, makes every install of the pack ask the player first ([The install warning](../gamelogic_engine/install.md#the-install-warning)).
+10. **Dice are dealt in EJS with `MvuHelper.rollPool`.** The engine only checks them in `ctx.dice` / `ctx.dicePools`. No `Math.random` for anything the prose shows.
+11. **No `console.*`.** Log with `globalThis.MvuHelper.log.child('<stage>')` in the engine, `MvuHelper.log.child('EJS')` in entries.
+12. **No fallback or migration logic without asking the user** (template `CLAUDE.md`).
+13. **Run `npm test` before you call anything done.**
 
 ## 2. The workspace
 
@@ -390,7 +391,7 @@ Filter the console by `[mvu-helper]` for the whole turn, by `[RES]` for the engi
 - [ ] `[InitVar]`, the Zod schema and the vocabulary agree, path for path. The schema root is `z.looseObject` with `GameLogicPlugin` open.
 - [ ] `[Initmvuhelper]` exists when the game uses PRE/POST, the stat box or imagegen, and there is exactly one on the card.
 - [ ] Sidecars use `"type": "..."` strings. Routed entries are `selective` with no keys. Group tags are in `GROUP_TAGS`.
-- [ ] Every top-level EJS name is prefixed. Full `getvar` paths. Every `LogicEngine` call awaited and guarded. No `setvar`.
+- [ ] Every top-level EJS name is prefixed. Full `getvar` paths. Every `LogicEngine` call awaited and guarded. No `setvar`. No SillyTavern settings or global variables (hard rule 9).
 - [ ] Dice dealt with `rollPool`, checked against `ctx.dice`.
 - [ ] Prompt-only regexes hide every engine block from the narrator.
 - [ ] `npm test` passes (scope scan + engine test). One live reply shows the `[RES] fired ... pending:` and `applied=true` lines, and `stat_data` holds the result.

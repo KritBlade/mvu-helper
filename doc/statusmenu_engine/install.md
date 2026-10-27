@@ -11,6 +11,8 @@ A StatusMenu Pack goes into the library first, and from the library onto a card.
 
 Then Install to this card on its library row.
 
+If one of its regexes carries code or macros that can reach outside the game, the [install warning](../gamelogic_engine/install.md#the-install-warning) asks first. A lifted page isn't read, since it runs in the locked frame. Repair and Upgrade ask it too.
+
 Its row in On this card reads **Pieces missing** when one of its pieces is gone, the engine included. If something else replaced the engine, such as a StatusMenu Engine dev upload, the row gets a **Drift** pill naming it. Repair writes the pack's copy back.
 
 **Installing the regexes reloads the chat.** Regexes are only written at install, not on every save.

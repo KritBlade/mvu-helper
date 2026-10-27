@@ -75,6 +75,18 @@ All 4 write the same way:
 3. `[GameLogicPack:Registry]` records what was written and owned, a fingerprint of the engine and schema text it wrote, the `state`, the `exposes` map and the pack's identity.
 4. The card's state is synced, the `[InitVar]` seed and the `force` map. Then the engine reloads.
 
+## The install warning
+
+Before an install writes anything, MVU Helper reads the code and macros in the pack's entries and regexes. A warning, **This pack can reach outside the game**, names what it found when that code can:
+
+- read or change SillyTavern's settings,
+- change SillyTavern outside this chat,
+- use Tavern Helper, SillyTavern or the page in a way MVU Helper can't check.
+
+Nothing is written unless you click **Install anyway**. To read MVU Helper's own settings, like a debug switch, use [`settings`](../macros_api/technical.md#settings), which never asks.
+
+The dev loop never asks, since whoever runs it wrote the pack. So install yours by hand once before you ship it, to see what your players will see.
+
 ## Pieces the card already has
 
 Say the card already carries an engine entry, a `Scheme` script or regexes with the same names, and no install recorded them as the pack's.

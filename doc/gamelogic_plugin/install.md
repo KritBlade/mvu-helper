@@ -34,7 +34,11 @@ How to set it up is on [Development Environment and Dev Loops](../dev_env/README
 
 ## Install
 
-On the plugin's library row: Install to this card. The dialog asks for:
+On the plugin's library row: Install to this card.
+
+If your entries carry code or macros that can reach outside the game, the [install warning](../gamelogic_engine/install.md#the-install-warning) asks the player first, and nothing is written unless they click **Install anyway**. Upgrade and Repair ask it too.
+
+The dialog then asks for:
 
 - **State root,** the drawer name. It's filled in from your id. Letters, digits and `_`, starting with a letter, and not `constructor` or `prototype`.
 - **One call per phase your entries use.** Only the phases whose token you used. When exactly one call fits, it's picked for you.

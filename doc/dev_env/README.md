@@ -142,7 +142,7 @@ How it works:
 
 1. **`npm run dev` starts a small server on your PC.** It only listens on your own machine, `127.0.0.1`, port 6620. It watches your workspace folder.
 2. **Every time you save, it rebuilds your packs,** and runs the same checks an import runs. A pack with errors is skipped, and the error is shown.
-3. **MVU Helper, with the switch on, listens to that server.** Each rebuild, it installs the changed pack onto the open card, through the same install the Install to this card button uses.
+3. **MVU Helper, with the switch on, listens to that server.** Each rebuild, it installs the changed pack onto the open card, through the same install the Install to this card button uses, without the [install warning](../gamelogic_engine/install.md#the-install-warning).
 
 What a save changes on the card:
 

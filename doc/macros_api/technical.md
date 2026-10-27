@@ -256,7 +256,7 @@ The `globalThis.MvuHelper && MvuHelper.settings` part keeps the card working whe
 - `set(name, value)` turns a debug switch on or off. It saves it, moves the switch on the Main tab too, and returns `true`. Anything else is refused: the verbosity, the language, a value that isn't `true` or `false`. Nothing changes, you get `false`, and the console says why.
 - `names()` lists the table.
 
-Read your settings this way, not through `SillyTavern.extensionSettings`. That one hands your template every extension's settings, just to find one switch.
+Read your settings this way, not through `SillyTavern.extensionSettings`. That one hands your template every extension's settings, just to find one switch. And in a pack's entries, it makes every install of the pack ask the player first, see [The install warning](../gamelogic_engine/install.md#the-install-warning).
 
 ### `statusMenuFrameSource({ rowName, mid, statData })`
 
