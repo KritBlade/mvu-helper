@@ -59,7 +59,7 @@ If 2 events are ready at once, only one wins. A `TIME` row beats a `TRG` row, th
 
 ### 3. The scene reaches the narrator
 
-On the next reply, ST-Prompt-Template renders the pack's lorebook entry. The JSON block sits inside `if (false)`, so it renders nothing. Each scene body sits behind a gate on the armed pointer, and only the armed one opens:
+On the next reply, the pack's lorebook entry is in the prompt, because one of its events is armed. On every other reply its `@@if` drops it. It sits where the game's `bodyEntry` says, see [Where a pack's scene goes](host.md#where-a-packs-scene-goes). ST-Prompt-Template renders it. The JSON block sits inside `if (false)`, so it renders nothing. Each scene body sits behind a gate on the armed pointer, and only the armed one opens:
 
 ```
 <%_ if (getvar('stat_data.EngineDerived.EventArmed[0]') === '@paulk_beach_arc_invite') { _%>

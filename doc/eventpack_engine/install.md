@@ -31,12 +31,14 @@ Open a chat first. Installing writes into that card's lorebook and save.
 
 Install writes 2 kinds of entry into the card's own lorebook.
 
-**`[MVU_Event_Pack] <pack id>`**, one per pack, like `[MVU_Event_Pack] paulk.beach_arc`. It holds that pack's text, both halves. It's a constant entry, so it renders on every reply. That's fine, because it renders almost nothing:
+**`[MVU_Event_Pack] <pack id>`**, one per pack, like `[MVU_Event_Pack] paulk.beach_arc`. It holds that pack's text, both halves. Its first line is an `@@if` on the pack's own events, so on every reply none of them is armed, the entry is dropped before the prompt is even built. When one is armed:
 
 - the JSON block sits inside `if (false)`, so it renders zero tokens,
-- each scene body is gated on the armed pointer, so only the armed event's scene shows, and only on the reply it's armed.
+- each scene body is gated on the armed pointer, so only the armed event's scene shows.
 
-So the narrator sees one scene when an event is armed, and nothing the rest of the time.
+So the narrator sees one scene when an event is armed, and nothing the rest of the time. Text a pack writes outside a gate shows only while one of that pack's events is armed.
+
+The entry goes where the game's adapter says, in its `bodyEntry`. ArtificKoi's is right after the player's line. See [Where a pack's scene goes](host.md#where-a-packs-scene-goes).
 
 **`[MVU_Event_Pack_Registry]`**, one per card. A disabled entry, so it never reaches a prompt. It's the list of what's installed:
 

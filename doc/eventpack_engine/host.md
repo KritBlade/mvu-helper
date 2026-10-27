@@ -87,6 +87,7 @@ That's the blank pack's. Every field is a declaration:
 | `writes` | for writes | where a pack may write, and the rules on each path, see [Writes and rewards](writes.md) |
 | `rewards` | no | what an event may pay, and the ceilings, see [Rewards](writes.md#rewards). Leave it out, and your game pays nothing |
 | `scopes` | no | the `scope` values your game knows. Leave it out, and the builder's Scope box is free text |
+| `bodyEntry` | no | where an installed pack's scenes go in your prompt, see [Where a pack's scene goes](#where-a-packs-scene-goes). Leave it out, and they get SillyTavern's default slot |
 | `aliases` | no | your condition shortcuts, like `{ 'Aff(*)': 'Classmate.*.Affection' }`. A `*` captures a part and lands in the path |
 | `presence` | for `Present()` | the field `Present(Name)` tests for `true`, like `'Classmate.*.Is_present'` |
 | `resolveScalar(sd, name)`, `sugar` | no | a condition name that genuinely computes, like a party size. Return the name unchanged for anything you don't claim |
@@ -102,6 +103,28 @@ daysSince: (sd, s) => EVENTS.civilDaysSince(nowStamp(sd), s),
 ```
 
 **`EVENT_PACK_FORMAT`** is the format your engine runs. Pass the library's own `FORMAT` straight through, never a number you type. A second copy is a copy that can disagree.
+
+## Where a pack's scene goes
+
+Every installed pack is one lorebook entry, and `bodyEntry` says where that entry sits in your prompt. It uses the same words a lorebook entry does:
+
+```js
+bodyEntry: { position: 'at_depth_as_system', depth: 0, order: 750 },
+```
+
+| Field | What it is |
+| --- | --- |
+| `position` | the lorebook position: `before_character_definition`, `after_character_definition`, `before_example_messages`, `after_example_messages`, `before_author_note`, `after_author_note`, `at_depth_as_system`, `at_depth_as_assistant` or `at_depth_as_user` |
+| `depth` | for an `at_depth_*` position only: how many messages from the end. `0` is right after the player's line |
+| `order` | the lorebook order. Lower goes first, and it's dropped first when the lorebook runs out of budget |
+
+MVU Helper writes these 3 fields onto every pack entry it installs. It never decides them for you, because where a scene works best is your prompt's design, not MVU Helper's.
+
+**Put it where the narrator plans from.** A model plans its reply from the end of the prompt. A scene sitting in the middle can be followed word for word, and still never make it into the plan. ArtificKoi puts pack scenes at depth 0, right after the player's line, with order 750. That's below its own story scenes (994), so a pack scene is the first to go when the budget is tight.
+
+**It's also cheaper.** The scene only shows on the reply its event is armed. Sitting at the end, it changes only the end of the prompt, so everything before it stays cached.
+
+A `bodyEntry` that's malformed refuses the install, naming the field. Leave it out, and pack entries get SillyTavern's default slot, before the character definition.
 
 ## The armed pointer is a [value, label] pair
 
