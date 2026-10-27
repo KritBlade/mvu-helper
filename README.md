@@ -31,7 +31,7 @@ MVU Helper needs 2 other SillyTavern extensions first like all other MVU extensi
 
 ## What is MVU Helper
 
-MVU Helper is a SillyTavern extension that lets you build a game inside a character card. **Not a bot, a game**. Any game, RPG, Slice of Life, zombie hunting, adventure, dating simulation...any genre that have game logic would work.   Only 3 functions are end users facing as the table above shown,  the rest of the extenion is mainly for development use.  
+MVU Helper is a SillyTavern extension that lets you build a game inside a character card. **Not a bot, a game**. Any game, RPG, Slice of Life, zombie hunting, adventure, dating simulation...any genre that have game logic would work.   Only 3 functions are end users facing as the table above shown,  the rest of the extenion is mainly for development use.  The first implementation of this framework is [ArtificKoi](https://github.com/KritBlade/ArtificKoi).
 
 **If you are normal users, please click the "User Facing Features above"**.
  
