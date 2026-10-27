@@ -46,6 +46,7 @@ The 3 you'll meet first:
 | read what a POST call answered | the `mvuhelper:post-done` event, then `mvuHelper.lastPost` |
 | check what's installed on this card | `MvuHelper.packInfo()` |
 | log the same way MVU Helper does | `MvuHelper.log` |
+| read MVU Helper's settings, or flip a debug switch | `MvuHelper.settings` |
 
 ## EJS first, macros after
 
@@ -57,9 +58,9 @@ Think of a mail merge. You write the letter first, with "Dear {{name}}" in it. T
 
 That's why the engine's name comes both ways. When your EJS has to decide something, use `MvuHelper.engineInfo()`. When the text only has to show it, use the macro.
 
-## Nothing here writes
+## Nothing here writes your game
 
-Macros and the API only read. Not one of them changes a variable.
+Macros and the API never change your game. Not one of them changes a variable. The one thing your code can set is a debug switch, with `MvuHelper.settings.set`, and that's MVU Helper's own setting.
 
 To change the game state, your code hands MVU Helper a list of changes, and MVU Helper writes them through MVU, at the right moment, checked by your schema. A PRE call writes with `<JSONPatch>`, a POST call with `<UpdateVariable>`, your engine through its hooks, and a status menu button through an action.
 

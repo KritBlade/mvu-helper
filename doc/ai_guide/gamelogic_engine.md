@@ -257,7 +257,7 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 ### 7.4 Sandbox and host API
 
 - Allowed: the JavaScript built-ins (`Math`, `Date`, `JSON`, `Map`, `Set`, `Promise`, `Intl`, typed arrays...), `console`, `crypto`, `structuredClone`, `TextEncoder`, `TextDecoder`, `atob`, `btoa`. Everything else throws and logs `[mvu-helper] [logic-engine] BLOCKED ...` once per name: timers, `fetch`, DOM, storage, `require`, `import()`.
-- Inside the engine, `globalThis` and `window` are a private object per engine, not the Worker global. It carries `MvuHelper`: `engineInfo()`, `log` (`error`, `warn`, `lifecycle`, `verbose`, `trace`, `domain(name, level, ...)`, `child(tag)`, `enabled(level)`, `domainEnabled(name)`) and `messages` (`count(role)`, `at(i)`, `latest(role)`, `find({ role, from, direction, skip })`, never message text).
+- Inside the engine, `globalThis` and `window` are a private object per engine, not the Worker global. It carries `MvuHelper`: `engineInfo()`, `log` (`error`, `warn`, `lifecycle`, `verbose`, `trace`, `domain(name, level, ...)`, `child(tag)`, `enabled(level)`, `domainEnabled(name)`), `settings` (`get(name)` and `names()` for MVU Helper's settings by name, like `debug.pipeline`; `set` changes nothing in the engine and returns `false`) and `messages` (`count(role)`, `at(i)`, `latest(role)`, `find({ role, from, direction, skip })`, never message text).
 - `globalThis.MvuHelper.log.child('RES').warn('x')` prints `[mvu-helper] [engine:game] [RES] x`.
 
 ### 7.5 Several engine files

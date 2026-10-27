@@ -2,13 +2,13 @@
 
 > This page applies to any card. ArtificKoi shows up as a real example, not as a rule.
 
-This is the full list: every macro MVU Helper fills in, every function it puts on the page, every event it fires and every flag it publishes. Each one says where it works and what it gives back. Where another page explains it in depth, the link is right there.
+This is the full list: every macro MVU Helper fills in, every function and setting it puts on the page, every event it fires and every flag it publishes. Each one says where it works and what it gives back. Where another page explains it in depth, the link is right there.
 
 ## What's on this page
 
 1. [Where each one works](#where-each-one-works) > the 4 places your code can run, and what reaches each.
 2. [Macros](#macros) > `{{mvuhelper::…}}` in PRE and POST entries, PRE and POST reading each other, the engine's name, and the placeholders in MVU Helper's own settings.
-3. [`MvuHelper`](#mvuhelper-on-the-page) > the page API: identity, dice, install report, logging.
+3. [`MvuHelper`](#mvuhelper-on-the-page) > the page API: identity, dice, install report, logging, settings.
 4. [`LogicEngine`](#logicengine-your-engine-from-the-page) > your own engine's functions, called from EJS.
 5. [`mvuHelper`](#mvuhelper-the-calls-answers) > this turn's PRE and POST answers, and the debug handles.
 6. [Events](#events) > what MVU Helper fires on SillyTavern's `eventSource`.
@@ -26,7 +26,7 @@ Your code can run in 4 places, and each one gets a different set:
 | --- | --- | --- |
 | **the page** | your entries' EJS, a Tavern Helper script, another extension | `MvuHelper`, `LogicEngine`, `mvuHelper`, the events, the flags, `{{mvuhelperEngineName}}` |
 | **PRE and POST entries** | the entries routed to a call | all of the page, plus the `{{mvuhelper::…}}` macros |
-| **the engine sandbox** | your GameLogic Engine, a plugin's engine, your menu engine | its own `MvuHelper`: identity, logging, the message list. Nothing on the page |
+| **the engine sandbox** | your GameLogic Engine, a plugin's engine, your menu engine | its own `MvuHelper`: identity, logging, settings, the message list. Nothing on the page |
 | **the status menu frame** | the menu the builder made | a small prelude, plus `MvuHelperFrame` |
 
 The sandbox and the frame are locked on purpose. Code in there can't see the SillyTavern page at all, so the page API simply isn't there. Why it's that strict is in the Security point of the [README](../../README.md).
@@ -170,6 +170,7 @@ See [The contract and its 2 placeholders](../image_gen/prompt.md#the-contract-an
 | `rollPool(count, hash, poolName, sides)` | an array of dice, dealt in code. See below |
 | `packInfo()` | `async`. Everything installed, in the library and on this card. See below |
 | `log` | MVU Helper's logger, for your own scripts. See below |
+| `settings` | MVU Helper's own settings, by name: `get(name)`, `names()`, and `set(name, value)` for a debug switch. See below |
 | `statusMenuFrameSource({ rowName, mid, statData })` | `async`. For an extension that shows a status menu in its own frame. See below |
 
 ### `engineInfo()` and `exposes()`
@@ -232,6 +233,30 @@ prints `[mvu-helper] [card] [EJS] no Classmate on this card`.
 | `child(tag)` | a logger that adds `[tag]` to every line |
 
 It's optional. `console` still works. See [Logging](../gamelogic_plugin/entries.md#logging).
+
+### `settings`
+
+Your code can read MVU Helper's settings by name, without going near SillyTavern's settings. ArtificKoi uses it to print its trace lines only while the Pipeline switch is on:
+
+```ejs
+<%_ if (globalThis.MvuHelper && MvuHelper.settings && MvuHelper.settings.get('debug.pipeline') === true) { _%>
+...a trace line...
+<%_ } _%>
+```
+
+The `globalThis.MvuHelper && MvuHelper.settings` part keeps the card working where MVU Helper isn't installed, or is older than this.
+
+| Name | Value |
+| --- | --- |
+| `debug.verbosity` | `'off'`, `'lifecycle'`, `'verbose'` or `'trace'`, the level on the Debug card |
+| `debug.pipeline`, `debug.imagegen`, `debug.roster`, `debug.smallllm` | `true` or `false`, that debug switch |
+| `language` | `'en'` or `'zh-cn'`, the panel's language |
+
+- `get(name)` gives you the value. A name that isn't in the table gives `undefined`, and the console warns once.
+- `set(name, value)` turns a debug switch on or off. It saves it, moves the switch on the Main tab too, and returns `true`. Anything else is refused: the verbosity, the language, a value that isn't `true` or `false`. Nothing changes, you get `false`, and the console says why.
+- `names()` lists the table.
+
+Read your settings this way, not through `SillyTavern.extensionSettings`. That one hands your template every extension's settings, just to find one switch.
 
 ### `statusMenuFrameSource({ rowName, mid, statData })`
 
@@ -328,6 +353,7 @@ Your GameLogic Engine runs in a locked Worker, with no page, no network and no t
 | --- | --- |
 | `engineInfo()` | your engine's own name, type, version and pack id |
 | `log` | the same methods as the page's `log`. Lines print as `[mvu-helper] [engine:game] …` |
+| `settings` | the same names as the page's, with `get(name)` and `names()`, read when MVU Helper last called your engine. `set` changes nothing in here, it returns `false` |
 | `messages` | which messages exist, never their text: `count(role)`, `at(i)`, `latest(role)`, `find({ role, from, direction, skip })` |
 
 The rest of what your engine gets comes in through its hooks, as `ctx`: the dice, the state, what the reply did. A plugin's engine and an event pack get their own. Each is on its own page:
@@ -374,7 +400,7 @@ The entries the installers write, like `[MVU_LogicEngine]` and `[GameLogicPack:<
 
 ## Writing
 
-Nothing on this page writes. Every change goes back to MVU Helper as a list, and MVU Helper writes it through MVU, at the right moment, checked by your schema:
+Nothing on this page writes your game. The one thing your code can set is a debug switch, with `MvuHelper.settings.set`, and that's MVU Helper's own setting. Every change to the game goes back to MVU Helper as a list, and MVU Helper writes it through MVU, at the right moment, checked by your schema:
 
 | From | Writes with | Page |
 | --- | --- | --- |
@@ -388,7 +414,7 @@ There is deliberately no macro that sets a variable. When a saved value turns ou
 
 ## Checking your work
 
-Turn on the `pipeline` debug domain on the Main tab, and every call logs what its macros gave it:
+Turn on the `pipeline` debug domain on the Main tab, or from code with `MvuHelper.settings.set('debug.pipeline', true)`, and every call logs what its macros gave it:
 
 ```
 [PRE2] macros: history::2=1840ch userLine=64ch

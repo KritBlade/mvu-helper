@@ -20,10 +20,11 @@ Loading the engine times out after 10 seconds, so a stuck engine can't freeze yo
 
 ## What the engine can ask MVU Helper
 
-Inside the sandbox, `globalThis.MvuHelper` gives your engine 3 things:
+Inside the sandbox, `globalThis.MvuHelper` gives your engine 4 things:
 
 - `engineInfo()` > your engine's own name, type, version and pack id.
 - `log` > logging, see below.
+- `settings` > MVU Helper's settings by name, see below.
 - `messages` > which messages exist, without their text. `count(role)`, `at(i)`, `latest(role)` and `find({ role, from, direction, skip })` report message numbers, roles and swipes, never what anyone wrote.
 
 ## Your card's EJS can call the engine
@@ -53,6 +54,10 @@ MvuHelper.log.child('RES').warn('goblin has no HP');
 ```
 
 prints `[mvu-helper] [engine:game] [RES] goblin has no HP`.
+
+## Settings
+
+Your engine and your entries read MVU Helper's settings by name, like `MvuHelper.settings.get('debug.pipeline')` for the Pipeline switch. Inside the engine you get the values from when MVU Helper last called it, and nothing can be set from there. The names, and how an entry flips a debug switch, are on [settings](../macros_api/technical.md#settings).
 
 ## Dice
 

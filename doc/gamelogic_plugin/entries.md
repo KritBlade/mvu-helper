@@ -124,4 +124,8 @@ The same logger is on `globalThis.MvuHelper.log` in your entries, and on `MvuHel
 
 On the page, every card script shares the `[card]` source. So tag your entries' lines with `child`: `MvuHelper.log.child('weather').warn(…)`.
 
+## Settings
+
+Your entries and your engine read MVU Helper's settings by name, like `globalThis.MvuHelper.settings.get('debug.pipeline')` for the Pipeline switch. Read them this way, not through `SillyTavern.extensionSettings`, which hands your template every extension's settings just to find one switch. The names, and how an entry flips a debug switch, are on [settings](../macros_api/technical.md#settings).
+
 [Back to How a GameLogic Plugin works](technical.md) · [Back to index](../../README.md)

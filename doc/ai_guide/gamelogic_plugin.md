@@ -24,7 +24,7 @@ You are an AI coding assistant in a clone of the `mvu-helper-template` workspace
 - It owns only its drawer. It can read all of `stat_data`. Technically it can write any path the card's Zod allows. It must not.
 - **Standalone**: `requires` empty (or absent). Installs on any card. **Game-bound**: `requires` lists interfaces. Install is refused, by name, on a card whose game does not expose all of them.
 - It has no `init` (no starting state), no `regex`, no `exposes`, no `state`. A file with any of these is refused.
-- Its engine runs in MVU Helper's Worker sandbox: JavaScript plus `console`, `crypto`, `structuredClone`, `TextEncoder`, `TextDecoder`, `atob`, `btoa`, `globalThis.MvuHelper` (`engineInfo()`, `log`, `messages`, reached only through `globalThis`). No network, no DOM, no timers, no `import()`, no `require`. It cannot call the game engine.
+- Its engine runs in MVU Helper's Worker sandbox: JavaScript plus `console`, `crypto`, `structuredClone`, `TextEncoder`, `TextDecoder`, `atob`, `btoa`, `globalThis.MvuHelper` (`engineInfo()`, `log`, `settings`, `messages`, reached only through `globalThis`). No network, no DOM, no timers, no `import()`, no `require`. It cannot call the game engine.
 
 ## 3. The folder
 

@@ -101,6 +101,7 @@ It sees the JavaScript language, plus `console`, `crypto`, `structuredClone`, `T
 
 - `MvuHelper.engineInfo()` > the game's identity,
 - `MvuHelper.log` > the logger,
+- `MvuHelper.settings` > MVU Helper's settings by name, read only, see [Settings](entries.md#settings),
 - `MvuHelper.messages` > the chat's messages as index, role and swipe, with no text.
 
 Each engine file runs in its own scope, with its own private globals. A `window.X` set by one is invisible to every other. And a plugin can't call the game engine's functions.
