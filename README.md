@@ -98,6 +98,8 @@ Think of a relay race. Every runner knows who they hand the baton to, and nobody
 
 Plugins and event packs work like mods for a PC game. The modders never needed the original developer to change a line. Basically, the end user can download a plugin or an event pack from some other 3rd party content creator and install it right inside MVU Helper, that's it.
 
+**Auto Image Generation with roster store for outfit.** Image is auto generated via ComfyUI with correct outfit based on scene.
+
 **The dev loop comes with it.** Run `npm run dev` in the template workspace, turn on the dev loop in MVU Helper, and every time you save a file in VS Code, the new code is installed onto the card you have open. No export, no import, no reload. Without it, every change is export the pack, import it, install it, reload the chat. That's fine once a day. It's painful 50 times an hour.
 
 Your AI can join the loop too. The template hooks your AI assistant up to a Chrome window it can see, so it can change the engine, play a reply and read the console by itself, instead of you copying logs back and forth. See [Development Environment and Dev Loops](doc/dev_env/README.md).
@@ -167,6 +169,20 @@ The logic engine takes the `/Intent`, checks the stats of everyone involved, loo
 It doesn't judge anything. Think of the barcode scanner at a supermarket checkout. It doesn't care why you're buying something or who it's for. It reads the code, looks up the price and adds it up. The logic engine does the same with the story. It converts the prose into numbers...nothing more.
 
 Basically, the AI writes the story, and the logic engine keeps the score.
+
+## Outfits change with the scene
+
+With [Auto Image Generation](doc/image_gen/README.md) on, every character dresses for where they are and what they're doing. And they keep the same clothes from picture to picture, until the story changes them.
+
+A card can ship its cast with outfits already on file. ArtificKoi ships every classmate with `school-uniform`, `school-gym` and `school-swimsuit`. So in class she's in her uniform, a PE class puts her in her gym clothes, and at the school pool she's in her swimsuit. Each one is the exact same clothes in every picture.
+
+A character the card doesn't ship gets their first clothes saved the moment the story first describes them. A uniform kind of outfit, like a café's waitress uniform, gets saved too, under a name like `cafe-waitress`.
+
+On a date, the story puts her in something casual, like a blouse and a denim skirt. That's a one-off, so MVU Helper keeps it in the game state instead of her entry. She keeps the same outfit all afternoon, picture after picture. On Monday she's back in her uniform, and next Saturday she wears something new again.
+
+It's just like real life. Everybody wears the same uniform at school, and nobody shows up to a weekend date in it.
+
+Nobody has to tell the AI what anyone wears. It only picks from a list: their outfits on file, what they wore in their last picture, or new clothes the story just put them in. Don't like what someone's wearing? Edit it on the [Roster](doc/roster/README.md) tab, and the next picture follows. How it works is on [How the character registry works](doc/roster/registry.md#a-week-with-mitsuki).
 
 ## galgame-companion
 
