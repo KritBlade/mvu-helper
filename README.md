@@ -120,9 +120,23 @@ Therefore, you only build the part that makes your game different. Everything el
 
 There is no reason to build a standalone app when SillyTavern already provides every single piece of groundwork a standalone app would need: the connection manager, the chat interface, extension management and multi-language support.
 
-The only thing missing is the game logic and a framework to create game content.
+**The only thing missing is the game logic and a framework to create game content, which you can barely find any extension or even any Sillytavern-like app touch on "Game Logic", "Game Content" and "Events of story"**.  Most Sillytavern-like app focus on eye-candy, and features that  make *any* games to work.  However, you can't make game logic and contents works completely different and unique on different game card if you make everything works on any card.  It just doesn't work.  That's why every single card end up playing exactly the same, which is what this framework trying to solve.
 
 Moreover, one framework that works inside SillyTavern means content creators can build 1000+ different character cards on the same platform. A standalone app means the dev has to build 1000+ different standalone apps for 1000+ games.
+
+### Why code game rules with AI instead of drop-down menus?
+
+You could design game rules with drop-down boxes: pick option A, B or C, and the tool builds the rule for you. I went with code instead, written with an AI assistant, for 3 reasons.
+
+**It's way too slow for a big game.** ArtificKoi's game rules are more than 5,000 lines of JavaScript, plus more than 250 events. Clicking all of that together, box by box, would take months. Describe a rule to your AI assistant, and it writes the code in minutes.
+
+**You can't unit test a drop-down menu.** A big game breaks all the time while you build it. With code, every rule can have a unit test, so a change that breaks something old fails a test right away. ArtificKoi runs 24 test suites every time I change a rule. And before any of that, somebody would have to build a drop-down box for every rule a game could ever need, which is a nightmare on its own.
+
+**A drop-down menu makes every game the same.** Anything pre-defined as option A, B or C is something every other game can pick too. Think of houses built from a catalog: door A, window B, roof C. Every house on the street ends up looking alike. With code, a rule can be anything you can describe, and your game is the only one that has it.
+
+That's not the same as [MVU Status Menu Builder](doc/statusmenu_builder/README.md), which does use drop-down menus for events and the status menu. It works there because the game engine already decided what's possible, and the builder only offers what that game allows. The rules themselves stay in code.
+
+Basically, a drop-down menu decides what your game can do. Code lets you decide.  And so far no one every touch on this area.
 
 ### It's a game, not a bot
 
@@ -151,7 +165,6 @@ The DC, the number the die has to beat, isn't fixed either. A game can set a dif
 Say you ask a girl out. With high affection and a good relationship stage, you get a favorable 80/20 chance. With low affection, it drops to 10/90. On a D20, that means you need a 5 or higher in the first case, and a 19 or higher in the second.
 
 The logic itself stays deterministic. The same stats and the same die give the same result, every single time. The die only adds the luck, and the rules decide what that luck means. How a card deals the dice is on [Where the engine runs](doc/gamelogic_engine/runtime.md#dice).
-
 
 
 ### The AI is only the observer
