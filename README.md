@@ -69,11 +69,9 @@ MVU Game Engine v2.0 tries to mimic that console game experience, with AI genera
 
 ### Why putting the whole engine in the prompt is not the answer either
 
-Most Chinese game cards do have logic built in. The catch is that the complete engine goes into the prompt every single reply, with all the instructions, the maths and the formulas. That takes a lot of tokens per reply while the game is relatively small, which is expensive.
+Most Chinese game cards do have logic built in. The catch is that the complete engine goes into the prompt every single reply, with all the instructions, the maths and the formulas. That takes a lot of tokens per reply while the game is relatively small, which is expensive.  MVU Game Makers and most MVU games are using this method, and even some preset is doing the same thing as well.
 
 And on top of that, an LLM is not good at arithmetic. Give it a few numbers and it's fine. Give it a whole game's worth of formulas at once and it starts making mistakes, so it drifts too.
-
-It's like asking a great novelist to do your tax return. They write beautifully. You still don't want them doing your math.
 
 So MVU Helper goes hybrid. The AI does the writing, code does the math. Each one only does what it's good at. The drawback is that the author of the character card will need to do some coding on the logic engine. I have made that simple enough for vibe coding.
 
@@ -104,7 +102,7 @@ Plugins and event packs work like mods for a PC game. The modders never needed t
 
 Your AI can join the loop too. The template hooks your AI assistant up to a Chrome window it can see, so it can change the engine, play a reply and read the console by itself, instead of you copying logs back and forth. See [Development Environment and Dev Loops](doc/dev_env/README.md).
 
-**Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and ST-Prompt-Template, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables. The game logic engine is heavily locked down.
+**Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and ST-Prompt-Template, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables. **The game logic engine is heavily locked down**.
 
 The logic engine inherits NOTHING from the parent page except the chat and the MVU variables. It has no network access at all. No `fetch`, no `XMLHttpRequest`, no `WebSocket`, no `import()`, no reading or writing SillyTavern's settings files.
 
@@ -120,7 +118,7 @@ Therefore, you only build the part that makes your game different. Everything el
 
 There is no reason to build a standalone app when SillyTavern already provides every single piece of groundwork a standalone app would need: the connection manager, the chat interface, extension management and multi-language support.
 
-**The only thing missing is the game logic and a framework to create game content, which you can barely find any extension or even any Sillytavern-like app touch on "Game Logic", "Game Content" and "Events of story"**.  Most Sillytavern-like app focus on eye-candy, and features that  make *any* games to work.  However, you can't make game logic and contents works completely different and unique on different game card if you make everything works on any card.  It just doesn't work.  That's why every single card end up playing exactly the same, which is what this framework trying to solve.
+**The only thing missing is the game logic and a framework to create game content, which you can barely find any extension or even any Sillytavern-like app touches on "Game Logic", "Game Content" and "Events of story"**.  This is human creation, not a one size fit all kind of system.  Most Sillytavern-like app focus on eye-candy, utilities and features that make *any* character card to work.  However, you can't make game logic and contents works completely different and unique if you make everything works on any card.  It just doesn't work.  That's why every single card end up playing exactly the same, which is what this framework trying to solve.    Imagine you play Dragon Quest, Final fantasy, and Chrono Trigger all having the same battle mechanics, it's not fun.   There is no one size fit all for game mechanics.  Instead of going the "one-size-fit-all" route like all Sillytavern-like app, this framework is designed to create unique game mechanics for each game.  I just don't want to re-invent the wheel again for something that other apps are doing it good enough already.
 
 Moreover, one framework that works inside SillyTavern means content creators can build 1000+ different character cards on the same platform. A standalone app means the dev has to build 1000+ different standalone apps for 1000+ games.
 
@@ -130,13 +128,13 @@ You could design game rules with drop-down boxes: pick option A, B or C, and the
 
 **It's way too slow for a big game.** ArtificKoi's game rules are more than 5,000 lines of JavaScript, plus more than 250 events. Clicking all of that together, box by box, would take months. Describe a rule to your AI assistant, and it writes the code in minutes.
 
-**You can't unit test a drop-down menu.** A big game breaks all the time while you build it. With code, every rule can have a unit test, so a change that breaks something old fails a test right away. ArtificKoi runs 24 test suites every time I change a rule. And before any of that, somebody would have to build a drop-down box for every rule a game could ever need, which is a nightmare on its own.
+**You can't unit test a drop-down menu.** A big game breaks all the time while you build it. With code, every rule can have a unit test, so a change that breaks something old fails a test right away. ArtificKoi runs 24 test suites every time I change a rule. And before any of that, somebody would have to build a drop-down box for every rule a game could ever need, which is a nightmare on its own.   Lets imagine you have hundreds of dropdown box and each drop down box offer thousands of options.....
 
 **A drop-down menu makes every game the same.** Anything pre-defined as option A, B or C is something every other game can pick too. Think of houses built from a catalog: door A, window B, roof C. Every house on the street ends up looking alike. With code, a rule can be anything you can describe, and your game is the only one that has it.
 
-That's not the same as [MVU Status Menu Builder](doc/statusmenu_builder/README.md), which does use drop-down menus for events and the status menu. It works there because the game engine already decided what's possible, and the builder only offers what that game allows. The rules themselves stay in code.
+I have already made this very code friendly with AI, so any half-baked content creator who try to learn how to use VS code chatting with AI should be able to make something really quick.  Yes, all you need to do is to chat to AI and explain function by function how you want your system.  You just need to break it down to small pieces one by one and chat with AI.  No, not "build me a combat system" kind of chat.  You have to be specific.
 
-Basically, a drop-down menu decides what your game can do. Code lets you decide.  And so far no one every touch on this area.
+Basically, a drop-down menu decides what your game can do. Code lets you decide.  And it seems so far no one ever touch on this area in Sillytavern for game logic.
 
 ### It's a game, not a bot
 
