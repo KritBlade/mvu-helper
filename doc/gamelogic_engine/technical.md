@@ -10,7 +10,7 @@ Read them in this order, or jump to the one you need:
 
 1. [Same reply protection](same_reply.md) > read this one first. The prose, the dice and the result in one reply, and only once.
 2. [What's in a GameLogic Pack](pack.md) > the folder, `pack.json`, the checks, the smallest pack that works.
-3. [The hooks in detail](hooks.md) > the declarations and all 4 hooks.
+3. [The hooks in detail](hooks.md) > the declarations and all 5 hooks.
 4. [Where the engine runs](runtime.md) > the sandbox, calling the engine from EJS, logging, dice, an engine in several files.
 5. [Entries](entries.md) > the entry file format, and what install does to it.
 6. [Schema](schema.md) > the Zod schema, its allowlist and keeping the root open.
@@ -189,7 +189,7 @@ Watch out for a few things:
 - **One reply, one call.** A regenerate or a swipe is a new reply and gets its own call. A PRE patch, a plugin write or a status menu button doesn't call `resolveTurn` at all. Still stamp each reply yourself, see [Same reply protection](same_reply.md#what-your-engine-should-still-do).
 - **If it throws, the reply isn't resolved.** MVU Helper logs the error and shows a toast.
 
-The other 2 hooks, `preAssemblyPatch` and `pickSameRoundEvent`, and the fine print of these 2, are on [The hooks in detail](hooks.md).
+The other 3 hooks, `preAssemblyPatch`, `preVerdictPatch` and `pickSameRoundEvent`, and the fine print of these 2, are on [The hooks in detail](hooks.md).
 
 Basically, your entries tell the models what to look at and what to report, and `resolveTurn` and `resolvePostRelay` turn those reports into the game.
 

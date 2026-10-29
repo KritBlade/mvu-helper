@@ -95,6 +95,7 @@ MVU Helper calls your engine at fixed points of every reply. Each hook is a func
 | `resolveTurn` | after the narrator's reply (RES1) | read what the narrator reported, decide the results, return the new state |
 | `resolvePostRelay` | after POST's records are applied (RES2) | the same, for what POST recorded, in the same reply |
 | `preAssemblyPatch` | before PRE and the narrator | write what everyone must already see this reply, like moving the clock or placing NPCs |
+| `preVerdictPatch` | after PRE, before the narrator | write what this turn's PRE verdict switches on, like opening a scene the player's line just started |
 | `pickSameRoundEvent` | after PRE, before the narrator | pick an event to play in this same reply instead of the next one |
 
 Where each hook sits in a reply is on the [MVU Squad](../mvu_squad/README.md) page.

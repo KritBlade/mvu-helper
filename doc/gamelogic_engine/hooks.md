@@ -27,11 +27,12 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 - **`ENGINE_TYPE`** names the family. `MvuHelper.engineInfo().type` reports it.
 - **`EVENT_PACK_ADAPTER`** and **`EVENT_PACK_FORMAT`** let your game host event packs. See [Where the engine runs](runtime.md#hosting-event-packs).
 
-## The 4 hooks
+## The 5 hooks
 
 | Hook | Called | Receives | Returns |
 | --- | --- | --- | --- |
 | `preAssemblyPatch` | before the PRE calls and the narrator | the base floor's state, `{ type, mid, swipe, generationAttempt }` | JSON Patch ops, or `[]` |
+| `preVerdictPatch` | after the PRE calls, before the narrator | the base floor's state, `{ type, mid, swipe, generationAttempt, preOutputs }` | JSON Patch ops, or `[]` |
 | `pickSameRoundEvent` | after the PRE calls, before the narrator | the base floor's state, `{ type, mid, swipe, generationAttempt, preOutputs }` | an event key, or `''` |
 | `resolveTurn` | after the narrator's reply is parsed (RES1) | the reply's state, `{ mid, swipe, dice, dicePools, ops, sameRoundEventKey }` | `{ statData, applied, log, resBlock?, textReplacements? }` |
 | `resolvePostRelay` | after POST's blocks are applied (RES2) | the reply's state, `{ mid, swipe, dice, dicePools, ops }` | the same as `resolveTurn` |
@@ -57,13 +58,27 @@ How it works:
 - Return JSON Patch ops (`add`, `replace`, `remove`, paths starting with `/`), or `[]` when nothing changes. A broken op is dropped.
 - MVU Helper applies them to the player's message (`ctx.mid`) through MVU and saves them, so PRE and the narrator read the result.
 - It runs on every story turn, whether Extra LLM Calls is on or not. `ctx.type` is `'normal'`, `'regenerate'` or `'swipe'`. Continue, quiet and impersonate are not turns, so nothing runs for them.
-- It runs before PRE, so it can't see this turn's PRE verdicts. Anything that needs them belongs in RES1.
+- It runs before PRE, so it can't see this turn's PRE verdicts. A write that needs them, and that the narrator must already see, belongs in [preVerdictPatch](#preverdictpatch). Anything else belongs in RES1.
 
 **What happens on a regenerate.** MVU Helper first puts back every path the previous attempt wrote on that message. Then it calls the hook again with the same base floor, the same `type`, `mid` and `swipe`. So a value worked out from the base floor lands the same on every attempt.
 
 It's like retaking a photo. Everyone goes back to their mark before each shot, so the second shot starts exactly where the first one did.
 
 What does change is `ctx.generationAttempt`. It goes up on every generation, background quiet ones included. Want a fresh result each time the player re-rolls, like a new encounter after a bad one? Fold `generationAttempt` into your seed. Want the same result every time? Ignore it.
+
+## preVerdictPatch
+
+Your engine's own writes that depend on this turn's PRE verdict, before the narrator writes. Use it for a mode the player's line switches on, whose rules the narrator's prompt then has to carry.
+
+ArtificKoi uses it to open an intimate scene in the reply that starts it. When the player's line crosses into one, a PRE call flags it and rolls that move as a check. Won, and `preVerdictPatch` turns the scene on before the prompt is built, so the narrator already has the scene's rules and dice in front of it. Lost, and it writes nothing: she said no, and the scene stays off.
+
+How it works:
+
+- It runs when Extra LLM Calls is on and at least one PRE call ran, after their patches are applied and before the narrator's prompt is built.
+- `statData` is the base floor, the same state the PRE calls read. Never your message: a regenerate must not read what its earlier attempt wrote there.
+- `ctx.preOutputs` is `[{ name, output, appliedOps }]`, one entry per PRE call. `output` is its raw answer. `appliedOps` is every JSON Patch op MVU Helper took from that call's `<JSONPatch>` blocks and applied this attempt, `[]` when it wrote none or its patch was rejected.
+- Read what a call wrote from `appliedOps`, never by parsing `output` yourself. Those are the exact ops that landed in the save, read by the same parser MVU Helper applied them with.
+- Return JSON Patch ops, or `[]`. MVU Helper applies them to the player's message the same way it applies `preAssemblyPatch`'s, and a regenerate puts them back the same way before the hook runs again.
 
 ## pickSameRoundEvent
 
@@ -76,7 +91,7 @@ Why this matters, and the whole flow from PRE to RES1, is on [Same reply protect
 How it works:
 
 - It runs when Extra LLM Calls is on and at least one PRE call ran.
-- `ctx.preOutputs` is every PRE call's raw output, `[{ name, output }]`. `statData` is the same base floor those PRE calls read.
+- `ctx.preOutputs` is the same `[{ name, output, appliedOps }]` that [preVerdictPatch](#preverdictpatch) gets. `statData` is the same base floor those PRE calls read.
 - Return the key of the event to play now, or `''`.
 - Deciding the key is entirely yours: what PRE was shown, which field of its output carries the verdict, and whether the key it names is one you actually offered. In ArtificKoi, a PRE call returns an `eventReady` field, and `pickSameRoundEvent` reads it from `ctx.preOutputs`, but only accepts a key PRE was offered this reply.
 

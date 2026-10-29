@@ -31,12 +31,13 @@ That's what keeps the math consistent. Code gives the same answer every single t
 MVU keeps your game state in `stat_data`. Every step below reads it, writes it, or both.
 
 ```
-preAssemblyPatch > EJS1 > PRE > pickSameRoundEvent > EJS2 > narrate > RES1 > EJS3 > POST > RES2
+preAssemblyPatch > EJS1 > PRE > preVerdictPatch > pickSameRoundEvent > EJS2 > narrate > RES1 > EJS3 > POST > RES2
 ```
 
 - `preAssemblyPatch` > your engine's own writes before anything else runs. A clock step, a counter. Optional.
 - EJS1, EJS2, EJS3 > right before each model is called, EJS renders that model's view of `stat_data`. The ticket printer. EJS picks only information we want to show to PRE/Narrate/POST for that reply.
 - PRE > cheap models read the player's line and classify the situation before the reply.
+- `preVerdictPatch` > your engine's own writes on this turn's PRE verdict, before the narrator. Opening a scene the player's line started. Optional.
 - `pickSameRoundEvent` > your engine picks an event to play in this same reply. Optional.
 - narrate > your main model writes the reply, and reports what happened as `/Intent`.
 - RES1 > your engine turns the narrator's reports into numbers and updates `stat_data`.
@@ -48,6 +49,7 @@ preAssemblyPatch > EJS1 > PRE > pickSameRoundEvent > EJS2 > narrate > RES1 > EJS
 | `preAssemblyPatch` | engine code | free | your engine (optional hook) |
 | EJS1, EJS2, EJS3 | template code | free | you write the templates, ST-Prompt-Template and MVU Helper render them |
 | PRE | cheap LLM | cheap | MVU Helper runs the call, you write its prompt |
+| `preVerdictPatch` | engine code | free | your engine (optional hook) |
 | `pickSameRoundEvent` | engine code | free | your engine (optional hook) |
 | narrate | your main LLM | expensive | SillyTavern, with your card's main prompt |
 | RES1 | engine code | free | your engine's `resolveTurn` |

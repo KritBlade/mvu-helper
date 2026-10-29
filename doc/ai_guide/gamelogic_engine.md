@@ -164,7 +164,7 @@ Channel design rules:
 
 ## 5. Same reply protection, the minimum
 
-For every mechanic ask: when does the narrator need the result? If the prose needs it, it must be in front of the narrator before it writes: EJS computed from state, a `preAssemblyPatch` write, a PRE call's `<JSONPatch>`, or a `pickSameRoundEvent` pick. Otherwise you get the "one reply late" bug.
+For every mechanic ask: when does the narrator need the result? If the prose needs it, it must be in front of the narrator before it writes: EJS computed from state, a `preAssemblyPatch` write, a PRE call's `<JSONPatch>`, a `preVerdictPatch` write on that verdict, or a `pickSameRoundEvent` pick. Otherwise you get the "one reply late" bug.
 
 ```ejs
 <%_ const _gmDice = globalThis.MvuHelper.rollPool(4, null, 'NARRATE', 20); _%>
@@ -246,7 +246,8 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 | `resolveTurn(statData, ctx)` required | after MVU parses the narrator's reply (RES1), once per reply | `{ mid, swipe, dice, dicePools, ops, sameRoundEventKey }` | `{ statData, applied, log, resBlock?, textReplacements? }` |
 | `resolvePostRelay(statData, ctx)` | after POST's blocks apply, same reply (RES2) | `{ mid, swipe, dice, dicePools, ops }` (ops include `by: 'post'`) | same as `resolveTurn` |
 | `preAssemblyPatch(statData, ctx)` | before PRE and the narrator, every story turn. `statData` = the base floor | `{ type: 'normal'\|'regenerate'\|'swipe', mid, swipe, generationAttempt }` | JSON Patch ops (`add`/`replace`/`remove`, `/` paths), or `[]` |
-| `pickSameRoundEvent(statData, ctx)` | after the PRE calls, before the narrator (Extra LLM Calls on, a PRE call ran) | `{ type, mid, swipe, generationAttempt, preOutputs: [{ name, output }] }` | an event key, or `''` |
+| `preVerdictPatch(statData, ctx)` | after the PRE calls, before the narrator (Extra LLM Calls on, a PRE call ran). `statData` = the base floor | `{ type, mid, swipe, generationAttempt, preOutputs: [{ name, output, appliedOps }] }`; `appliedOps` = the ops that call's patch applied, read them instead of parsing `output` | JSON Patch ops, or `[]` |
+| `pickSameRoundEvent(statData, ctx)` | after the PRE calls, before the narrator (Extra LLM Calls on, a PRE call ran) | `{ type, mid, swipe, generationAttempt, preOutputs: [{ name, output, appliedOps }] }` | an event key, or `''` |
 
 - `ctx.ops` = `[{ path, old, new, by }]`, dotted paths, at most 500; `by` is `message`, `pre-sim`, `post`, `plugin:<id>`, `statusmenu:<id>` or `host`. Your own writes never appear. `ctx.dice` / `ctx.dicePools` are `null` when nothing was dealt.
 - Every call crosses the Worker as a copy. Return the `statData` you changed. Only `applied: true` saves.
@@ -373,7 +374,7 @@ Filter the console by `[mvu-helper]` for the whole turn, by `[RES]` for the engi
 | `wrote /Intent/<channel> WITHOUT its /0` warning, channel empty | the op targets the pair, not its value | teach `/Intent/<channel>/0` in the vocabulary entry |
 | An op on a pair path is lost, nothing logs | `add` on a `/0` path inserts a 3rd slot and Zod refuses it | `replace` on every pair path |
 | A reply's effect applies twice (money taken twice) | channel not cleared, no `resolvedFor` stamp, or the stamp is not in the schema | clear every channel, stamp, declare the stamp |
-| The state catches up one reply late | the result is computed after the narrator | move it to EJS, `preAssemblyPatch`, a PRE patch or `pickSameRoundEvent` |
+| The state catches up one reply late | the result is computed after the narrator | move it to EJS, `preAssemblyPatch`, a PRE patch, `preVerdictPatch` or `pickSameRoundEvent` |
 | `resolveTurn` ran but nothing saved | `applied: false`, or the changed `statData` not returned | return `{ statData, applied: true, log }` |
 | `getvar('X')` empty in a PRE / POST entry | short path | `getvar('stat_data.X')` |
 | A `{{...}}` comparison in EJS is always false | EJS runs before macros | `MvuHelper.engineInfo()` |

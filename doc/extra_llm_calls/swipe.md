@@ -89,7 +89,7 @@ MVU Helper only treats an update as a turn when it starts from one of the 2 newe
 
 ## Your engine can tell attempts apart
 
-`preAssemblyPatch` and `pickSameRoundEvent` get `generationAttempt` in their context. It changes on every regenerate and every swipe, and stays the same within one attempt. An engine that rolls dice can fold it into its seed, so a regenerate is a real reroll, instead of the same roll again.
+`preAssemblyPatch`, `preVerdictPatch` and `pickSameRoundEvent` get `generationAttempt` in their context. It changes on every regenerate and every swipe, and stays the same within one attempt. An engine that rolls dice can fold it into its seed, so a regenerate is a real reroll, instead of the same roll again.
 
 Basically, a swipe, a regenerate or a delete always lands all 3 calls on the same reply, and nothing from a reply you threw away leaks into the one you kept.
 

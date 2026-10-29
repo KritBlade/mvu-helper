@@ -15,9 +15,10 @@ PRE runs inside SillyTavern's generate interceptor, the step right before the pr
 3. Every answer lands in `globalThis.mvuHelper.lastPre`, and MVU Helper fires `mvuhelper:pre-done`.
 4. Each answer is split in 2: the patch blocks, and the prose.
 5. The patch blocks are applied to the save.
-6. The prose goes onto your line, in the prompt copy only.
-7. Your engine's `pickSameRoundEvent`, if it exports one, can pick an event to play in this reply.
-8. The narrator writes.
+6. Your engine's `preVerdictPatch`, if it exports one, writes what this turn's PRE verdict switches on. It gets every answer, and the ops each one's patch applied.
+7. The prose goes onto your line, in the prompt copy only.
+8. Your engine's `pickSameRoundEvent`, if it exports one, can pick an event to play in this reply.
+9. The narrator writes.
 
 **Only a real turn runs PRE.** Continue, impersonate and SillyTavern's quiet background calls run none of it, not even `preAssemblyPatch`. A Continue extends a reply that was already written against this turn's PRE verdict, and that verdict is already in the save.
 
