@@ -6,3 +6,4 @@
 .context/usage.json
 node_modules/
 .gitignore
+.mcp.json

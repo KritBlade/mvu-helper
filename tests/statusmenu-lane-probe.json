@@ -1,0 +1,73 @@
+{
+  "format": "1.0",
+  "packType": "statusmenu",
+  "id": "lane-probe-menu",
+  "name": "StatusMenu Lane Probe",
+  "description": "Test harness for the StatusMenu Pack lane (G3). Not a menu anyone plays with: a minimal instance of every contract surface the installer must handle - a layout with a formatter-driven text cell, a lorebookKey formatter cell (the RPG map shape), a cell naming a formatter the engine deliberately does NOT export (the warn-lane fixture), and a button bound to an action; an engine exporting two formatters and one patch-returning action; one display regex. G3 is developed end-to-end against this file and meets a builder-generated one for the first time at B1.",
+  "version": "1.0",
+  "builtWith": "hand-authored - the StatusMenu lane's own test vehicle",
+  "targetsPackId": "schoolv4",
+  "engine": "// lane-probe-menu StatusMenu Engine\n// Version: the const below is the ONE place it is written, and it is EXPORTED — mvu-helper reads\n// it off the running module, and reads this same line when validating a pack that is not loaded.\nconst ENGINE_VERSION = 'v1.1';\n// Purpose: the minimal, honest instance of the SS9.5 exports contract - two formatters and one\n// action - so the install lane, the Worker boot, the formatter batch RPC and the patch apply can\n// each be proven against code that does nothing clever. Formatters are (stat, root) => string and\n// PURE; actions are (args, statSnapshot) => patch[] and NEVER write - mvu-helper applies.\nconst getV = (obj, path, fallback) => {\n  let cur = obj;\n  for (const seg of String(path || '').split('.')) {\n    if (cur == null || typeof cur !== 'object') return fallback;\n    cur = cur[seg];\n  }\n  if (Array.isArray(cur)) cur = cur[0];\n  return cur === undefined ? fallback : cur;\n};\nmodule.exports = {\n    ENGINE_VERSION,\n  actions: {\n    // The equip shape from the plan's exit criteria: move an item between two named slots.\n    // Returns patches; applying them is mvu-helper's (SS9.4), and the log there enumerates each.\n    probeEquip({ itemKey }, stat) {\n      const key = String(itemKey || 'ProbeItem');\n      const had = getV(stat, 'Mainchar.Inventory.' + key, null);\n      return [\n        { op: 'delete', path: 'Mainchar.Inventory.' + key },\n        { op: 'set', path: 'Mainchar.Equipment.' + key, value: had === null ? 'probe-equipped' : had },\n      ];\n    },\n    // A deliberately malformed emitter for the G3.5 refusal guard: a well-typed action whose\n    // SECOND patch has a bad op. The whole action must be refused, naming the offender.\n    probeMalformed() {\n      return [\n        { op: 'set', path: 'Mainchar.ProbeFlag', value: true },\n        { op: 'assign', path: 'Mainchar.ProbeFlag2', value: true },\n      ];\n    },\n  },\n  formatters: {\n    moneyDisplay(stat, root) { return 'Y ' + getV(root, 'Mainchar.Money', '?'); },\n    mapVariant(stat, root) { return (Number(getV(root, 'Mainchar.Level', 0)) > 70) ? 'post-70-map' : 'pre-70-map'; },\n  },\n};\n",
+  "layout": [
+    {
+      "id": "probe-tab",
+      "title": "Lane Probe",
+      "cards": [
+        {
+          "type": "Text",
+          "title": "Wallet",
+          "mappedKey": "Mainchar.Money",
+          "formatters": {
+            "text": "moneyDisplay"
+          }
+        },
+        {
+          "type": "Image",
+          "title": "Map",
+          "mappedKey": "World.MapImage",
+          "sourceType": "lorebook",
+          "lorebookKey": "Map",
+          "formatters": {
+            "lorebookKey": "mapVariant"
+          }
+        },
+        {
+          "type": "Text",
+          "title": "Weather (warn fixture)",
+          "mappedKey": "World.Weather",
+          "formatters": {
+            "text": "missingFormatter"
+          }
+        },
+        {
+          "type": "Button",
+          "title": "Equip probe item",
+          "action": "probeEquip"
+        }
+      ]
+    }
+  ],
+  "regex": [
+    {
+      "script_name": "LaneProbeMenu",
+      "enabled": true,
+      "find_regex": "/<LaneProbeMenu\\/>/g",
+      "replace_string": "<div data-pack=\"lane-probe-menu\">lane probe menu</div>",
+      "trim_strings": [],
+      "source": {
+        "user_input": false,
+        "ai_output": true,
+        "slash_command": false,
+        "world_info": false,
+        "reasoning": false
+      },
+      "destination": {
+        "display": true,
+        "prompt": false
+      },
+      "run_on_edit": true,
+      "min_depth": null,
+      "max_depth": null
+    }
+  ]
+}

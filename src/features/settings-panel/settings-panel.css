@@ -1,0 +1,181 @@
+/* settings-panel.css — mvu-helper's own panel rules on top of the portable GUI-DNA (gui-dna.css): the
+ * drawer launcher, the hidden holder, and SillyTavern's dialog around the panel. manifest.json loads
+ * this file; it pulls in the palette (palette.css, every colour) and the DNA first. */
+
+@import url("./palette.css");
+@import url("./gui-dna.css");
+
+/* The drawer shows only this launcher; the panel opens in a near-fullscreen dialog. */
+.mvuh-launch-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px;
+}
+
+/* The panel lives here, hidden, whenever the dialog is closed. It is MOVED between this holder and the
+   dialog, never cloned, so every bound handler survives the trip. */
+#mvuh_panel_holder {
+    display: none;
+}
+
+/* ── Dialogs ──────────────────────────────────────────────────────────────────────────────────── */
+/* Every dialog mvu-helper opens carries .mvuh-popup.mvuh-ui (sillytavern/popup.js): the palette on the solid surface,
+   since the chat, not the canvas, lies under a dialog; DNA buttons, and the DNA's fields in a form. SillyTavern's own
+   look stops at the dialog's edge. */
+dialog.popup.mvuh-popup {
+    padding: 0;
+    border-color: var(--mvuh-border);
+    border-radius: var(--mvuh-radius-card);
+    background-color: var(--mvuh-surface-solid);
+    background-image: var(--mvuh-surface-gradient);
+    color: var(--mvuh-text);
+    box-shadow: var(--mvuh-dialog-shadow);
+}
+
+dialog.popup.mvuh-popup .popup-content {
+    margin: 0;
+    padding: 18px 20px 4px;
+}
+
+/* The settings panel's dialog: near-fullscreen, on the canvas, the panel filling it. SillyTavern's size classes set
+   only a MIN or MAX width, so the dialog would shrink-wrap its content (745px on a 1490px window). The width is set
+   outright, and the selector is dialog-qualified so it beats .large_dialogue_popup's !important on specificity.
+   `wide` is not used: its min-width overflows a phone. */
+dialog.popup.mvuh-popup.is-panel {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    background: var(--mvuh-bg);
+}
+
+@media (max-width: 720px) {
+    dialog.popup.mvuh-popup.is-panel {
+        width: calc(100dvw - 16px) !important;
+        max-width: calc(100dvw - 16px) !important;
+    }
+}
+
+/* A form that holds long text (formPopup's isWide: the Roster editor): wide on a desktop, so a body or an outfit reads
+   in a few lines instead of a narrow column; on a phone it stops at SillyTavern's own limit, the screen less its
+   margin, as every dialog does. */
+dialog.popup.mvuh-popup.is-wide {
+    width: min(1100px, calc(100dvw - 2em));
+}
+
+/* The canvas is painted on the dialog's scroller instead of the shell: a scroller's own background stays put while its
+   content scrolls, so the canvas gradient spans the visible pane however long the page is. The scroller is also the
+   shell's named scroller (devdoc/gui-dna.md §4), so the rail is drawn as tall as the visible pane. Its size never comes
+   from its content: the dialog is a fixed 90vh (openPanelPopup's `large`) and the scroller fills it. */
+dialog.popup.mvuh-popup.is-panel .popup-content {
+    container: mvuh-scroller / size;
+    padding: 0;
+    background-color: var(--mvuh-bg);
+    background-image: var(--mvuh-bg-gradient);
+}
+
+dialog.popup.mvuh-popup.is-panel .mvuh-shell {
+    background: none;
+}
+
+/* A list row in a question or form dialog only says which item is meant; its sub-line stops at three lines. The
+   settings panel's own rows show theirs whole. */
+dialog.popup.mvuh-popup:not(.is-panel) .mvuh-row-sub {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+/* A prompt's text box, drawn as a DNA field. SillyTavern places it under the text, outside the content's padding. */
+dialog.popup.mvuh-popup .popup-input {
+    box-sizing: border-box;
+    width: calc(100% - 40px);
+    min-height: var(--mvuh-control-height);
+    margin: 12px 20px 0;
+    padding: 6px 10px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-field);
+    color: var(--mvuh-text);
+    font: inherit;
+    outline: none;
+    resize: vertical;
+}
+
+dialog.popup.mvuh-popup .popup-input:hover {
+    border-color: var(--mvuh-border-strong);
+}
+
+/* The buttons on a bar of their own, right-aligned: each a DNA secondary button, the action the primary one — red
+   in a danger dialog, a safety question (.is-danger). The panel's Close stays secondary: it performs nothing. */
+dialog.popup.mvuh-popup .popup-controls {
+    align-self: stretch;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 10px 16px;
+    border-top: 1px solid var(--mvuh-border);
+    background-color: var(--mvuh-surface);
+}
+
+dialog.popup.mvuh-popup.is-panel .popup-controls {
+    margin: 0;
+}
+
+dialog.popup.mvuh-popup .popup-controls .menu_button {
+    min-height: var(--mvuh-control-height);
+    margin: 0;
+    padding: 0 16px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-surface-raised);
+    color: var(--mvuh-text);
+    font-weight: 500;
+    box-shadow: none;
+    filter: none;
+}
+
+dialog.popup.mvuh-popup .popup-controls .menu_button:hover {
+    border-color: var(--mvuh-border-strong);
+    filter: none;
+}
+
+dialog.popup.mvuh-popup:not(.is-panel) .popup-controls .popup-button-ok {
+    border-color: var(--mvuh-accent-fill);
+    background-color: var(--mvuh-accent-fill);
+    background-image: var(--mvuh-accent-gradient);
+    box-shadow: var(--mvuh-accent-glow);
+    color: var(--mvuh-on-accent);
+    font-weight: 600;
+}
+
+dialog.popup.mvuh-popup:not(.is-panel) .popup-controls .popup-button-ok:hover {
+    border-color: var(--mvuh-accent-fill-hover);
+    background-color: var(--mvuh-accent-fill-hover);
+    background-image: var(--mvuh-accent-gradient-hover);
+}
+
+dialog.popup.mvuh-popup.is-danger .popup-controls .popup-button-ok {
+    border-color: var(--mvuh-danger-border);
+    background: var(--mvuh-danger-soft);
+    box-shadow: none;
+    color: var(--mvuh-danger-ink);
+}
+
+dialog.popup.mvuh-popup.is-danger .popup-controls .popup-button-ok:hover {
+    border-color: var(--mvuh-danger);
+    background: var(--mvuh-danger-soft);
+}
+
+/* A dialog line's leading icon (sillytavern/popup-core.js): red, like the action, in a danger dialog (a safety question). */
+dialog.popup.mvuh-popup .mvuh-dialog-icon {
+    margin-inline-end: 6px;
+}
+
+dialog.popup.mvuh-popup.is-danger .mvuh-dialog-icon {
+    color: var(--mvuh-danger);
+}
+
+dialog.popup.mvuh-popup :is(.popup-controls .menu_button, .popup-input):focus-visible {
+    outline: 2px solid var(--mvuh-accent-ink);
+    outline-offset: 2px;
+}

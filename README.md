@@ -31,9 +31,7 @@ MVU Helper needs 2 other SillyTavern extensions first like all other MVU extensi
 
 ## What is MVU Helper
 
-MVU Helper is a SillyTavern extension that lets you build a game inside a character card. **Not a bot, a game**. Any game, RPG, Slice of Life, zombie hunting, adventure, dating simulation...any genre that have game logic would work.   Only 3 functions are end users facing as the table above shown,  the rest of the extenion is mainly for development use.  The first implementation of this framework is [ArtificKoi](https://github.com/KritBlade/ArtificKoi).
-
-**If you are normal users, please click the "User Facing Features above"**.
+MVU Helper is a SillyTavern extension that lets you build a game inside a character card. Not a bot, a game.  Only 3 functions are end users facing as the table above shown,  the rest of the extenion is mainly for development use.  **If you are normal users, please click the "User Facing Features above"**.
  
 I built it to close a gap. I want a vibe coder to be able to build their own game engine and put 3 things right into the character card:
 
@@ -57,21 +55,13 @@ An AI model executes instructions. If the lorebook gives it stats but no instruc
 
 That's the drift. The character you met on reply 5 is not the same character on reply 50.
 
-### Why do people focus on the prose?
-
-A lot of users care about the prose of their AI model more than anything else. The reason is simple. With a plain card, there's pretty much nothing else you can tweak besides the text.....and battling with memory of the story.
-
-With a game engine in place, you can focus on everything else: the story, the game content, the game mechanics, the character design, the image generation, the quality of the events. Chinese and Korea Sillytavern card has been doing this for more than a year.
-
-Think of a console game. Nobody cares how a console game words its text. You care how good the content is, how fun the mechanics are, and how good the graphics look.
-
-MVU Game Engine v2.0 tries to mimic that console game experience, with AI generation on top of it.  [Vectfox](https://github.com/KritBlade/VectFox) is the extension to take care of the memory for the story side. 
-
 ### Why putting the whole engine in the prompt is not the answer either
 
-Most Chinese game cards do have logic built in. The catch is that the complete engine goes into the prompt every single reply, with all the instructions, the maths and the formulas. That takes a lot of tokens per reply while the game is relatively small, which is expensive.  MVU Game Makers and most MVU games are using this method, and even some preset is doing the same thing as well.
+Most Chinese game cards do have logic built in. The catch is that the complete engine goes into the prompt every single reply, with all the instructions, the maths and the formulas. That takes a lot of tokens per reply while the game is relatively small, which is expensive.
 
 And on top of that, an LLM is not good at arithmetic. Give it a few numbers and it's fine. Give it a whole game's worth of formulas at once and it starts making mistakes, so it drifts too.
+
+It's like asking a great novelist to do your tax return. They write beautifully. You still don't want them doing your math.
 
 So MVU Helper goes hybrid. The AI does the writing, code does the math. Each one only does what it's good at. The drawback is that the author of the character card will need to do some coding on the logic engine. I have made that simple enough for vibe coding.
 
@@ -96,13 +86,7 @@ Think of a relay race. Every runner knows who they hand the baton to, and nobody
 
 Plugins and event packs work like mods for a PC game. The modders never needed the original developer to change a line. Basically, the end user can download a plugin or an event pack from some other 3rd party content creator and install it right inside MVU Helper, that's it.
 
-**Auto Image Generation with roster store for outfit.** Image is auto generated via ComfyUI with correct outfit based on scene.
-
-**The dev loop comes with it.** Run `npm run dev` in the template workspace, turn on the dev loop in MVU Helper, and every time you save a file in VS Code, the new code is installed onto the card you have open. No export, no import, no reload. Without it, every change is export the pack, import it, install it, reload the chat. That's fine once a day. It's painful 50 times an hour.
-
-Your AI can join the loop too. The template hooks your AI assistant up to a Chrome window it can see, so it can change the engine, play a reply and read the console by itself, instead of you copying logs back and forth. See [Development Environment and Dev Loops](doc/dev_env/README.md).
-
-**Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and ST-Prompt-Template, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables. **The game logic engine is heavily locked down**.
+**Security is built in.** The logic engine is built for vibe coding, and that means you will run engine code you didn't write line by line, sometimes from a card somebody else shared. So I locked it down. I did numerous fixes, plus PRs to MVU and ST-Prompt-Template, just to make sure whatever is inside a logic engine can't read or write anywhere except the 2 places I specified: the game chat and the game's MVU variables. The game logic engine is heavily locked down.
 
 The logic engine inherits NOTHING from the parent page except the chat and the MVU variables. It has no network access at all. No `fetch`, no `XMLHttpRequest`, no `WebSocket`, no `import()`, no reading or writing SillyTavern's settings files.
 
@@ -112,29 +96,9 @@ Therefore , the worst case scenerio for a wrongly coded gamelogic engine can onl
 
 Even the schema a pack installs is filtered. The schema runs on the page as a Tavern Helper script, so before it installs, MVU Helper cuts it down to an allowlist. It can declare a Zod schema and register it, nothing else. Anything else in it is removed, and a toast tells you which lines.
 
+A pack's entries and regexes can carry EJS, which runs on the page too. So before a pack installs, MVU Helper reads that code, and when it can reach your SillyTavern settings or change SillyTavern outside the chat, a warning names what it found and asks you first. See [The install warning](doc/gamelogic_engine/install.md#the-install-warning).
+
 Therefore, you only build the part that makes your game different. Everything else is already there. Sounds good?
-
-### Why not build a standalone app?
-
-There is no reason to build a standalone app when SillyTavern already provides every single piece of groundwork a standalone app would need: the connection manager, the chat interface, extension management and multi-language support.
-
-**The only thing missing is the game logic and a framework to create game content, which you can barely find any extension or even any Sillytavern-like app touches on "Game Logic", "Game Content" and "Events of story"**.  This is human creation, not a one size fit all kind of system.  Most Sillytavern-like app focus on eye-candy, utilities and features that make *any* character card to work.  However, you can't make game logic and contents works completely different and unique if you make everything works on any card.  It just doesn't work.  That's why every single card end up playing exactly the same, which is what this framework trying to solve.    Imagine you play Dragon Quest, Final fantasy, and Chrono Trigger all having the same battle mechanics, it's not fun.   There is no one size fit all for game mechanics.  Instead of going the "one-size-fit-all" route like all Sillytavern-like app, this framework is designed to create unique game mechanics for each game.  I just don't want to re-invent the wheel again for something that other apps are doing it good enough already.
-
-Moreover, one framework that works inside SillyTavern means content creators can build 1000+ different character cards on the same platform. A standalone app means the dev has to build 1000+ different standalone apps for 1000+ games.
-
-### Why code game rules with AI instead of drop-down menus?
-
-You could design game rules with drop-down boxes: pick option A, B or C, and the tool builds the rule for you. I went with code instead, written with an AI assistant, for 3 reasons.
-
-**It's way too slow for a big game.** ArtificKoi's game rules are more than 5,000 lines of JavaScript, plus more than 250 events. Clicking all of that together, box by box, would take months. Describe a rule to your AI assistant, and it writes the code in minutes.
-
-**You can't unit test a drop-down menu.** A big game breaks all the time while you build it. With code, every rule can have a unit test, so a change that breaks something old fails a test right away. ArtificKoi runs 24 test suites every time I change a rule. And before any of that, somebody would have to build a drop-down box for every rule a game could ever need, which is a nightmare on its own.   Lets imagine you have hundreds of dropdown box and each drop down box offer thousands of options.....
-
-**A drop-down menu makes every game the same.** Anything pre-defined as option A, B or C is something every other game can pick too. Think of houses built from a catalog: door A, window B, roof C. Every house on the street ends up looking alike. With code, a rule can be anything you can describe, and your game is the only one that has it.
-
-I have already made this very code friendly with AI, so any half-baked content creator who try to learn how to use VS code chatting with AI should be able to make something really quick.  Yes, all you need to do is to chat to AI and explain function by function how you want your system.  You just need to break it down to small pieces one by one and chat with AI.  No, not "build me a combat system" kind of chat.  You have to be specific.
-
-Basically, a drop-down menu decides what your game can do. Code lets you decide.  And it seems so far no one ever touch on this area in Sillytavern for game logic.
 
 ### It's a game, not a bot
 
@@ -165,6 +129,7 @@ Say you ask a girl out. With high affection and a good relationship stage, you g
 The logic itself stays deterministic. The same stats and the same die give the same result, every single time. The die only adds the luck, and the rules decide what that luck means. How a card deals the dice is on [Where the engine runs](doc/gamelogic_engine/runtime.md#dice).
 
 
+
 ### The AI is only the observer
 
 The AI never updates points and never does arithmetic. At the end of each reply, it reports what it just wrote as a short structured command.  Therefore, your story will write exactly the same as without the engine.  The only boundary is the stats of NPC will make the story meaningful.  You can't kiss someone who hate you.  You can't defeat the final boss at level 1.  On the other hand,  you will always defeat the same boss if your stats is high enough, every single time.  At the end of the day, we make the logic deterministic.
@@ -180,20 +145,6 @@ The logic engine takes the `/Intent`, checks the stats of everyone involved, loo
 It doesn't judge anything. Think of the barcode scanner at a supermarket checkout. It doesn't care why you're buying something or who it's for. It reads the code, looks up the price and adds it up. The logic engine does the same with the story. It converts the prose into numbers...nothing more.
 
 Basically, the AI writes the story, and the logic engine keeps the score.
-
-## Outfits change with the scene
-
-With [Auto Image Generation](doc/image_gen/README.md) on, every character dresses for where they are and what they're doing. And they keep the same clothes from picture to picture, until the story changes them.
-
-A card can ship its cast with outfits already on file. ArtificKoi ships every classmate with `school-uniform`, `school-gym` and `school-swimsuit`. So in class she's in her uniform, a PE class puts her in her gym clothes, and at the school pool she's in her swimsuit. Each one is the exact same clothes in every picture.
-
-A character the card doesn't ship gets their first clothes saved the moment the story first describes them. A uniform kind of outfit, like a café's waitress uniform, gets saved too, under a name like `cafe-waitress`.
-
-On a date, the story puts her in something casual, like a blouse and a denim skirt. That's a one-off, so MVU Helper keeps it in the game state instead of her entry. She keeps the same outfit all afternoon, picture after picture. On Monday she's back in her uniform, and next Saturday she wears something new again.
-
-It's just like real life. Everybody wears the same uniform at school, and nobody shows up to a weekend date in it.
-
-Nobody has to tell the AI what anyone wears. It only picks from a list: their outfits on file, what they wore in their last picture, or new clothes the story just put them in. Don't like what someone's wearing? Edit it on the [Roster](doc/roster/README.md) tab, and the next picture follows. How it works is on [How the character registry works](doc/roster/registry.md#a-week-with-mitsuki).
 
 ## galgame-companion
 

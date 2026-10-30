@@ -1,0 +1,27 @@
+{
+    "name": "mvu-helper-tests",
+    "version": "0.2.0",
+    "description": "Unit tests for the MVU Helper SillyTavern extension (Extra LLM Calls pure core).",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "lint": "eslint .",
+        "test": "eslint . && knip && knip --production && npm run check:duplicates && node tools/check-named-exports.mjs && node tools/check-derived-paths.mjs && node tools/check-error-handling.mjs && node tools/check-mvu-writes.mjs && node tools/test-artifact-assembler.mjs && vitest run",
+        "test:watch": "vitest",
+        "check:host": "node mytools/check-host-imports.mjs",
+        "check:duplicates": "jscpd src --format javascript --min-tokens 50 --baseline .jscpd-baseline.json --fail-on-new-clones --silent",
+        "list:duplicates": "jscpd src --format javascript --min-tokens 50",
+        "sync": "eslint . && node mytools/check-host-imports.mjs && node tools/check-named-exports.mjs && node tools/check-derived-paths.mjs && node tools/check-error-handling.mjs && node tools/check-mvu-writes.mjs && node mytools/sync-to-st.mjs",
+        "promote:prod": "node mytools/promote-to-prod.mjs",
+        "dev": "node tools/dev-server.mjs"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.5",
+        "acorn": "^8.19.0",
+        "eslint": "^9.39.5",
+        "globals": "^17.7.0",
+        "jscpd": "^5.4.0",
+        "knip": "^6.41.0",
+        "vitest": "^4.1.10"
+    }
+}

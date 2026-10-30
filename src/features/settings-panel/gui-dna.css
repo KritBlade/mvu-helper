@@ -1,0 +1,1742 @@
+/* gui-dna.css — the GUI-DNA: shared tokens, layout grammar and genes (devdoc/gui-dna.md).
+ *
+ * Portable. An adopter (an extension's panel in SillyTavern, or a standalone app in its own page) uses a copy with
+ * the `mvuh-` prefix and the `.mvuh-ui` root class replaced by its own, and supplies its own palette file; nothing
+ * else here names mvu-helper. Every rule is scoped under the root class, so it never reaches the host page or
+ * another extension's panel. It holds no colour: every colour is a token from the palette (palette.css here;
+ * tests/gui-dna-guards.test.js, G5). It draws every control it styles, so it needs no host stylesheet.
+ *
+ * One markup, two layouts: below 720px of SHELL width (a container query, not the viewport) the nav becomes a
+ * scrolling strip, the grids drop to one column and a split's panes stack. */
+
+/* ── Shared tokens (the colours are the palette's) ─────────────────────────────────────────────── */
+.mvuh-ui {
+    --mvuh-radius-control: 8px;
+    --mvuh-radius-card: 12px;
+    --mvuh-control-height: 36px;
+    --mvuh-gap: 16px;
+    --mvuh-motion: 150ms ease-out;
+    --mvuh-inert-opacity: 0.5;
+
+    color: var(--mvuh-text);
+    font-family: var(--mainFontFamily, "Noto Sans", system-ui, sans-serif);
+    line-height: 1.45;
+    text-align: start;
+}
+
+/* SillyTavern draws a text shadow on every element; the panel's contrast is designed without one. */
+.mvuh-ui,
+.mvuh-ui * {
+    text-shadow: none;
+}
+
+/* ── Shell: nav + main ────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui.mvuh-shell {
+    container: mvuh-shell / inline-size;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    min-height: 100%;
+    background-color: var(--mvuh-bg);
+    background-image: var(--mvuh-bg-gradient);
+}
+
+/* The edge parts the nav from the main pane: beside the rail, under the top bar and the phone strip. A shadow, not a
+   border, so it takes no room. */
+.mvuh-ui .mvuh-nav {
+    flex: 0 0 200px;
+    min-width: 0;   /* a flex item never shrinks below its content otherwise — the phone strip must scroll */
+    background: var(--mvuh-nav);
+    box-shadow: 1px 0 0 var(--mvuh-nav-edge);
+}
+
+/* The rail's gradient sits on the sticky inner, so it stays behind the items while the page scrolls. When the adopter
+   names the box that scrolls the shell `mvuh-scroller` (a size container, devdoc/gui-dna.md §4), the inner is as tall
+   as that box, so the gradient runs from the visible column's top to its foot. Without one it spans the items and
+   ends on the rail's colour, which carries on below them. */
+.mvuh-ui .mvuh-nav-inner {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 10px;
+    background-image: var(--mvuh-nav-gradient);
+}
+
+@container mvuh-scroller (height > 0) {
+    .mvuh-ui .mvuh-nav-inner {
+        box-sizing: border-box;
+        min-height: 100cqh;
+    }
+}
+
+.mvuh-ui .mvuh-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 10px 12px;
+    font-size: 1.15em;
+    font-weight: 700;
+    color: var(--mvuh-nav-text);
+}
+
+.mvuh-ui .mvuh-nav-brand > i {
+    color: var(--mvuh-nav-accent);
+}
+
+.mvuh-ui .mvuh-nav-group {
+    padding: 12px 10px 6px;
+    font-size: 0.78em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mvuh-nav-text-muted);
+}
+
+.mvuh-ui .mvuh-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: var(--mvuh-radius-control);
+    background: none;
+    color: var(--mvuh-nav-text);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--mvuh-motion), color var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-nav-item > i {
+    width: 18px;
+    text-align: center;
+}
+
+.mvuh-ui .mvuh-nav-item:hover {
+    background: var(--mvuh-nav-hover);
+}
+
+.mvuh-ui .mvuh-nav-item.is-active {
+    background-color: var(--mvuh-nav-active);
+    border-color: var(--mvuh-nav-active);
+    box-shadow: var(--mvuh-nav-active-glow);
+    color: var(--mvuh-nav-active-text);
+}
+
+/* The rail's foot holds what belongs to the panel itself, the theme switch. On a rail as tall as the column it sits at
+   the bottom; on one only as tall as its items, under the last item. */
+.mvuh-ui .mvuh-nav-footer {
+    margin-top: auto;
+    padding: 16px 2px 0;
+}
+
+/* The theme switch: one option per theme in a pill track, the chosen one drawn like the active nav item. */
+.mvuh-ui .mvuh-theme-switch {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--mvuh-nav-hover);
+}
+
+.mvuh-ui .mvuh-theme-option {
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 32px;
+    margin: 0;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--mvuh-nav-text-muted);
+    font: inherit;
+    font-size: 0.86em;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--mvuh-motion), color var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-theme-option:hover {
+    color: var(--mvuh-nav-text);
+}
+
+.mvuh-ui .mvuh-theme-option.is-active {
+    background-color: var(--mvuh-nav-active);
+    box-shadow: var(--mvuh-nav-active-glow);
+    color: var(--mvuh-nav-active-text);
+}
+
+.mvuh-ui .mvuh-main {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 20px 24px 28px;
+}
+
+.mvuh-ui .mvuh-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mvuh-gap);
+}
+
+/* Top bar (.is-topbar on the shell): the nav runs as one row above the main pane at every width, for an app whose
+   pages need the whole width. The shell fills its container's height and the main pane is its scroller, so the bar
+   stays put and a workbench page has a height to fill. */
+.mvuh-ui.mvuh-shell.is-topbar {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: 100%;
+}
+
+.mvuh-ui.is-topbar > .mvuh-nav {
+    flex: 0 0 auto;
+    box-shadow: 0 1px 0 var(--mvuh-nav-edge);
+}
+
+/* The bar packs tighter than the rail: the brand and the items on one row. When they do not fit, the brand's name gives
+   way first, ending in an ellipsis; the row scrolls sideways only when the items alone are too wide. */
+.mvuh-ui.is-topbar .mvuh-nav-inner {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--mvuh-nav-text-muted) transparent;
+}
+
+.mvuh-ui.is-topbar .mvuh-nav-brand {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0 8px 0 4px;
+    font-size: 1em;
+    white-space: nowrap;
+}
+
+.mvuh-ui.is-topbar .mvuh-nav-brand > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* In the bar a group label is a thin divider; its words stay for a screen reader. */
+.mvuh-ui.is-topbar .mvuh-nav-group {
+    flex: 0 0 1px;
+    align-self: center;
+    height: 24px;
+    margin: 0 4px;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--mvuh-nav-text-muted);
+    color: transparent;
+    white-space: nowrap;
+}
+
+.mvuh-ui.is-topbar .mvuh-nav-item {
+    flex: 0 0 auto;
+    gap: 6px;
+    width: auto;
+    padding: 0 8px;
+    white-space: nowrap;
+}
+
+/* The bar ends on the theme switch. */
+.mvuh-ui.is-topbar .mvuh-nav-footer {
+    flex: 0 0 auto;
+    margin: 0 0 0 auto;
+    padding: 0 0 0 8px;
+}
+
+.mvuh-ui.is-topbar > .mvuh-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+}
+
+/* ── Page header ──────────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-page-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 14px;
+}
+
+.mvuh-ui .mvuh-page-icon {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: 10px;
+    background-color: var(--mvuh-surface-raised);
+    background-image: var(--mvuh-surface-raised-gradient);
+    box-shadow: var(--mvuh-surface-raised-shadow);
+    color: var(--mvuh-accent-ink);
+    font-size: 1.1em;
+}
+
+.mvuh-ui .mvuh-page-eyebrow {
+    font-size: 0.78em;
+    font-weight: 600;
+    color: var(--mvuh-text-muted);
+}
+
+.mvuh-ui .mvuh-page-title {
+    margin: 0;
+    font-size: 1.45em;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-page-subtitle {
+    margin: 2px 0 0;
+    font-size: 0.9em;
+    color: var(--mvuh-text-muted);
+}
+
+.mvuh-ui .mvuh-page-status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* A slot its renderer paints a pill into takes no gap while it is empty. */
+.mvuh-ui .mvuh-page-status > :empty {
+    display: none;
+}
+
+/* ── Card (section) ───────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-card {
+    position: relative;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-card);
+    background-color: var(--mvuh-surface);
+    background-image: var(--mvuh-surface-gradient);
+    box-shadow: var(--mvuh-surface-shadow);
+    overflow: hidden;
+}
+
+/* The rim: a 1px ring inside a card's or a record card's border, painted with --mvuh-surface-rim, so the edge catches
+   the light. The mask keeps only the ring; a mask reads alpha alone, so currentColor paints it opaque without naming a
+   colour. */
+.mvuh-ui :is(.mvuh-card, .mvuh-record)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--mvuh-surface-rim);
+    -webkit-mask: linear-gradient(currentColor 0 0) content-box, linear-gradient(currentColor 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+.mvuh-ui .mvuh-card-header {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--mvuh-border);
+    background-color: var(--mvuh-surface-header);
+    background-image: var(--mvuh-surface-header-gradient);
+}
+
+/* Fixed columns, so a header without a badge or actions still lands each part in its place. */
+.mvuh-ui .mvuh-card-header > .mvuh-badge { grid-column: 1; }
+.mvuh-ui .mvuh-card-header > .mvuh-card-title { grid-column: 2; }
+.mvuh-ui .mvuh-card-header > .mvuh-card-desc { grid-column: 3; }
+.mvuh-ui .mvuh-card-header > .mvuh-card-actions { grid-column: 4; }
+.mvuh-ui .mvuh-card-header > .mvuh-collapse { grid-column: 5; }
+
+.mvuh-ui .mvuh-badge {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--mvuh-accent-fill);
+    background-image: var(--mvuh-accent-gradient);
+    color: var(--mvuh-on-accent);
+    font-size: 0.85em;
+    font-weight: 700;
+}
+
+.mvuh-ui .mvuh-card-title {
+    margin: 0;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-card-desc {
+    margin: 0;
+    font-size: 0.86em;
+    color: var(--mvuh-text-muted);
+}
+
+.mvuh-ui .mvuh-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mvuh-ui .mvuh-collapse {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--mvuh-text-muted);
+    font: inherit;
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-collapse:hover {
+    background: var(--mvuh-surface-raised);
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-collapse > i {
+    transition: transform var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-card.is-collapsed > .mvuh-card-header,
+.mvuh-ui .mvuh-record.is-collapsed > .mvuh-record-header {
+    border-bottom-color: transparent;
+}
+
+.mvuh-ui .is-collapsed > .mvuh-card-body,
+.mvuh-ui .is-collapsed > .mvuh-record-body {
+    display: none;
+}
+
+.mvuh-ui .is-collapsed > * > .mvuh-collapse > i,
+.mvuh-ui .is-collapsed > .mvuh-collapse > i {
+    transform: rotate(180deg);
+}
+
+.mvuh-ui .mvuh-card-body {
+    padding: 16px;
+}
+
+/* Advanced row: a card whose whole header is one button (chevron, title, description). */
+.mvuh-ui .mvuh-card.is-advanced > .mvuh-collapse {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    justify-items: start;
+    gap: 4px 12px;
+    width: 100%;
+    height: auto;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--mvuh-border);
+    border-radius: 0;
+    color: var(--mvuh-text);
+    text-align: start;
+}
+
+.mvuh-ui .mvuh-card.is-advanced.is-collapsed > .mvuh-collapse {
+    border-bottom-color: transparent;
+}
+
+.mvuh-ui .mvuh-card.is-advanced .mvuh-card-title {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.mvuh-ui .mvuh-card.is-advanced.is-collapsed > .mvuh-collapse > i {
+    transform: rotate(-90deg);
+}
+
+/* ── Workbench page, split and pane ───────────────────────────────────────────────────────────── */
+/* A workbench page fills the main pane's height and never scrolls itself; its panes do. Its height comes from a main
+   pane that is the shell's scroller (the top bar's). */
+.mvuh-ui .mvuh-page.is-workbench {
+    height: 100%;
+    min-height: 0;
+}
+
+.mvuh-ui .mvuh-page.is-workbench > :is(.mvuh-split, .mvuh-card.is-pane) {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+/* Split: two panes side by side. The start pane is --mvuh-split-start wide, which the divider sets while it is dragged
+   or moved with the arrow keys: the one style a script writes. */
+.mvuh-ui .mvuh-split {
+    display: flex;
+    align-items: stretch;
+    min-height: 0;
+}
+
+.mvuh-ui .mvuh-split > :first-child {
+    flex: 0 0 var(--mvuh-split-start, 40%);
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-split > :last-child {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-split-divider {
+    position: relative;
+    flex: 0 0 12px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: col-resize;
+    touch-action: none;
+}
+
+.mvuh-ui .mvuh-split-divider::before {
+    content: "";
+    position: absolute;
+    inset: 0 5px;
+    border-radius: 999px;
+    background-color: var(--mvuh-border);
+    transition: background-color var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-split-divider:hover::before,
+.mvuh-ui .mvuh-split-divider.is-dragging::before {
+    background-color: var(--mvuh-accent);
+}
+
+/* Pane: a card that fills its share of a workbench; its body scrolls. */
+.mvuh-ui .mvuh-card.is-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.mvuh-ui .mvuh-card.is-pane > .mvuh-card-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+}
+
+/* A pane that is one editor: its textarea fills the body edge to edge. */
+.mvuh-ui .mvuh-card-body.is-fill {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.mvuh-ui .mvuh-card-body.is-fill > .mvuh-textarea {
+    flex: 1 1 auto;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    resize: none;
+}
+
+/* ── Grids ────────────────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px var(--mvuh-gap);
+}
+
+.mvuh-ui .mvuh-grid-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+}
+
+/* Fields one under another, whatever the width: a dialog's form. */
+.mvuh-ui .mvuh-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.mvuh-ui .mvuh-span,
+.mvuh-ui .mvuh-group-title,
+.mvuh-ui .mvuh-divider {
+    grid-column: 1 / -1;
+}
+
+.mvuh-ui .mvuh-group-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 0 -4px;
+    font-weight: 600;
+    color: var(--mvuh-text);
+}
+
+/* A slot a renderer paints shows only while it holds something, and a group title hides with its empty list. */
+.mvuh-ui :is(.mvuh-page, .mvuh-grid) > div:empty,
+.mvuh-ui .mvuh-group-title:has(+ div:empty) {
+    display: none;
+}
+
+.mvuh-ui .mvuh-divider {
+    height: 1px;
+    margin: 2px 0;
+    border: 0;
+    background: var(--mvuh-border);
+}
+
+/* ── Field: label (+ ?), control, hint, detail ────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-help-toggle {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--mvuh-text-faint);
+    font: inherit;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-help-toggle:hover,
+.mvuh-ui .mvuh-help-toggle[aria-expanded="true"] {
+    color: var(--mvuh-accent-ink);
+}
+
+.mvuh-ui .mvuh-hint {
+    margin: 0;
+    font-size: 0.86em;
+    color: var(--mvuh-text-muted);
+}
+
+.mvuh-ui .mvuh-detail {
+    display: none;
+    margin: 0;
+    padding: 8px 10px;
+    border-inline-start: 2px solid var(--mvuh-accent);
+    border-radius: 0 6px 6px 0;
+    background: var(--mvuh-accent-soft);
+    font-size: 0.86em;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-field.is-help-open .mvuh-detail {
+    display: block;
+}
+
+.mvuh-ui .mvuh-detail a,
+.mvuh-ui .mvuh-hint a {
+    color: var(--mvuh-accent-ink);
+}
+
+/* "More detail": a link to the doc section, after a field's detail and shown with it. */
+.mvuh-ui .mvuh-more {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    font-size: 0.86em;
+    color: var(--mvuh-accent-ink);
+}
+
+.mvuh-ui .mvuh-field.is-help-open .mvuh-more {
+    display: inline-flex;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-input,
+.mvuh-ui .mvuh-select,
+.mvuh-ui .mvuh-textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: var(--mvuh-control-height);
+    margin: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-field);
+    color: var(--mvuh-text);
+    font: inherit;
+    outline: none;
+    transition: border-color var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-input:hover,
+.mvuh-ui .mvuh-select:hover,
+.mvuh-ui .mvuh-textarea:hover {
+    border-color: var(--mvuh-border-strong);
+}
+
+.mvuh-ui .mvuh-input::placeholder,
+.mvuh-ui .mvuh-textarea::placeholder {
+    color: var(--mvuh-text-faint);
+}
+
+.mvuh-ui .mvuh-select {
+    appearance: none;
+    height: auto;
+    padding-inline-end: 32px;
+    background-image:
+        linear-gradient(45deg, transparent 50%, var(--mvuh-text-muted) 50%),
+        linear-gradient(135deg, var(--mvuh-text-muted) 50%, transparent 50%);
+    background-position: right 16px center, right 11px center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+/* A select's list opens over the page, where no canvas lies under a see-through field: it takes the solid surface. */
+.mvuh-ui .mvuh-select option {
+    background-color: var(--mvuh-surface-solid);
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-textarea {
+    display: block;
+    min-height: 72px;
+    resize: vertical;
+}
+
+/* A pattern, prompt or pasted file sets in the monospace font. */
+.mvuh-ui :is(.mvuh-input, .mvuh-textarea).is-code {
+    font-family: var(--monoFontFamily, "Noto Sans Mono", ui-monospace, monospace);
+    font-size: 0.9em;
+}
+
+.mvuh-ui .is-missing {
+    border-color: var(--mvuh-warning);
+}
+
+.mvuh-ui :is(.mvuh-input, .mvuh-select, .mvuh-textarea):disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Controls and buttons on one line, a select or input taking the free width (a preset select with New, Rename and
+   Delete). Buttons that do not fit wrap to the next line; the select or input, sized from zero, never forces a wrap. */
+.mvuh-ui .mvuh-control-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.mvuh-ui .mvuh-control-row > :is(.mvuh-input, .mvuh-select) {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* A code chip leading a control (a path's fixed prefix) keeps its width and stays on one line. */
+.mvuh-ui .mvuh-control-row > .mvuh-code {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Slider + number: the number box owns the value; the range mirrors it. */
+.mvuh-ui .mvuh-slider {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Drawn outright rather than left native: SillyTavern restyles every range input on the page. */
+.mvuh-ui .mvuh-range {
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    margin: 0;
+    padding: 0;
+    border-radius: 999px;
+    background: var(--mvuh-control-off);
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--mvuh-switch-knob);
+    border-radius: 50%;
+    background: var(--mvuh-accent);
+    box-shadow: 0 0 0 1px var(--mvuh-accent-fill);
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--mvuh-switch-knob);
+    border-radius: 50%;
+    background: var(--mvuh-accent);
+    box-shadow: 0 0 0 1px var(--mvuh-accent-fill);
+    cursor: pointer;
+}
+
+/* ── Switch row ───────────────────────────────────────────────────────────────────────────────── */
+/* align-content: a row stretched to its grid neighbour's height keeps its title and description together. */
+.mvuh-ui .mvuh-switch-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    align-content: start;
+    gap: 2px 12px;
+    cursor: pointer;
+}
+
+/* The track's size is !important because the switch is a checkbox, and any extension on the page may size
+   every checkbox with its own !important rule; without it the track collapses to a square. */
+.mvuh-ui .mvuh-switch {
+    appearance: none;
+    position: relative;
+    display: block;
+    grid-row: span 2;
+    flex-shrink: 0;
+    width: 40px !important;
+    height: 22px !important;
+    margin: 1px 0 0;
+    border: 0;
+    border-radius: 999px;
+    outline: none;
+    overflow: visible;
+    background-color: var(--mvuh-control-off);
+    box-shadow: none;
+    filter: none;
+    transform: none;
+    cursor: pointer;
+    transition: background-color var(--mvuh-motion);
+}
+
+/* SillyTavern draws its checkbox tick on ::before; a switch has none. */
+.mvuh-ui .mvuh-switch::before {
+    display: none;
+}
+
+.mvuh-ui .mvuh-switch::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--mvuh-switch-knob);
+    transition: transform var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-switch:checked {
+    background-color: var(--mvuh-accent);
+}
+
+.mvuh-ui .mvuh-switch:checked::after {
+    transform: translateX(18px);
+}
+
+.mvuh-ui .mvuh-switch:disabled,
+.mvuh-ui .mvuh-switch:disabled + * {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.mvuh-ui .mvuh-switch-title {
+    font-weight: 500;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-switch-desc {
+    font-size: 0.86em;
+    color: var(--mvuh-text-muted);
+}
+
+/* A plain checkbox, only for choosing members of a set; a check list lays a set out in a wrapping row. The box and its
+   tick are drawn here: a host may restyle every checkbox on its page, and a page without one draws it natively. */
+.mvuh-ui .mvuh-check-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+}
+
+.mvuh-ui .mvuh-check-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mvuh-text);
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-check {
+    appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--mvuh-control-off);
+    border-radius: 3px;
+    background-color: var(--mvuh-check-empty);
+    outline: none;
+    box-shadow: none;
+    filter: none;
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-check::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    transform: scale(0);
+    transform-origin: bottom left;
+    transition: transform var(--mvuh-motion);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    box-shadow: inset 1em 1em var(--mvuh-on-accent);
+}
+
+.mvuh-ui .mvuh-check:checked {
+    border-color: var(--mvuh-accent);
+    background-color: var(--mvuh-accent);
+}
+
+.mvuh-ui .mvuh-check:checked::before {
+    transform: scale(1);
+}
+
+.mvuh-ui .mvuh-check:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: var(--mvuh-control-height);
+    margin: 0;
+    padding: 0 14px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-surface-raised);
+    color: var(--mvuh-text);
+    font: inherit;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--mvuh-motion), border-color var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-btn:hover {
+    border-color: var(--mvuh-border-strong);
+}
+
+/* An icon button that opens a doc section is a link drawn as a button. */
+.mvuh-ui a.mvuh-btn {
+    text-decoration: none;
+}
+
+.mvuh-ui .mvuh-btn:not(.mvuh-btn-primary, .mvuh-btn-danger) > i {
+    color: var(--mvuh-accent-ink);
+}
+
+/* The primary fill is a deeper shade of the accent: white text on the accent itself reads 3.8:1. */
+.mvuh-ui .mvuh-btn.mvuh-btn-primary {
+    border-color: var(--mvuh-accent-fill);
+    background-color: var(--mvuh-accent-fill);
+    background-image: var(--mvuh-accent-gradient);
+    box-shadow: var(--mvuh-accent-glow);
+    color: var(--mvuh-on-accent);
+    font-weight: 600;
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-primary:hover {
+    border-color: var(--mvuh-accent-fill-hover);
+    background-color: var(--mvuh-accent-fill-hover);
+    background-image: var(--mvuh-accent-gradient-hover);
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-quiet {
+    min-height: 28px;
+    padding: 0 8px;
+    border-color: transparent;
+    background: none;
+    color: var(--mvuh-accent-ink);
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-quiet:hover {
+    background-color: var(--mvuh-accent-soft);
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-danger {
+    border-color: var(--mvuh-danger-border);
+    background-color: var(--mvuh-danger-soft);
+    color: var(--mvuh-danger-ink);
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-danger:hover {
+    border-color: var(--mvuh-danger);
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-icon {
+    width: 32px;
+    min-height: 32px;
+    padding: 0;
+}
+
+.mvuh-ui .mvuh-btn.mvuh-btn-icon.is-on {
+    border-color: var(--mvuh-accent);
+    background-color: var(--mvuh-accent-soft);
+    color: var(--mvuh-accent-ink);
+}
+
+.mvuh-ui .mvuh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── Status pill, scope chip, code chip ───────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-pill {
+    --mvuh-pill-color: var(--mvuh-neutral);
+    --mvuh-pill-soft: var(--mvuh-neutral-soft);
+    --mvuh-pill-ink: var(--mvuh-neutral-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+    padding: 0 10px;
+    border: 1px solid color-mix(in srgb, var(--mvuh-pill-color) 45%, transparent);
+    border-radius: 999px;
+    background-color: var(--mvuh-pill-soft);
+    color: var(--mvuh-pill-ink);
+    font-size: 0.78em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.mvuh-ui .mvuh-pill::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--mvuh-pill-color);
+}
+
+.mvuh-ui .mvuh-pill:has(> i)::before {
+    display: none;
+}
+
+.mvuh-ui .mvuh-pill > i {
+    color: var(--mvuh-pill-color);
+}
+
+.mvuh-ui .mvuh-pill.is-success { --mvuh-pill-color: var(--mvuh-success); --mvuh-pill-soft: var(--mvuh-success-soft); --mvuh-pill-ink: var(--mvuh-success-ink); }
+.mvuh-ui .mvuh-pill.is-warning { --mvuh-pill-color: var(--mvuh-warning); --mvuh-pill-soft: var(--mvuh-warning-soft); --mvuh-pill-ink: var(--mvuh-warning-ink); }
+.mvuh-ui .mvuh-pill.is-danger { --mvuh-pill-color: var(--mvuh-danger); --mvuh-pill-soft: var(--mvuh-danger-soft); --mvuh-pill-ink: var(--mvuh-danger-ink); }
+.mvuh-ui .mvuh-pill.is-neutral { --mvuh-pill-color: var(--mvuh-neutral); --mvuh-pill-soft: var(--mvuh-neutral-soft); --mvuh-pill-ink: var(--mvuh-neutral-ink); }
+.mvuh-ui .mvuh-pill.is-accent { --mvuh-pill-color: var(--mvuh-accent); --mvuh-pill-soft: var(--mvuh-accent-soft); --mvuh-pill-ink: var(--mvuh-accent-ink); }
+
+.mvuh-ui .mvuh-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 0 10px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: 999px;
+    background-color: var(--mvuh-surface-raised);
+    box-shadow: var(--mvuh-surface-raised-shadow);
+    color: var(--mvuh-text);
+    font-size: 0.78em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.mvuh-ui .mvuh-chip > i {
+    color: var(--mvuh-accent-ink);
+}
+
+/* A tag, path or pattern shown as written, inside a line of text. */
+.mvuh-ui .mvuh-code {
+    padding: 1px 6px;
+    border-radius: 6px;
+    background-color: var(--mvuh-accent-soft);
+    color: var(--mvuh-accent-ink);
+    font-family: var(--monoFontFamily, "Noto Sans Mono", ui-monospace, monospace);
+    font-size: 0.92em;
+    overflow-wrap: anywhere;
+    /* A chip that wraps is drawn whole on each line. */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+/* ── Notice and result list ───────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-notice {
+    --mvuh-notice-color: var(--mvuh-accent-ink);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--mvuh-border);
+    border-inline-start: 3px solid var(--mvuh-notice-color);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-surface);
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-notice > i {
+    color: var(--mvuh-notice-color);
+}
+
+.mvuh-ui .mvuh-notice-text {
+    flex: 1 1 16em;
+    min-width: 0;
+    margin: 0;
+}
+
+/* A notice's one fix: beside a short sentence, under a long one, at the end of the line either way. */
+.mvuh-ui .mvuh-notice > .mvuh-btn {
+    margin-inline-start: auto;
+}
+
+.mvuh-ui .mvuh-notice.is-warning { --mvuh-notice-color: var(--mvuh-warning); background-color: var(--mvuh-warning-soft); }
+.mvuh-ui .mvuh-notice.is-danger { --mvuh-notice-color: var(--mvuh-danger); background-color: var(--mvuh-danger-soft); }
+
+.mvuh-ui .mvuh-result {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-field);
+    font-size: 0.9em;
+    list-style: none;
+}
+
+.mvuh-ui .mvuh-result-heading {
+    font-weight: 600;
+}
+
+.mvuh-ui .mvuh-result-line {
+    --mvuh-result-color: var(--mvuh-text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.mvuh-ui .mvuh-result-line > i {
+    color: var(--mvuh-result-color);
+}
+
+.mvuh-ui .mvuh-result-line.is-success { --mvuh-result-color: var(--mvuh-success); }
+.mvuh-ui .mvuh-result-line.is-warning { --mvuh-result-color: var(--mvuh-warning); }
+.mvuh-ui .mvuh-result-line.is-danger { --mvuh-result-color: var(--mvuh-danger); }
+
+/* ── Action card ──────────────────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.mvuh-ui .mvuh-action-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+    gap: 4px 12px;
+    padding: 14px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-card);
+    background-color: var(--mvuh-surface-raised);
+    background-image: var(--mvuh-surface-raised-gradient);
+    box-shadow: var(--mvuh-surface-raised-shadow);
+}
+
+.mvuh-ui .mvuh-action-card.is-primary {
+    border-color: var(--mvuh-accent);
+}
+
+.mvuh-ui .mvuh-action-icon {
+    grid-row: span 2;
+    font-size: 1.3em;
+    color: var(--mvuh-accent-ink);
+}
+
+.mvuh-ui .mvuh-action-title {
+    font-weight: 600;
+}
+
+.mvuh-ui .mvuh-action-desc {
+    margin: 0;
+    font-size: 0.86em;
+    color: var(--mvuh-text-muted);
+}
+
+.mvuh-ui .mvuh-action-card > .mvuh-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* ── List row and record card ─────────────────────────────────────────────────────────────────── */
+.mvuh-ui .mvuh-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* A list's add button sits under it. */
+.mvuh-ui .mvuh-list + .mvuh-btn {
+    margin-top: 12px;
+}
+
+/* A row lays itself out by its own width, at any panel width: the name keeps 160px, so the pills wrap under it first,
+   and the actions take a line of their own across the row once they no longer fit beside it. */
+.mvuh-ui .mvuh-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-control);
+    background-color: var(--mvuh-surface-raised);
+    background-image: var(--mvuh-surface-raised-gradient);
+    box-shadow: var(--mvuh-surface-raised-shadow);
+}
+
+.mvuh-ui .mvuh-row-icon {
+    flex: none;
+    width: 20px;
+    color: var(--mvuh-accent-ink);
+    text-align: center;
+}
+
+/* The name and its pills: one wrapping line beside the icon. */
+.mvuh-ui .mvuh-row-info {
+    display: flex;
+    flex: 1 1 160px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-row-main {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-row-name {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.mvuh-ui .mvuh-row-sub {
+    font-size: 0.86em;
+    color: var(--mvuh-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.mvuh-ui .mvuh-row-pills,
+.mvuh-ui .mvuh-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+/* A row with no pills or no actions keeps no gap or empty line for them. */
+.mvuh-ui :is(.mvuh-row-pills, .mvuh-row-actions):empty {
+    display: none;
+}
+
+/* A record holds fields, so it is drawn like a card: its fields stand out on its surface, its header sits on the tinted
+   band, and its edge carries the card's rim and lift. */
+.mvuh-ui .mvuh-record {
+    position: relative;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-card);
+    background-color: var(--mvuh-surface);
+    background-image: var(--mvuh-surface-gradient);
+    box-shadow: var(--mvuh-surface-shadow);
+    overflow: hidden;
+}
+
+.mvuh-ui .mvuh-record-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--mvuh-border);
+    background-color: var(--mvuh-surface-header);
+    background-image: var(--mvuh-surface-header-gradient);
+}
+
+.mvuh-ui .mvuh-record-header > i {
+    color: var(--mvuh-accent-ink);
+}
+
+.mvuh-ui .mvuh-record-name {
+    flex: 1 1 160px;
+    min-width: 0;
+    font-weight: 600;
+}
+
+.mvuh-ui .mvuh-record-body {
+    padding: 12px;
+}
+
+/* ── Tree: nested rows that open and close (a data tree) ──────────────────────────────────────── */
+.mvuh-ui .mvuh-tree,
+.mvuh-ui .mvuh-tree-branch {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-tree-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    min-height: var(--mvuh-control-height);
+    padding: 2px 6px;
+    border-radius: var(--mvuh-radius-control);
+}
+
+.mvuh-ui .mvuh-tree-row:hover {
+    background-color: var(--mvuh-surface-raised);
+}
+
+/* A row left out of the pick reads as faint. */
+.mvuh-ui .mvuh-tree-row.is-off {
+    color: var(--mvuh-text-faint);
+}
+
+/* The chevron that opens a branch; a leaf keeps the place with a spacer of the same width. */
+.mvuh-ui .mvuh-tree-toggle,
+.mvuh-ui .mvuh-tree-spacer {
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+}
+
+.mvuh-ui .mvuh-tree-toggle {
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--mvuh-text-muted);
+    font: inherit;
+    cursor: pointer;
+}
+
+.mvuh-ui .mvuh-tree-toggle:hover {
+    background-color: var(--mvuh-surface-raised);
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-tree-toggle > i {
+    transition: transform var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-tree-toggle[aria-expanded="false"] > i {
+    transform: rotate(-90deg);
+}
+
+.mvuh-ui .mvuh-tree-name {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* A row the user can drag into a new place starts with its grip. */
+.mvuh-ui .mvuh-tree-grip {
+    flex: 0 0 auto;
+    padding: 0 2px;
+    color: var(--mvuh-text-faint);
+    cursor: grab;
+    touch-action: none;
+}
+
+/* A row's control (a key, a value) takes the free width, from zero, so the row never forces a wrap for it. */
+.mvuh-ui .mvuh-tree-row > :is(.mvuh-input, .mvuh-select) {
+    flex: 1 1 0;
+    min-width: 6em;
+}
+
+.mvuh-ui .mvuh-tree-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-inline-start: auto;
+}
+
+/* A branch's children sit under it, indented along a guide line from its chevron. */
+.mvuh-ui .mvuh-tree-branch {
+    margin-inline-start: 18px;
+    padding-inline-start: 8px;
+    border-inline-start: 1px solid var(--mvuh-border);
+}
+
+/* ── Danger zone, empty state, pager ──────────────────────────────────────────────────────────── */
+/* Like a list row, it lays itself out by its own width: the text keeps 160px, and the buttons go below it, side by
+   side, once they no longer fit beside it. */
+.mvuh-ui .mvuh-danger-zone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 16px;
+    border: 1px solid var(--mvuh-danger-border);
+    border-radius: var(--mvuh-radius-card);
+    background-color: var(--mvuh-danger-soft);
+}
+
+.mvuh-ui .mvuh-danger-icon {
+    flex: none;
+    font-size: 1.3em;
+    color: var(--mvuh-danger);
+}
+
+.mvuh-ui .mvuh-danger-text {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
+.mvuh-ui .mvuh-danger-title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-danger-desc {
+    margin: 0;
+    font-size: 0.86em;
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-danger-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mvuh-ui .mvuh-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 18px;
+    color: var(--mvuh-text-muted);
+    text-align: center;
+}
+
+.mvuh-ui .mvuh-empty > i {
+    font-size: 1.5em;
+    color: var(--mvuh-text-faint);
+}
+
+.mvuh-ui .mvuh-pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+    font-size: 0.9em;
+    color: var(--mvuh-text-muted);
+}
+
+/* ── Dialog ───────────────────────────────────────────────────────────────────────────────────── */
+/* A standalone app's own <dialog>. An extension in SillyTavern opens SillyTavern's popup and styles it in its own
+   stylesheet; the text and the buttons inside follow the same rules either way. The margin centres it in the window
+   whatever reset the page applies. It floats over the page, where no canvas lies under it, so it sits on the solid
+   surface. */
+dialog.mvuh-ui.mvuh-dialog {
+    box-sizing: border-box;
+    width: min(520px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--mvuh-border);
+    border-radius: var(--mvuh-radius-card);
+    background-color: var(--mvuh-surface-solid);
+    background-image: var(--mvuh-surface-gradient);
+    color: var(--mvuh-text);
+    box-shadow: var(--mvuh-dialog-shadow);
+}
+
+dialog.mvuh-ui.mvuh-dialog::backdrop {
+    background-color: var(--mvuh-dialog-backdrop);
+}
+
+.mvuh-ui .mvuh-dialog-body {
+    padding: 18px 20px 4px;
+}
+
+/* A question, notice or prompt: the question first, then one line per thing it touches and per answer. */
+.mvuh-ui .mvuh-dialog-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mvuh-ui .mvuh-dialog-text > p {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.mvuh-ui .mvuh-dialog-text > p:first-child {
+    font-size: 1.05em;
+    font-weight: 600;
+}
+
+.mvuh-ui .mvuh-dialog-value {
+    font-weight: 600;
+}
+
+/* The buttons on a bar of their own, right-aligned: the action, then Cancel. */
+.mvuh-ui .mvuh-dialog-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--mvuh-border);
+}
+
+/* ── Card gate: a region whose need is unmet ──────────────────────────────────────────────────── */
+/* The shell sets `inert` on a [data-mvuh-needs] region while what it needs (a card, its chat) is missing: nothing in
+ * it takes a click, a keystroke or focus. It greys whole, so it reads as waiting rather than broken. */
+.mvuh-ui [inert] {
+    opacity: var(--mvuh-inert-opacity);
+}
+
+/* ── Focus and motion ─────────────────────────────────────────────────────────────────────────── */
+/* The ring takes the accent ink: a text colour, it clears 3:1 on every surface, a status fill included. */
+.mvuh-ui :is(.mvuh-nav-item, .mvuh-theme-option, .mvuh-btn, .mvuh-input, .mvuh-select, .mvuh-textarea, .mvuh-switch, .mvuh-check, .mvuh-range, .mvuh-help-toggle, .mvuh-collapse, .mvuh-more, .mvuh-split-divider, .mvuh-tree-toggle):focus-visible {
+    outline: 2px solid var(--mvuh-accent-ink);
+    outline-offset: 2px;
+}
+
+.mvuh-ui .mvuh-action-card:has(> .mvuh-btn:focus-visible) {
+    outline: 2px solid var(--mvuh-accent-ink);
+    outline-offset: 2px;
+}
+
+/* On the dark rail the ring takes the rail's own accent. */
+.mvuh-ui .mvuh-nav :focus-visible {
+    outline-color: var(--mvuh-nav-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mvuh-ui,
+    .mvuh-ui * {
+        transition: none !important;
+    }
+}
+
+/* ── Phone: one markup, the shell narrower than 720px ─────────────────────────────────────────── */
+@container mvuh-shell (max-width: 720px) {
+    /* The page scrolls under the sticky strip, so the nav colour, see-through in a glass palette, sits on the canvas
+       colour here. */
+    .mvuh-ui .mvuh-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        flex: 1 1 100%;
+        background: linear-gradient(var(--mvuh-nav) 0 0), var(--mvuh-bg);
+        box-shadow: 0 1px 0 var(--mvuh-nav-edge);
+    }
+
+    /* The strip is as tall as its items, never the column. A thin visible scrollbar: a finger swipes the strip, a
+       mouse needs the bar (or Shift + wheel), and the bar shows there is more to the right. */
+    .mvuh-ui .mvuh-nav-inner {
+        position: static;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        min-height: 0;
+        padding: 8px 10px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--mvuh-nav-text-muted) transparent;
+    }
+
+    .mvuh-ui .mvuh-nav-brand,
+    .mvuh-ui .mvuh-nav-group {
+        display: none;
+    }
+
+    .mvuh-ui .mvuh-nav-item {
+        flex: 0 0 auto;
+        width: auto;
+        white-space: nowrap;
+    }
+
+    /* The strip ends on the theme switch. */
+    .mvuh-ui .mvuh-nav-footer {
+        flex: 0 0 auto;
+        margin: 0 0 0 auto;
+        padding: 0 0 0 8px;
+    }
+
+    .mvuh-ui.is-topbar .mvuh-nav-inner {
+        padding: 8px 10px;
+    }
+
+    .mvuh-ui .mvuh-main {
+        flex: 1 1 100%;
+        padding: 14px 12px 20px;
+    }
+
+    /* The panes stack, each taking half the workbench; nothing to drag between them. */
+    .mvuh-ui .mvuh-split {
+        flex-direction: column;
+        gap: var(--mvuh-gap);
+    }
+
+    .mvuh-ui .mvuh-split > :is(:first-child, :last-child) {
+        flex: 1 1 0;
+    }
+
+    .mvuh-ui .mvuh-split-divider {
+        display: none;
+    }
+
+    .mvuh-ui .mvuh-page-header {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .mvuh-ui .mvuh-page-status {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .mvuh-ui .mvuh-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .mvuh-ui .mvuh-card-header {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .mvuh-ui .mvuh-card-header > .mvuh-card-desc,
+    .mvuh-ui .mvuh-card-header > .mvuh-card-actions {
+        grid-column: 2 / -1;
+        grid-row: 2;
+    }
+
+    .mvuh-ui .mvuh-card-header > .mvuh-card-actions {
+        grid-row: 3;
+    }
+
+    .mvuh-ui .mvuh-card-header > .mvuh-collapse {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .mvuh-ui .mvuh-card-body {
+        padding: 12px;
+    }
+
+    .mvuh-ui .mvuh-card.is-advanced > .mvuh-collapse > .mvuh-card-desc {
+        grid-column: 2 / -1;
+        grid-row: 2;
+    }
+
+    .mvuh-ui :is(.mvuh-input, .mvuh-select, .mvuh-btn) {
+        min-height: 40px;
+    }
+
+    .mvuh-ui .mvuh-btn.mvuh-btn-icon {
+        width: 40px;
+        min-height: 40px;
+    }
+
+    .mvuh-ui .mvuh-action-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mvuh-ui .mvuh-action-card.is-primary {
+        grid-column: 1 / -1;
+    }
+
+    /* A compact tile: the button stretches invisibly over the whole tile, and a chevron says "tap". */
+    .mvuh-ui .mvuh-action-card:not(.is-primary) {
+        padding: 10px 26px 10px 10px;
+    }
+
+    .mvuh-ui .mvuh-action-card:not(.is-primary) .mvuh-action-desc {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .mvuh-ui .mvuh-action-card:not(.is-primary) > .mvuh-btn {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        opacity: 0;
+    }
+
+    .mvuh-ui .mvuh-action-card:not(.is-primary)::after {
+        content: "\f054";
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        font: var(--fa-font-solid);
+        font-size: 0.8em;
+        color: var(--mvuh-text-faint);
+    }
+}

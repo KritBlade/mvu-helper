@@ -1,0 +1,962 @@
+<div class="inline-drawer">
+    <div class="inline-drawer-toggle inline-drawer-header">
+        <b data-i18n="MVU Helper">MVU Helper</b>
+        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+    </div>
+    <div class="inline-drawer-content">
+        <div id="mvuh_open_panel" class="menu_button mvuh-launch-btn" role="button" tabindex="0">
+            <i class="fa-solid fa-sliders"></i>
+            <span data-i18n="Open MVU Helper">Open MVU Helper</span>
+        </div>
+
+        <div id="mvuh_panel_holder">
+        <!-- The shell (settings-panel.css): the nav, then one page per tab. Nav buttons and pages are
+             bound BY ID — mvuh_tab_<name> and mvuh_panel_<name>, from the TABS table in src/index.js.
+             i18n: every user-facing string carries data-i18n="<Key>" with the matching key in
+             i18n/<locale>.json (sillytavern/i18n.js applies the saved Language). -->
+        <div id="mvuh_panel_root" class="mvuh-ui mvuh-shell">
+
+        <nav class="mvuh-nav">
+            <div class="mvuh-nav-inner">
+                <div class="mvuh-nav-brand"><i class="fa-solid fa-robot"></i><span data-i18n="MVU Helper">MVU Helper</span></div>
+                <div class="mvuh-nav-group" data-i18n="Settings">Settings</div>
+                <button type="button" id="mvuh_tab_main" class="mvuh-nav-item is-active"><i class="fa-solid fa-sliders"></i><span data-i18n="Main">Main</span></button>
+                <button type="button" id="mvuh_tab_image" class="mvuh-nav-item"><i class="fa-solid fa-images"></i><span data-i18n="Image Generation">Image Generation</span></button>
+                <button type="button" id="mvuh_tab_roster" class="mvuh-nav-item"><i class="fa-solid fa-users"></i><span data-i18n="Roster">Roster</span></button>
+                <button type="button" id="mvuh_tab_llm" class="mvuh-nav-item"><i class="fa-solid fa-message"></i><span data-i18n="Extra LLM Calls">Extra LLM Calls</span></button>
+                <div class="mvuh-nav-group" data-i18n="Game">Game</div>
+                <button type="button" id="mvuh_tab_logic" class="mvuh-nav-item"><i class="fa-solid fa-gears"></i><span data-i18n="LogicEngine">LogicEngine</span></button>
+                <button type="button" id="mvuh_tab_gamelogic" class="mvuh-nav-item"><i class="fa-solid fa-cubes"></i><span data-i18n="GameLogic Packs">GameLogic Packs</span></button>
+                <button type="button" id="mvuh_tab_statusmenu" class="mvuh-nav-item"><i class="fa-solid fa-table-list"></i><span data-i18n="StatusMenu Packs">StatusMenu Packs</span></button>
+                <button type="button" id="mvuh_tab_events" class="mvuh-nav-item"><i class="fa-solid fa-calendar-days"></i><span data-i18n="Event Packs">Event Packs</span></button>
+                <div class="mvuh-nav-group" data-i18n="Develop">Develop</div>
+                <button type="button" id="mvuh_tab_development" class="mvuh-nav-item"><i class="fa-solid fa-code"></i><span data-i18n="Development">Development</span></button>
+                <div class="mvuh-nav-footer">
+                    <div class="mvuh-theme-switch" role="group" title="Theme" data-i18n-title="Theme">
+                        <button type="button" class="mvuh-theme-option is-active" data-mvuh-theme-option="dark" aria-pressed="true"><i class="fa-solid fa-moon"></i><span data-i18n="Dark">Dark</span></button>
+                        <button type="button" class="mvuh-theme-option" data-mvuh-theme-option="light" aria-pressed="false"><i class="fa-solid fa-sun"></i><span data-i18n="Light">Light</span></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="mvuh-main">
+
+        <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+        <div id="mvuh_panel_main" class="mvuh-page">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-sliders"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Settings">Settings</span> / <span data-i18n="Main">Main</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="Main">Main</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="Main subtitle">Language, debugging and this card's saved setup.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-globe"></i><span data-i18n="Global">Global</span></span>
+                    <!-- One of the two shows once the MVU check has answered (features/mvu-bootstrap/mvu-bootstrap-ui.js). -->
+                    <span id="mvuh_mvu_ready_pill" class="mvuh-pill is-success" style="display:none;" data-i18n="MVU ready">MVU ready</span>
+                    <span id="mvuh_mvu_missing_pill" class="mvuh-pill is-warning" style="display:none;" data-i18n="MVU not installed">MVU not installed</span>
+                </div>
+            </header>
+
+            <div id="mvuh_mvu_install_offer" class="mvuh-notice is-warning" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="MVU missing notice">Every state feature is off until MVU is installed.</p>
+                <button type="button" id="mvuh_mvu_install" class="mvuh-btn mvuh-btn-primary"><i class="fa-solid fa-download"></i><span data-i18n="Install MVU">Install MVU</span></button>
+            </div>
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="card" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Card gate notice">Open a chat to change this card's settings.</p>
+            </div>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-language"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="General">General</h3>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_language" data-i18n="Language">Language</label></div>
+                        <!-- language names shown natively (not translated) -->
+                        <select id="mvuh_language" class="mvuh-select">
+                            <option value="en">English</option>
+                            <option value="zh-cn">简体中文</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-bug"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Debug">Debug</h3>
+                    <p class="mvuh-card-desc" data-i18n="Debug desc">Console detail for MVU Helper. Errors and warnings always show.</p>
+                    <div class="mvuh-card-actions">
+                        <select id="mvuh_debug_verbosity" class="mvuh-select" aria-label="Console verbosity" data-i18n-title="Console verbosity" title="Console verbosity">
+                            <option value="off" data-i18n="Disabled">Disabled</option>
+                            <option value="lifecycle" data-i18n="Lifecycle">Lifecycle</option>
+                            <option value="verbose" data-i18n="Verbose">Verbose</option>
+                            <option value="trace" data-i18n="Trace">Trace</option>
+                        </select>
+                    </div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <!-- One switch per log domain (LOG_DOMAINS in sillytavern/log.js), bound by id: mvuh_dom_<domain>. -->
+                <div class="mvuh-card-body mvuh-grid">
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_dom_smallllm" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Small-LLM">Small-LLM</span><span class="mvuh-switch-desc" data-i18n="Small-LLM log hint">Each PRE/POST call's system block, user text and response.</span></label>
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_dom_pipeline" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Pipeline">Pipeline</span><span class="mvuh-switch-desc" data-i18n="Pipeline log hint">The turn stage by stage: lore sent, PRE and POST writes, RES saves, relays.</span></label>
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_dom_imagegen" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Image gen">Image gen</span><span class="mvuh-switch-desc" data-i18n="Image gen log hint">The image prompt sent, and each picture's tags as they are drawn or parked.</span></label>
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_dom_roster" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Roster">Roster</span><span class="mvuh-switch-desc" data-i18n="Roster log hint">Each reply's registrations, look and outfit updates, and the cast sent to the prompt.</span></label>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-id-card"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Card config">Card config</h3>
+                    <p class="mvuh-card-desc" data-i18n="Card config desc">The card carries this setup in its [Initmvuhelper] entry. Connections stay local.</p>
+                    <div class="mvuh-card-actions"><span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <div class="mvuh-action-grid">
+                        <div class="mvuh-action-card is-primary">
+                            <i class="fa-solid fa-file-export mvuh-action-icon"></i>
+                            <span class="mvuh-action-title" data-i18n="Export config to card">Export config → card</span>
+                            <p class="mvuh-action-desc" data-i18n="Export config hint">Save this card's MVU Helper setup into its [Initmvuhelper] entry.</p>
+                            <button type="button" id="mvuh_export_config" class="mvuh-btn mvuh-btn-primary"><span data-i18n="Export to card">Export to card</span><i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div class="mvuh-action-card">
+                            <i class="fa-solid fa-rotate mvuh-action-icon"></i>
+                            <span class="mvuh-action-title" data-i18n="Re-import config from card">Re-import from card</span>
+                            <p class="mvuh-action-desc" data-i18n="Re-import config hint">Refresh what the card owns: its settings, and this chat's starting data. Keeps your preferences, your connections, and what this chat changed.</p>
+                            <button type="button" id="mvuh_reimport_config" class="mvuh-btn"><i class="fa-solid fa-rotate"></i><span data-i18n="Re-import">Re-import</span></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-shield-halved"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="StatusMenu frame">StatusMenu frame</h3>
+                    <p class="mvuh-card-desc" data-i18n="StatusMenu frame desc">A StatusMenu runs in a sealed frame: no page, no settings, no network.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label">
+                            <label for="mvuh_statusmenu_image_sources" data-i18n="StatusMenu image sources">Image sources</label>
+                            <button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button>
+                        </div>
+                        <input type="text" id="mvuh_statusmenu_image_sources" class="mvuh-input" placeholder="http: https:">
+                        <p class="mvuh-hint" data-i18n="StatusMenu image sources hint">Where a StatusMenu may load images from: CSP sources, space-separated.</p>
+                        <p class="mvuh-detail" data-i18n="StatusMenu image sources detail">https: allows any https host; hosts look like cdn.example.com or *.imgur.com. SillyTavern's own images are always allowed. Anything the menu is shown can leave through an image URL it picks.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="mvuh-danger-zone">
+                <i class="fa-solid fa-trash-can mvuh-danger-icon"></i>
+                <div class="mvuh-danger-text">
+                    <p class="mvuh-danger-title" data-i18n="Card setup">Card setup</p>
+                    <p class="mvuh-danger-desc" data-i18n="Requires confirmation">Requires confirmation.</p>
+                </div>
+                <div class="mvuh-danger-actions">
+                    <button type="button" id="mvuh_reset_config" class="mvuh-btn mvuh-btn-danger" data-mvuh-needs="card" data-i18n-title="Reset config hint" title="Discard this card's stored setup, connections included, then re-import."><i class="fa-solid fa-rotate-left"></i><span data-i18n="Reset config from card">Reset from card</span></button>
+                    <button type="button" id="mvuh_reset_all_config" class="mvuh-btn mvuh-btn-danger" data-i18n-title="Reset every card hint" title="Clear the stored setup of every card. Each re-imports its own on open."><i class="fa-solid fa-broom"></i><span data-i18n="Reset every card">Reset every card</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Image Generation ─────────────────────────────────────────────────── -->
+        <div id="mvuh_panel_image" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-images"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Settings">Settings</span> / <span data-i18n="Image Generation">Image Generation</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="Image Generation">Image Generation</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="Image Generation subtitle">How pictures are drawn and where they go.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- One shows, from this card's Image insert type (features/imagegen/image-settings-ui.js). -->
+                    <span id="mvuh_img_on_pill" class="mvuh-pill is-success" style="display:none;" data-i18n="Images on">Images on</span>
+                    <span id="mvuh_img_tags_pill" class="mvuh-pill is-accent" style="display:none;" data-i18n="Tags only">Tags only</span>
+                    <span id="mvuh_img_off_pill" class="mvuh-pill is-neutral" style="display:none;" data-i18n="Images off">Images off</span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="card" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Card gate notice">Open a chat to change this card's settings.</p>
+            </div>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-image"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Rendering">Rendering</h3>
+                    <p class="mvuh-card-desc" data-i18n="Rendering desc">Whether pictures appear in the chat, where, and who writes them.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="image_generation_insert_type" data-i18n="Image Insert Type">Image insert type</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <select id="image_generation_insert_type" class="mvuh-select">
+                            <option value="disabled" data-i18n="Disable">Disable</option>
+                            <option value="tags" data-i18n="Tags only">Tags only</option>
+                            <option value="inline" data-i18n="Insert In Current Message">Insert in current message</option>
+                            <option value="new" data-i18n="Create New Message">Create new message</option>
+                            <option value="replace" data-i18n="Inline Replace Mode">Inline replace mode</option>
+                        </select>
+                        <p class="mvuh-hint" data-i18n="Image Insert Type hint">Turns pictures on, and picks where each one goes in the chat.</p>
+                        <p class="mvuh-detail" data-i18n="Image Insert Type detail">Disable sends no image instruction. Tags only writes the tags and draws nothing, to check what is written. The three insert modes draw each picture into the chat.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_pictures_via" data-i18n="Pictures written by">Pictures written by</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <!-- options are painted by the LLM-task router (features/imagegen/image-settings-ui.js) -->
+                        <select id="mvuh_img_pictures_via" class="mvuh-select"></select>
+                        <p class="mvuh-hint" data-i18n="Pictures written by hint">Which LLM call writes the reply's picture tags.</p>
+                        <p class="mvuh-hint" id="mvuh_img_pictures_via_rule" style="display:none;" data-i18n="Pictures written by rule">POST calls are hidden while Harvest via is narrate: it reads pictures before they exist.</p>
+                        <p class="mvuh-detail" data-i18n="Pictures written by detail">narrate: the narrator writes them while it writes the story. A POST call reads the finished reply and writes them under the lines it picks, for a narrator model that skips the picture rule. Set up POST calls under Extra LLM Calls.</p>
+                    </div>
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_img_strip_tag" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Strip pic tag">Strip &lt;pic&gt; tag</span><span class="mvuh-switch-desc" data-i18n="Strip pic tag hint">Hides the &lt;pic&gt; tag from the reply you read; turn it off to troubleshoot.</span></label>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-ruler-combined"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Prompt &amp; size">Prompt &amp; size</h3>
+                    <p class="mvuh-card-desc" data-i18n="Prompt and size desc">The /sd prefix, picture count, people per picture and size.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><label for="mvuh_img_sd_prefix_preset" data-i18n="SD prompt prefix">/sd prompt prefix</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <div class="mvuh-control-row">
+                            <select id="mvuh_img_sd_prefix_preset" class="mvuh-select"></select>
+                            <button type="button" id="mvuh_img_sd_prefix_new" class="mvuh-btn mvuh-btn-icon" data-i18n-title="New prefix preset" title="New prefix preset"><i class="fa-solid fa-plus"></i></button>
+                            <button type="button" id="mvuh_img_sd_prefix_rename" class="mvuh-btn mvuh-btn-icon" data-i18n-title="Rename prefix preset" title="Rename prefix preset"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" id="mvuh_img_sd_prefix_delete" class="mvuh-btn mvuh-btn-icon mvuh-btn-danger" data-i18n-title="Delete prefix preset" title="Delete prefix preset"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <textarea id="mvuh_img_sd_prefix" class="mvuh-textarea is-code" rows="2" placeholder="e.g. score_9, score_8_up, masterpiece"></textarea>
+                        <p class="mvuh-hint" data-i18n="SD prompt prefix hint">Tags put before every /sd prompt. One preset per checkpoint or art style.</p>
+                        <p class="mvuh-detail" data-i18n="SD prompt prefix detail">The preset list is shared by every card; which preset is used is remembered per card. It adds to SillyTavern's own SD prompt prefix. Pick — none — to send no prefix.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_max_per_reply" data-i18n="Max images per reply">Max images per reply</label></div>
+                        <div class="mvuh-slider"><input type="range" class="mvuh-range" min="1" max="10" step="1" data-mvuh-slider-for="mvuh_img_max_per_reply" aria-hidden="true" tabindex="-1"><input type="number" id="mvuh_img_max_per_reply" class="mvuh-input" min="1" max="10"></div>
+                        <p class="mvuh-hint" data-i18n="Max images per reply hint">The most pictures one reply draws. Tags past the cap are not drawn.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_max_characters" data-i18n="Max characters per image">Max characters per image</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <input type="number" id="mvuh_img_max_characters" class="mvuh-input" min="1" step="1">
+                        <p class="mvuh-hint" data-i18n="Max characters per image hint">Most people with a saved look in one picture, the main character included.</p>
+                        <p class="mvuh-detail" data-i18n="Max characters per image detail">A ceiling, not a target: one person alone is a normal shot. Over it, the main character is dropped first, then the last people named.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_mainchar_key" data-i18n="Main character entry">Main character entry</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <input type="text" id="mvuh_img_mainchar_key" class="mvuh-input">
+                        <p class="mvuh-hint" data-i18n="Main character entry hint">Roster entry holding the main character's look. Set only to override the card.</p>
+                        <p class="mvuh-detail" data-i18n="Main character entry detail">The main character is {{user}}; the card normally names the entry. Blank: the main character is drawn from the scene alone.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_default_type" data-i18n="Image type">Image type</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <!-- type names are the words a <pic> tag and the presets use, shown as written -->
+                        <select id="mvuh_img_default_type" class="mvuh-select">
+                            <option value="portrait">portrait</option>
+                            <option value="landscape">landscape</option>
+                            <option value="closeup">closeup</option>
+                            <option value="scene">scene</option>
+                            <option value="square">square</option>
+                        </select>
+                        <p class="mvuh-hint" data-i18n="Image type hint">Every picture is drawn at this type's size (Resolution presets).</p>
+                        <p class="mvuh-detail" data-i18n="Image type detail">The narrator does not choose: a type= on a &lt;pic&gt; tag is ignored.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-toggle-on"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Scene gates">Scene gates</h3>
+                    <p class="mvuh-card-desc" data-i18n="Scene gates desc">When the explicit-scene guidance is sent.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_latch_path" data-i18n="Intimacy latch path">Intimacy latch path</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <input type="text" id="mvuh_img_latch_path" class="mvuh-input" placeholder="Root.Field">
+                        <p class="mvuh-hint" data-i18n="Intimacy latch hint">stat_data boolean that turns explicit-scene guidance on. Blank: always on.</p>
+                        <p class="mvuh-detail" data-i18n="Intimacy latch detail">A [0] tuple is unwrapped. The card normally declares the path in [Initmvuhelper]; set it here only to override. A path not found, or a reply with no stat_data yet, withholds the guidance and names the path in the console.</p>
+                    </div>
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_img_h_always" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Always inject H guidance">Always inject H guidance</span><span class="mvuh-switch-desc" data-i18n="Always inject H guidance hint">Ignore the latch and always send the explicit-scene guidance.</span></label>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-file-lines"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Teaching contract">Teaching contract</h3>
+                    <p class="mvuh-card-desc" data-i18n="Teaching contract desc">The rules sent to the narrator while pictures are on.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label">
+                            <label for="prompt_injection_text" data-i18n="Prompt Template">Prompt template</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button>
+                            <button type="button" id="mvuh_img_reset_prompt" class="mvuh-btn mvuh-btn-quiet"><i class="fa-solid fa-rotate-left"></i><span data-i18n="Reset to default">Reset to default</span></button>
+                        </div>
+                        <textarea id="prompt_injection_text" class="mvuh-textarea is-code" rows="6"></textarea>
+                        <p class="mvuh-hint" data-i18n="Prompt Template hint">Reset to default returns to the built-in contract, which follows updates.</p>
+                        <p class="mvuh-detail" data-i18n="Prompt Template detail">A card can carry its own in [Initmvuhelper], and a card upgrade refreshes it. It opens the prompt with the outfit and picture-count rules, so a provider's prompt cache reuses it every reply.</p>
+                    </div>
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label">
+                            <label for="prompt_injection_regex" data-i18n="Regex">Regex</label>
+                            <button type="button" id="mvuh_img_reset_regex" class="mvuh-btn mvuh-btn-quiet"><i class="fa-solid fa-rotate-left"></i><span data-i18n="Reset to default">Reset to default</span></button>
+                        </div>
+                        <textarea id="prompt_injection_regex" class="mvuh-textarea is-code" rows="2"></textarea>
+                        <p class="mvuh-hint" data-i18n="Regex hint">Finds each picture tag in the reply. An invalid pattern falls back to the built-in.</p>
+                    </div>
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><span data-i18n="Scene roster placement">Scene roster placement</span><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <div class="mvuh-grid-pair">
+                            <div class="mvuh-field">
+                                <label for="prompt_injection_position" data-i18n="Position">Position</label>
+                                <select id="prompt_injection_position" class="mvuh-select">
+                                    <option value="deep_system" data-i18n="at Depth System">@D ⚙️</option>
+                                    <option value="deep_user" data-i18n="at Depth User">@D 👤</option>
+                                    <option value="deep_assistant" data-i18n="at Depth AI">@D 🤖</option>
+                                </select>
+                            </div>
+                            <div class="mvuh-field">
+                                <label for="prompt_injection_depth" data-i18n="Depth">Depth</label>
+                                <input type="number" id="prompt_injection_depth" class="mvuh-input" min="0" max="100">
+                            </div>
+                        </div>
+                        <p class="mvuh-hint" data-i18n="Scene roster placement hint">Where &lt;scene_roster&gt;, the list of who is on screen, goes in the prompt.</p>
+                        <p class="mvuh-detail" data-i18n="Scene roster placement detail">Depth counts messages back from the end of the prompt; 0 puts it last.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-server"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Backend">Backend</h3>
+                    <p class="mvuh-card-desc" data-i18n="Backend desc">The /sd queue, the bust LoRA and the size of each image type.</p>
+                    <div class="mvuh-card-actions"><span class="mvuh-chip"><i class="fa-solid fa-globe"></i><span data-i18n="Global">Global</span></span></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_img_streaming" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Streaming pre-generation">Streaming pre-generation</span><span class="mvuh-switch-desc" data-i18n="Streaming pre-generation hint">Start drawing once a complete tag streams in. Off: wait for the full reply.</span></label>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_queue_concurrency" data-i18n="Queue concurrency">Queue concurrency</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <div class="mvuh-slider"><input type="range" class="mvuh-range" min="1" max="4" step="1" data-mvuh-slider-for="mvuh_img_queue_concurrency" aria-hidden="true" tabindex="-1"><input type="number" id="mvuh_img_queue_concurrency" class="mvuh-input" min="1" max="4"></div>
+                        <p class="mvuh-hint" data-i18n="Queue concurrency hint">How many pictures draw at the same time.</p>
+                        <p class="mvuh-detail" data-i18n="Queue concurrency detail">Set it for your GPU; 1 keeps ComfyUI stable. Send bust multiplier needs 1: its variable is shared, so parallel pictures race.</p>
+                    </div>
+                    <label class="mvuh-switch-row mvuh-span"><input type="checkbox" role="switch" id="mvuh_img_bust_enabled" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Send bust multiplier">Send bust multiplier</span><span class="mvuh-switch-desc" data-i18n="Send bust multiplier hint">Write each picture's [Bust] value to a chat variable just before /sd.</span></label>
+                    <section class="mvuh-card is-advanced is-collapsed mvuh-span">
+                        <button type="button" class="mvuh-collapse" aria-expanded="false"><i class="fa-solid fa-chevron-down"></i><span class="mvuh-card-title" data-i18n="Breast slider LoRA config">Breast slider LoRA config</span><span class="mvuh-card-desc" data-i18n="Breast slider LoRA config desc">Variable name, default and shared value.</span></button>
+                        <div class="mvuh-card-body mvuh-grid">
+                            <div class="mvuh-field mvuh-span">
+                                <div class="mvuh-field-label"><label for="mvuh_img_bust_var" data-i18n="Bust variable name">Bust variable name</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                                <input type="text" id="mvuh_img_bust_var" class="mvuh-input" placeholder="bust_strength">
+                                <p class="mvuh-hint" data-i18n="Bust variable name hint">The chat variable the multiplier is written to.</p>
+                                <p class="mvuh-detail" data-i18n="Bust variable name detail">Turning the switch on adds SillyTavern's ComfyUI placeholder for it (bust_strength → {{getvar::bust_strength}}); turning it off removes it. Your workflow must put "%bust_strength%" on a typed FLOAT input such as LoraLoaderModelOnly.strength_model; a raw rgthree widget does nothing. The LoRA multiplies the cup size the look already states.</p>
+                            </div>
+                            <div class="mvuh-grid-pair mvuh-span">
+                                <div class="mvuh-field">
+                                    <label for="mvuh_img_bust_default" data-i18n="Bust default">Default value</label>
+                                    <input type="number" id="mvuh_img_bust_default" class="mvuh-input" min="0" max="100" step="0.1">
+                                    <p class="mvuh-hint" data-i18n="Bust default hint">Used when nobody in the picture declares [Bust].</p>
+                                </div>
+                                <div class="mvuh-field">
+                                    <label for="mvuh_img_bust_shared" data-i18n="Bust shared">Shared value</label>
+                                    <input type="number" id="mvuh_img_bust_shared" class="mvuh-input" min="0" max="100" step="0.1">
+                                    <p class="mvuh-hint" data-i18n="Bust shared hint">Used when two or more declare [Bust]. The LoRA has one strength.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="mvuh-card is-advanced is-collapsed mvuh-span">
+                        <button type="button" class="mvuh-collapse" aria-expanded="false"><i class="fa-solid fa-chevron-down"></i><span class="mvuh-card-title" data-i18n="Resolution presets">Resolution presets</span><span class="mvuh-card-desc" data-i18n="Resolution presets desc">Width × height for each image type.</span></button>
+                        <div class="mvuh-card-body mvuh-grid">
+                            <div class="mvuh-field"><div class="mvuh-field-label"><span>portrait</span></div><div class="mvuh-grid-pair"><input type="number" id="mvuh_img_res_portrait_w" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Width" title="Width"><input type="number" id="mvuh_img_res_portrait_h" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Height" title="Height"></div></div>
+                            <div class="mvuh-field"><div class="mvuh-field-label"><span>landscape</span></div><div class="mvuh-grid-pair"><input type="number" id="mvuh_img_res_landscape_w" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Width" title="Width"><input type="number" id="mvuh_img_res_landscape_h" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Height" title="Height"></div></div>
+                            <div class="mvuh-field"><div class="mvuh-field-label"><span>closeup</span></div><div class="mvuh-grid-pair"><input type="number" id="mvuh_img_res_closeup_w" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Width" title="Width"><input type="number" id="mvuh_img_res_closeup_h" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Height" title="Height"></div></div>
+                            <div class="mvuh-field"><div class="mvuh-field-label"><span>scene</span></div><div class="mvuh-grid-pair"><input type="number" id="mvuh_img_res_scene_w" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Width" title="Width"><input type="number" id="mvuh_img_res_scene_h" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Height" title="Height"></div></div>
+                            <div class="mvuh-field"><div class="mvuh-field-label"><span>square</span></div><div class="mvuh-grid-pair"><input type="number" id="mvuh_img_res_square_w" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Width" title="Width"><input type="number" id="mvuh_img_res_square_h" class="mvuh-input" min="64" max="2048" step="16" data-i18n-title="Height" title="Height"></div></div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Roster ───────────────────────────────────────────────────────────── -->
+        <div id="mvuh_panel_roster" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-users"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Settings">Settings</span> / <span data-i18n="Roster">Roster</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="Roster">Roster</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="Roster subtitle">Who can be drawn, and how new characters are registered.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- How many entries the registry holds (features/character-roster/roster-ui.js). One span inside the pill, so its gap does not split the words. -->
+                    <span id="mvuh_roster_count_pill" class="mvuh-pill is-accent" style="display:none;"><span><span data-i18n="On file">On file</span>: <span id="mvuh_roster_count"></span></span></span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="card" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Card gate notice">Open a chat to change this card's settings.</p>
+            </div>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-user-plus"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Registration">Registration</h3>
+                    <p class="mvuh-card-desc" data-i18n="Registration desc">How a new character gets on file, and where the cast lives in stat_data.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_route" data-i18n="Appearance route">Appearance route</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <select id="mvuh_img_route" class="mvuh-select">
+                            <option value="predefined" data-i18n="Predefined only">Predefined only</option>
+                            <option value="harvest" data-i18n="Predefined + auto-harvest new">Predefined + auto-harvest new</option>
+                        </select>
+                        <p class="mvuh-hint" data-i18n="Appearance route hint">Where looks come from: the card only, or also new characters in the story.</p>
+                        <p class="mvuh-detail" data-i18n="Appearance route detail">Looks are kept in this chat's state, never sent to the model. Predefined only: anyone not on file is described for that reply's pictures alone. Auto-harvest stores each new character's look once, even with images off.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_charimg_via" data-i18n="Harvest via">Harvest via</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <!-- Options from llm-task-router.js (renderLlmTaskSelect), painted by imagegen's updateImageUI. -->
+                        <select id="mvuh_img_charimg_via" class="mvuh-select"></select>
+                        <p class="mvuh-hint" data-i18n="Harvest via hint">Which LLM call writes a new character's look, with auto-harvest on. Off: no harvesting.</p>
+                        <p class="mvuh-hint" id="mvuh_img_charimg_via_rule" style="display:none;" data-i18n="Harvest via rule">narrate is hidden while a POST call writes the pictures: it would find none.</p>
+                        <p class="mvuh-detail" data-i18n="Harvest via detail">narrate: the main reply describes each newcomer once, with no extra call. A POST call describes only newcomers, and their pictures wait for it. Set up POST calls under Extra LLM Calls.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_collection" data-i18n="Roster collection">Roster collection</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <input type="text" id="mvuh_img_collection" class="mvuh-input" placeholder="auto" data-i18n-placeholder="auto">
+                        <p class="mvuh-hint" data-i18n="Roster collection hint">stat_data object holding the cast. Blank: found by its present flag.</p>
+                        <p class="mvuh-detail" data-i18n="Roster collection detail">A leading stat_data. is optional. Naming it makes every member part of the cast, present flag or not. Cards without MVU ignore it.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_present_field" data-i18n="Present flag">Present flag</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <input type="text" id="mvuh_img_present_field" class="mvuh-input" placeholder="Is_present">
+                        <p class="mvuh-hint" data-i18n="Present flag hint">Per-character field marking who is on screen. Blank: Is_present.</p>
+                        <p class="mvuh-detail" data-i18n="Present flag detail">A true/false field on each character. While Roster collection is blank it finds the collection, and it always marks who is on screen. A card that renamed it and left this blank gets neither; the console says so.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mvuh-card" id="mvuh_roster_registry" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-address-book"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Character registry">Character registry</h3>
+                    <p class="mvuh-card-desc" data-i18n="Character registry desc">Each character on file and their outfits, kept in this chat's state.</p>
+                    <div class="mvuh-card-actions"><button type="button" id="mvuh_img_roster_refresh" class="mvuh-btn mvuh-btn-icon" data-i18n-title="Refresh list" title="Refresh list"><i class="fa-solid fa-rotate-right"></i></button></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- Rows, the editor and the merge panel, and the pager: painted by roster-ui.js (renderRoster). -->
+                    <div id="mvuh_img_roster_list" class="mvuh-list"></div>
+                    <div id="mvuh_img_roster_pager"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Extra LLM Calls ──────────────────────────────────────────────────── -->
+        <div id="mvuh_panel_llm" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-message"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Settings">Settings</span> / <span data-i18n="Extra LLM Calls">Extra LLM Calls</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="Extra LLM Calls">Extra LLM Calls</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="Extra LLM Calls subtitle">Small-model calls before and after each reply.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- One shows, from this card's Enable Extra LLM Calls (features/small-llm/extra-llm-calls-ui.js). -->
+                    <span id="mvuh_llm_on_pill" class="mvuh-pill is-success" style="display:none;" data-i18n="Calls on">Calls on</span>
+                    <span id="mvuh_llm_off_pill" class="mvuh-pill is-neutral" style="display:none;" data-i18n="Calls off">Calls off</span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="card" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Card gate notice">Open a chat to change this card's settings.</p>
+            </div>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-phone-volume"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Calls">Calls</h3>
+                    <p class="mvuh-card-desc" data-i18n="Calls desc">PRE runs before the reply and feeds its prompt. POST runs after, over the reply.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_extra_llm_calls_enabled" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Enable Extra LLM Calls">Enable Extra LLM Calls</span><span class="mvuh-switch-desc" data-i18n="Enable Extra LLM Calls hint">The master switch. Off: none of the calls below runs.</span></label>
+                    <label class="mvuh-switch-row"><input type="checkbox" role="switch" id="mvuh_parallel" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Run calls in parallel">Run calls in parallel</span><span class="mvuh-switch-desc" data-i18n="Run calls in parallel hint">Calls on one connection still take turns. Off: one call at a time.</span></label>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_timeout_sec" data-i18n="Call timeout (s)">Call timeout (s)</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <input type="number" id="mvuh_timeout_sec" class="mvuh-input" min="5" max="600" step="5">
+                        <p class="mvuh-hint" data-i18n="Call timeout hint">Seconds before a stalled call is dropped. The other calls carry on.</p>
+                        <p class="mvuh-detail" data-i18n="Call timeout detail">5 to 600, default 60; a dropped call counts as empty. After the reply, POST gets one timeout per call in its longest queue. Past that, the reply is saved without POST.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-list-ul"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Call list">Call list</h3>
+                    <p class="mvuh-card-desc" data-i18n="Call list desc">Each call sends its tagged lorebook entries to a connection profile.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- One record card per call: painted by extra-llm-calls-ui.js (renderCallList). -->
+                    <div id="mvuh_call_list" class="mvuh-list"></div>
+                    <button type="button" id="mvuh_add_call" class="mvuh-btn"><i class="fa-solid fa-plus"></i><span data-i18n="Add call">Add call</span></button>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-layer-group"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Shared groups">Shared groups</h3>
+                    <p class="mvuh-card-desc" data-i18n="Shared groups desc">Lore several calls share: every member reads the group's [tag] entries.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- One record card per group: painted by extra-llm-calls-ui.js (renderGroupList). -->
+                    <div id="mvuh_group_list" class="mvuh-list"></div>
+                    <button type="button" id="mvuh_add_group" class="mvuh-btn"><i class="fa-solid fa-plus"></i><span data-i18n="Add group">Add group</span></button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Event Packs ──────────────────────────────────────────────────────────────────────────── -->
+        <div id="mvuh_panel_events" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-calendar-days"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Game">Game</span> / <span data-i18n="Event Packs">Event Packs</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="Event Packs">Event Packs</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="Event Packs subtitle">Community events on this card, and your pack library.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- Shows once the card's packs are counted (features/event-pack/event-pack-ui.js). -->
+                    <span id="mvuh_ep_count_pill" class="mvuh-pill is-accent" style="display:none;"><span><span data-i18n="Installed">Installed</span>: <span id="mvuh_ep_count"></span></span></span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="chat" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="EventPack no chat">Open a chat first: installing writes to that card's lorebook and save.</p>
+            </div>
+
+            <!-- SAME THREE CARDS, SAME ORDER, SAME VERBS AS THE GAMELOGIC PACKS TAB: On this card → Pack library → Import.
+                 Status first (the reason you open the tab), the library second (where you act from), the paste box last. -->
+            <section class="mvuh-card" data-mvuh-needs="chat">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-id-card"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="On this card">On this card</h3>
+                    <p class="mvuh-card-desc" data-i18n="EventPack on this card desc">Packs on this card. Fired events and progress survive an uninstall.</p>
+                    <div class="mvuh-card-actions"><button type="button" id="mvuh_ep_refresh" class="mvuh-btn mvuh-btn-icon" data-i18n-title="Refresh list" title="Refresh list"><i class="fa-solid fa-rotate-right"></i></button></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- One row per installed pack, or an empty state or notice saying why there is none: painted by event-pack-ui.js. -->
+                    <div id="mvuh_ep_list" class="mvuh-list"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-box-archive"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Pack library">Pack library</h3>
+                    <p class="mvuh-card-desc" data-i18n="EventPack library desc">Every imported pack, stored outside any card so a card rebuild keeps it.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- One row per stored pack: painted by event-pack-ui.js. -->
+                    <div id="mvuh_ep_library" class="mvuh-list"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card" data-mvuh-needs="chat">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-file-import"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Import">Import</h3>
+                    <p class="mvuh-card-desc" data-i18n="EventPack import desc">Paste or load a pack, Validate, then Add &amp; install onto this card.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><label for="mvuh_ep_text" data-i18n="Pack text">Pack text</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <textarea id="mvuh_ep_text" class="mvuh-textarea is-code" rows="6"></textarea>
+                        <p class="mvuh-detail" data-i18n="Pack text detail">Add &amp; install stores the pack in the library and installs it on this card, for every chat under it. A newer version of an installed pack upgrades it; the same or an older one is refused.</p>
+                    </div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_ep_load" class="mvuh-btn"><i class="fa-solid fa-file-arrow-up"></i><span data-i18n="Load file">Load file</span></button>
+                        <button type="button" id="mvuh_ep_validate" class="mvuh-btn"><i class="fa-solid fa-check"></i><span data-i18n="Validate">Validate</span></button>
+                        <button type="button" id="mvuh_ep_install" class="mvuh-btn mvuh-btn-primary" style="display:none;"><i class="fa-solid fa-download"></i><span data-i18n="Add and install">Add &amp; install</span></button>
+                    </div>
+                    <!-- The validation result, as a result list: painted by event-pack-ui.js. -->
+                    <div id="mvuh_ep_preview" class="mvuh-span"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── LogicEngine ──────────────────────────────────────────────────────────────────────────── -->
+        <div id="mvuh_panel_logic" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-gears"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Game">Game</span> / <span data-i18n="LogicEngine">LogicEngine</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="LogicEngine">LogicEngine</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="LogicEngine subtitle">Runs the card's game engine.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- The loader's state while a chat is open: painted by features/logic-engine/logic-engine-ui.js. -->
+                    <span id="mvuh_le_state"></span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="chat" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="LogicEngine no chat">Open a chat first: the engine lives in that card's lorebook.</p>
+            </div>
+
+            <section class="mvuh-card" data-mvuh-needs="card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-gears"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Engine">Engine</h3>
+                    <p class="mvuh-card-desc" data-i18n="Engine desc">The card's engine runs in a sealed Worker: no page, no network.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <!-- NO resolver-host picker: mvu-helper is the only host. Do not add a control for a second write path. -->
+                <div class="mvuh-card-body mvuh-grid">
+                    <label class="mvuh-switch-row mvuh-span"><input type="checkbox" role="switch" id="mvuh_le_enabled" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Enable LogicEngine for this card">Enable LogicEngine for this card</span><span class="mvuh-switch-desc" data-i18n="Enable LogicEngine hint">Off: the game engine stops, and so do the card's plugins and StatusMenu Engine.</span></label>
+                    <!-- The engine's row, or an empty state saying why there is none: painted by logic-engine-ui.js. -->
+                    <div id="mvuh_le_status" class="mvuh-span"></div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_le_reload" class="mvuh-btn"><i class="fa-solid fa-rotate-right"></i><span data-i18n="Reload">Reload</span></button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="mvuh-danger-zone" data-mvuh-needs="chat">
+                <i class="fa-solid fa-trash-can mvuh-danger-icon"></i>
+                <div class="mvuh-danger-text">
+                    <p class="mvuh-danger-title" data-i18n="Engine on this card">Engine on this card</p>
+                    <p class="mvuh-danger-desc" data-i18n="Requires confirmation">Requires confirmation.</p>
+                </div>
+                <div class="mvuh-danger-actions">
+                    <button type="button" id="mvuh_le_clear" class="mvuh-btn mvuh-btn-danger" data-i18n-title="Remove engine hint" title="Delete the engine from the card's lorebook. Settings and stat_data stay."><i class="fa-solid fa-trash-can"></i><span data-i18n="Remove engine">Remove engine</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── GameLogic Packs ──────────────────────────────────────────────────────────────────────── -->
+        <!-- No chat needed for the library half: its book is ROOT-LEVEL, never bound to a character, so importing and removing
+             artifacts works with no card open. Installing onto a card is what carries the guard. -->
+        <div id="mvuh_panel_gamelogic" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-cubes"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Game">Game</span> / <span data-i18n="GameLogic Packs">GameLogic Packs</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="GameLogic Packs">GameLogic Packs</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="GameLogic Packs subtitle">Game packs and their plugins for this card.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- The GameLogic Pack this card runs: painted by features/gamelogic-pack/gamelogic-pack-ui.js. -->
+                    <span id="mvuh_gp_state"></span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="chat" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Pack no chat">Open a chat first: installing writes to that card's lorebook and save. The library works without one.</p>
+            </div>
+            <!-- A lorebook that cannot be read is not a missing chat: its reason and its fix are painted by artifact-tabs-ui.js. -->
+            <div id="mvuh_gp_unreadable" data-mvuh-needs="chat"></div>
+
+            <!-- SAME THREE CARDS, SAME ORDER, SAME VERBS AS THE EVENT PACKS AND STATUSMENU PACKS TABS: On this card → Pack library
+                 → Import. "On this card" lists ONLY what is installed here; the library row is where you install from. -->
+            <section class="mvuh-card" data-mvuh-needs="chat">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-id-card"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="On this card">On this card</h3>
+                    <p class="mvuh-card-desc" data-i18n="GameLogic on this card desc">One GameLogic Pack per card, plus any plugins.</p>
+                    <div class="mvuh-card-actions"><button type="button" id="mvuh_gp_refresh" class="mvuh-btn mvuh-btn-icon" data-i18n-title="Refresh list" title="Refresh list"><i class="fa-solid fa-rotate-right"></i></button></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <!-- Each group's rows are painted by the feature that owns it: the pack (gamelogic-pack-ui.js), the plugins
+                     (gamelogic-plugin-ui.js). A group's title hides while its list is empty. The two keep separate registries on
+                     purpose: uninstalling the game leaves the plugins' bookkeeping intact, and the reverse. -->
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-group-title"><i class="fa-solid fa-cube"></i><span data-i18n="GameLogic Pack">GameLogic Pack</span></div>
+                    <div id="mvuh_gp_card" class="mvuh-list mvuh-span"></div>
+                    <div class="mvuh-group-title"><i class="fa-solid fa-puzzle-piece"></i><span data-i18n="Plugins">Plugins</span></div>
+                    <div id="mvuh_gp_plugins" class="mvuh-list mvuh-span"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-box-archive"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="GameLogic library">Pack library</h3>
+                    <p class="mvuh-card-desc" data-i18n="GameLogic library desc">Every imported game pack and plugin, stored outside any card.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- One group per artifact type, a row per stored file: painted by artifact-tabs-ui.js. -->
+                    <div id="mvuh_gp_list" class="mvuh-list"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-file-import"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Import">Import</h3>
+                    <p class="mvuh-card-desc" data-i18n="Artifact import desc">Paste or load a pack file, or import a source folder or ZIP.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><label for="mvuh_gp_text" data-i18n="Pack file">Pack file</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <textarea id="mvuh_gp_text" class="mvuh-textarea is-code" rows="6" placeholder='{ "format": "1.0", "packType": "gamelogic", … }'></textarea>
+                        <p class="mvuh-detail" data-i18n="Pack file detail">Any artifact type is accepted, and each goes to its own tab's library. Nothing reaches a card until you install it from its library row. A source folder or ZIP is the workspace npm run dev watches; only artifacts with no error are offered.</p>
+                    </div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_gp_load" class="mvuh-btn"><i class="fa-solid fa-file-arrow-up"></i><span data-i18n="Load file">Load file</span></button>
+                        <button type="button" id="mvuh_gp_validate" class="mvuh-btn"><i class="fa-solid fa-check"></i><span data-i18n="Validate">Validate</span></button>
+                        <button type="button" id="mvuh_gp_add" class="mvuh-btn mvuh-btn-primary" style="display:none;"><i class="fa-solid fa-plus"></i><span data-i18n="Add to library">Add to library</span></button>
+                        <button type="button" id="mvuh_gp_import_folder" class="mvuh-btn"><i class="fa-solid fa-folder-open"></i><span data-i18n="Import source folder">Import source folder</span></button>
+                        <button type="button" id="mvuh_gp_import_zip" class="mvuh-btn"><i class="fa-solid fa-file-zipper"></i><span data-i18n="Import source ZIP">Import source ZIP</span></button>
+                        <!-- The key sits on the label span and the count has a span of its own: onSourceFiles writes the count, and a
+                             key on the button would let the next locale pass wipe it. -->
+                        <button type="button" id="mvuh_gp_source_add" class="mvuh-btn mvuh-btn-primary" style="display:none;"><i class="fa-solid fa-plus"></i><span data-i18n="Add to library">Add to library</span> <span id="mvuh_gp_source_add_count"></span></button>
+                    </div>
+                    <!-- The import report, as a result list: painted by artifact-tabs-ui.js. -->
+                    <div id="mvuh_gp_report" class="mvuh-span"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── StatusMenu Packs ─────────────────────────────────────────────────────────────────────── -->
+        <!-- The same three cards as GameLogic Packs, for the one menu a card shows. The library half needs no chat; installing
+             onto a card is what carries the guard. -->
+        <div id="mvuh_panel_statusmenu" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-table-list"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Game">Game</span> / <span data-i18n="StatusMenu Packs">StatusMenu Packs</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="StatusMenu Packs">StatusMenu Packs</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="StatusMenu Packs subtitle">The menu this card shows, and your menu library.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                    <!-- The StatusMenu Pack this card shows: painted by features/statusmenu-pack/statusmenu-pack-ui.js. -->
+                    <span id="mvuh_smp_state"></span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="chat" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Pack no chat">Open a chat first: installing writes to that card's lorebook and save. The library works without one.</p>
+            </div>
+            <!-- A lorebook that cannot be read is not a missing chat: its reason and its fix are painted by artifact-tabs-ui.js. -->
+            <div id="mvuh_smp_unreadable" data-mvuh-needs="chat"></div>
+
+            <section class="mvuh-card" data-mvuh-needs="chat">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-id-card"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="On this card">On this card</h3>
+                    <p class="mvuh-card-desc" data-i18n="StatusMenu on this card desc">One StatusMenu Pack per card.</p>
+                    <div class="mvuh-card-actions"><button type="button" id="mvuh_smp_refresh" class="mvuh-btn mvuh-btn-icon" data-i18n-title="Refresh list" title="Refresh list"><i class="fa-solid fa-rotate-right"></i></button></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- The card's menu row, or an empty state: painted by statusmenu-pack-ui.js. -->
+                    <div id="mvuh_smp_card" class="mvuh-list"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-box-archive"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="StatusMenu library">Pack library</h3>
+                    <p class="mvuh-card-desc" data-i18n="StatusMenu library desc">Every imported StatusMenu Pack, stored outside any card.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body">
+                    <!-- A row per stored menu: painted by artifact-tabs-ui.js. -->
+                    <div id="mvuh_smp_list" class="mvuh-list"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-file-import"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Import">Import</h3>
+                    <p class="mvuh-card-desc" data-i18n="Artifact import desc">Paste or load a pack file, or import a source folder or ZIP.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><label for="mvuh_smp_text" data-i18n="Pack file">Pack file</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <textarea id="mvuh_smp_text" class="mvuh-textarea is-code" rows="6" placeholder='{ "format": "1.0", "packType": "statusmenu", … }'></textarea>
+                        <p class="mvuh-detail" data-i18n="Pack file detail">Any artifact type is accepted, and each goes to its own tab's library. Nothing reaches a card until you install it from its library row. A source folder or ZIP is the workspace npm run dev watches; only artifacts with no error are offered.</p>
+                    </div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_smp_load" class="mvuh-btn"><i class="fa-solid fa-file-arrow-up"></i><span data-i18n="Load file">Load file</span></button>
+                        <button type="button" id="mvuh_smp_validate" class="mvuh-btn"><i class="fa-solid fa-check"></i><span data-i18n="Validate">Validate</span></button>
+                        <button type="button" id="mvuh_smp_add" class="mvuh-btn mvuh-btn-primary" style="display:none;"><i class="fa-solid fa-plus"></i><span data-i18n="Add to library">Add to library</span></button>
+                        <button type="button" id="mvuh_smp_import_folder" class="mvuh-btn"><i class="fa-solid fa-folder-open"></i><span data-i18n="Import source folder">Import source folder</span></button>
+                        <button type="button" id="mvuh_smp_import_zip" class="mvuh-btn"><i class="fa-solid fa-file-zipper"></i><span data-i18n="Import source ZIP">Import source ZIP</span></button>
+                        <!-- The key sits on the label span and the count has a span of its own: onSourceFiles writes the count, and a
+                             key on the button would let the next locale pass wipe it. -->
+                        <button type="button" id="mvuh_smp_source_add" class="mvuh-btn mvuh-btn-primary" style="display:none;"><i class="fa-solid fa-plus"></i><span data-i18n="Add to library">Add to library</span> <span id="mvuh_smp_source_add_count"></span></button>
+                    </div>
+                    <!-- The import report, as a result list: painted by artifact-tabs-ui.js. -->
+                    <div id="mvuh_smp_report" class="mvuh-span"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Development ──────────────────────────────────────────────────────────────────────────── -->
+        <!-- For artifact developers. The dev loop and the blank packs need no chat; the two engine uploads write the open card. -->
+        <div id="mvuh_panel_development" class="mvuh-page" style="display:none;">
+            <header class="mvuh-page-header">
+                <span class="mvuh-page-icon"><i class="fa-solid fa-code"></i></span>
+                <div class="mvuh-page-heading">
+                    <div class="mvuh-page-eyebrow"><span data-i18n="Develop">Develop</span> / <span data-i18n="Development">Development</span></div>
+                    <h2 class="mvuh-page-title" data-i18n="Development">Development</h2>
+                    <p class="mvuh-page-subtitle" data-i18n="Development subtitle">Tools for building artifacts: the dev loop, blank packs and engine uploads.</p>
+                </div>
+                <div class="mvuh-page-status">
+                    <span class="mvuh-chip"><i class="fa-solid fa-id-card"></i><span data-mvuh-card-chip="open"><span data-i18n="Card:">Card:</span> <span data-mvuh-card-chip="name"></span></span><span data-mvuh-card-chip="none" style="display:none;" data-i18n="No chat open">No chat open</span></span>
+                </div>
+            </header>
+
+            <div class="mvuh-notice is-warning" data-mvuh-notice-for="chat" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Development no chat">Open a chat first: the engine uploads write into that card's lorebook.</p>
+            </div>
+            <div class="mvuh-notice is-warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p class="mvuh-notice-text" data-i18n="Engine trust notice">An engine decides your game's state. Install engines only from cards you trust.</p>
+            </div>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-plug"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Artifact dev loop">Artifact dev loop</h3>
+                    <p class="mvuh-card-desc" data-i18n="Artifact dev loop desc">For artifact developers: each saved file re-applies to the open card.</p>
+                    <div class="mvuh-card-actions"><span class="mvuh-chip"><i class="fa-solid fa-globe"></i><span data-i18n="Global">Global</span></span></div>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <label class="mvuh-switch-row mvuh-span"><input type="checkbox" role="switch" id="mvuh_devloop_enabled" class="mvuh-switch"><span class="mvuh-switch-title" data-i18n="Watch the local dev server">Watch the local dev server</span><span class="mvuh-switch-desc" data-i18n="Watch the local dev server hint">Run npm run dev in your game's folder first. Off: no connection.</span></label>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_devloop_url" data-i18n="Dev server URL">Dev server URL</label></div>
+                        <input type="text" id="mvuh_devloop_url" class="mvuh-input is-code" placeholder="http://127.0.0.1:6620">
+                        <p class="mvuh-hint" data-i18n="Dev server URL hint">Where npm run dev listens. A change reconnects.</p>
+                    </div>
+                    <!-- The dev server's status row: painted by features/artifact-dev-loop/artifact-dev-loop.js. -->
+                    <div id="mvuh_devloop_status" class="mvuh-span"></div>
+                </div>
+            </section>
+
+            <section class="mvuh-card">
+                <header class="mvuh-card-header">
+                    <span class="mvuh-badge"><i class="fa-solid fa-folder-plus"></i></span>
+                    <h3 class="mvuh-card-title" data-i18n="Add New Blank Packs">Add New Blank Packs</h3>
+                    <p class="mvuh-card-desc" data-i18n="Add New Blank Packs desc">Download a ready source folder for a new artifact. Extract at workspace root.</p>
+                    <button type="button" class="mvuh-collapse" aria-expanded="true" data-i18n-title="Show or hide" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                </header>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_blank_type" data-i18n="Type">Type</label></div>
+                        <!-- One option per artifact type: painted by blank-pack-ui.js from BLANK_ARTIFACT_TYPES. -->
+                        <select id="mvuh_blank_type" class="mvuh-select"></select>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_blank_name" data-i18n="Name">Name</label></div>
+                        <input type="text" id="mvuh_blank_name" class="mvuh-input">
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_blank_id" data-i18n="ID">ID</label></div>
+                        <input type="text" id="mvuh_blank_id" class="mvuh-input is-code">
+                        <p class="mvuh-hint" data-i18n="Blank pack ID hint">Lowercase words joined by hyphens. Follows the name until you edit it.</p>
+                    </div>
+                    <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_blank_description" data-i18n="Description">Description</label></div>
+                        <input type="text" id="mvuh_blank_description" class="mvuh-input">
+                        <p class="mvuh-hint" data-i18n="Blank pack description hint">One line, shown on the library row.</p>
+                    </div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_blank_create" class="mvuh-btn mvuh-btn-primary"><i class="fa-solid fa-file-zipper"></i><span data-i18n="Create archive">Create archive</span></button>
+                    </div>
+                    <!-- The archive made, or what kept it from being made, as a result list: painted by blank-pack-ui.js. -->
+                    <div id="mvuh_blank_report" class="mvuh-span"></div>
+                </div>
+            </section>
+
+            <!-- The game engine written alone, past any pack: writes ONLY [MVU_LogicEngine]; the pack's entries, schema and
+                 regexes stay. Wired by features/logic-engine/logic-engine-ui.js. -->
+            <section class="mvuh-card is-advanced is-collapsed" data-mvuh-needs="chat">
+                <button type="button" class="mvuh-collapse" aria-expanded="false"><i class="fa-solid fa-chevron-down"></i><span class="mvuh-card-title" data-i18n="Engine dev upload">Engine dev upload</span><span class="mvuh-card-desc" data-i18n="Engine dev upload desc">Replace the card's engine and reload it. A pack install overwrites it.</span></button>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><label for="mvuh_le_text" data-i18n="Engine code">Engine code</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <textarea id="mvuh_le_text" class="mvuh-textarea is-code" rows="4" placeholder="// Game engine JS — module.exports = { resolveTurn, … }"></textarea>
+                        <p class="mvuh-detail" data-i18n="Engine code detail">Install engine writes the card's [MVU_LogicEngine] entry alone and reloads the engine; the pack's other pieces stay. The entry never enters a prompt.</p>
+                    </div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_le_load" class="mvuh-btn"><i class="fa-solid fa-file-arrow-up"></i><span data-i18n="Load file">Load file</span></button>
+                        <button type="button" id="mvuh_le_install" class="mvuh-btn mvuh-btn-primary"><i class="fa-solid fa-download"></i><span data-i18n="Install engine">Install engine</span></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- The StatusMenu Engine written alone, past any pack: writes ONLY [MVU_StatusMenuEngine]; the game engine and the
+                 pack stay. Wired and painted by features/statusmenu-pack/statusmenu-pack-ui.js. -->
+            <section class="mvuh-card is-advanced is-collapsed" data-mvuh-needs="chat">
+                <button type="button" class="mvuh-collapse" aria-expanded="false"><i class="fa-solid fa-chevron-down"></i><span class="mvuh-card-title" data-i18n="StatusMenu Engine dev upload">StatusMenu Engine dev upload</span><span class="mvuh-card-desc" data-i18n="StatusMenu Engine dev upload desc">Replace the card's StatusMenu Engine and reload it. A pack install overwrites it.</span></button>
+                <div class="mvuh-card-body mvuh-grid">
+                    <div class="mvuh-field mvuh-span">
+                        <div class="mvuh-field-label"><label for="mvuh_sme_text" data-i18n="Engine code">Engine code</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <textarea id="mvuh_sme_text" class="mvuh-textarea is-code" rows="4" placeholder="// StatusMenu Engine JS — module.exports = { actions: {…}, formatters: {…} }"></textarea>
+                        <p class="mvuh-detail" data-i18n="StatusMenu engine code detail">Install engine writes the card's [MVU_StatusMenuEngine] entry alone and reloads the Worker; the game engine and the pack stay. The engine must declare its version.</p>
+                    </div>
+                    <div class="mvuh-control-row mvuh-span">
+                        <button type="button" id="mvuh_sme_load" class="mvuh-btn"><i class="fa-solid fa-file-arrow-up"></i><span data-i18n="Load file">Load file</span></button>
+                        <button type="button" id="mvuh_sme_install" class="mvuh-btn mvuh-btn-primary"><i class="fa-solid fa-download"></i><span data-i18n="Install engine">Install engine</span></button>
+                        <button type="button" id="mvuh_sme_clear" class="mvuh-btn mvuh-btn-danger"><i class="fa-solid fa-trash"></i><span data-i18n="Clear engine">Clear engine</span></button>
+                    </div>
+                    <!-- The stored engine, or why there is none: painted by statusmenu-pack-ui.js. -->
+                    <div id="mvuh_sme_status" class="mvuh-span"></div>
+                </div>
+            </section>
+        </div>
+
+        </main>
+        </div><!-- /#mvuh_panel_root -->
+        </div><!-- /#mvuh_panel_holder -->
+    </div>
+</div>

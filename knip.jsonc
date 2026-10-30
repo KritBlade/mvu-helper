@@ -1,0 +1,18 @@
+// knip — the dead-code gate (npm test). Two runs: `knip` holds tests and tools to the same rule as src,
+// and `knip --production` reads only the `!` files, so an export that only a test imports is reported too.
+// `@public` on an export = reached from outside the import graph; `@internal` = kept for the tests on
+// purpose. Each carries its reason beside it in the source.
+{
+    "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+    "entry": ["src/index.js!", "tools/*.mjs"],
+    "project": ["src/**/*.js!", "tests/**/*.{js,mjs}", "tools/**/*.mjs"],
+    // An export used inside its own file is not dead; only one that nothing uses is.
+    "ignoreExportsUsedInFile": true,
+    // SillyTavern's own modules, reached by relative paths that leave this repo.
+    "ignoreUnresolved": ["^(\\.\\./)+(script|extensions|utils|world-info|slash-commands/SlashCommandParser|regex/engine)\\.js$"],
+    "ignoreIssues": {
+        // A BYTE-IDENTICAL twin of the builder's copy (its THREE-FILE GRAMMAR SYNC header): its emit half
+        // serves the builder, and the drift suite checks it against the engine's.
+        "src/features/event-pack/when-dsl-grammar.js": ["exports"]
+    }
+}
