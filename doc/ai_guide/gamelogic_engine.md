@@ -86,11 +86,12 @@ Create these 3 before any engine logic. The blank pack ships none of them. The l
 | `version` | config schema version, `1` |
 | `extraLlmCalls` | `enabled`, `parallel`, `timeoutSec`, `groups[{ tag, members }]`, `calls[{ name, phase: "pre"\|"post", enabled, maxTokens?, temperature?, inputRegex?, outputRegex? }]` ([Set up the calls](../extra_llm_calls/calls.md)) |
 | `statBox` | the per-reply "stats that moved" box ([The statBox section](../stat_box/technical.md#the-statbox-section)) |
+| `leadText` | `storyEnvelope`: the story block's opening tags, every spelling a reply can have; the engine's `leadText` goes at the top of that block, and a card without this section gets none |
 | `imagegen` | `intimacyLatchPath`, `maincharRegistryKey` and the `<pic>` contract fields |
 | `roster` | `route`, `charCollection`, `presenceField` |
 | `logicEngine` | `{ "enabled": true }` |
 
-ArtificKoi ships `extraLlmCalls`, `imagegen` and `statBox`. A key not in this table is reported as unknown and ignored. A call's connection profile never travels (a `profileId` is dropped and reported): the user picks each call's Connection in the Extra LLM Calls tab, and a call with none does not run. MVU Helper imports this entry on chat load when its content changed since the last import. After a dev-loop save, reopen the chat or use Main tab > Card config > Re-import. The first lorebook entry whose comment contains `[Initmvuhelper]` is the one read, so keep exactly one. Never use Export to card while the pack carries it: export overwrites that first match, and the next dev-loop apply puts the pack's text back.
+ArtificKoi ships `extraLlmCalls`, `imagegen`, `statBox` and `leadText` (`["<gametxt>", "<maintext>"]`). A key not in this table is reported as unknown and ignored. A call's connection profile never travels (a `profileId` is dropped and reported): the user picks each call's Connection in the Extra LLM Calls tab, and a call with none does not run. MVU Helper imports this entry on chat load when its content changed since the last import. After a dev-loop save, reopen the chat or use Main tab > Card config > Re-import. The first lorebook entry whose comment contains `[Initmvuhelper]` is the one read, so keep exactly one. Never use Export to card while the pack carries it: export overwrites that first match, and the next dev-loop apply puts the pack's text back.
 
 ### 3.3 The schema syntax: Zod for MVU, a vocabulary for the models
 
@@ -253,7 +254,7 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 - Every call crosses the Worker as a copy. Return the `statData` you changed. Only `applied: true` saves.
 - `log` prints as `[mvu-helper] [logic-engine] [RES] <mid>:<swipe>: applied=true → <lines joined by |>` (Pipeline domain).
 - `resBlock` is a body only: MVU Helper wraps it in `<RES_Variable>` (RES2: `<RES_POST_Variable>`). `textReplacements` is `{ find: put }`, literal text, applied to the reply where the model wrote the find.
-- `leadText` / `endText` are text MVU Helper writes into every reply that returns them, whatever the model wrote: in its own `<LeadText>` at the reply's start and `<EndText>` right above the status menu. A later resolve updates the block in place, an omitted field keeps it, an empty string removes it. Text every reply must show (a date bar, a closing line) goes here, never behind a tag the model has to write. Return the text alone; a text carrying either tag, or `html>`, `<head>`, `<body` or `<%`, is skipped.
+- `leadText` / `endText` are text MVU Helper writes into every reply that returns them, whatever the model wrote: in its own `<LeadText>` at the top of the story (past any block of the model's own above it, inside the block the card's `[Initmvuhelper]` `leadText.storyEnvelope` names; no such section, no lead text) and `<EndText>` right above the status menu. A later resolve updates the block in place, an omitted field keeps it, an empty string removes it. Text every reply must show (a date bar, a closing line) goes here, never behind a tag the model has to write. Return the text alone; a text carrying either tag, or `html>`, `<head>`, `<body` or `<%`, is skipped.
 - A hook may be `async`. No call has a time limit. Loading times out after 10 seconds. A throw leaves the reply unresolved, with an error line and a toast.
 - Details: [The hooks in detail](../gamelogic_engine/hooks.md).
 

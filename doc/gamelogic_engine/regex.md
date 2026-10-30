@@ -54,7 +54,7 @@ ArtificKoi's `PromptDeTagRESVariable` takes the engine's receipts out of the pro
 }
 ```
 
-Its `PromptDeTagLeadText` does the same for the date and location bar the engine writes at the start of every reply (its `leadText`).
+Its `PromptDeTagLeadText` does the same for the date and location bar the engine writes at the top of every reply's story (its `leadText`).
 
 ## The order
 

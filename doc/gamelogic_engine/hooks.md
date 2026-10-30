@@ -121,8 +121,16 @@ A return that isn't a string plays nothing, and is warned.
 
 **`leadText`** and **`endText`** are text your engine writes into the reply itself, whatever the model wrote. MVU Helper wraps each in its own tag and places it:
 
-- `<LeadText>` … `</LeadText>` at the start of the reply.
+- `<LeadText>` … `</LeadText>` at the top of the story. Your card says which block holds the story (below).
 - `<EndText>` … `</EndText>` right above the status menu. Everything else MVU Helper puts above the menu goes above the end text, so the end text stays the last thing before the menu.
+
+**Where the story starts.** A reply can open with blocks of the model's own, like a preset's thinking written into the reply under the preset's own tag, or a commentary block. A preset's display regex often folds everything from the reply's first character through that block's closing tag into one collapsed box, and anything above the block disappears into it. So the lead text goes at the top of the story, and your card names the story block in its `[Initmvuhelper]` entry, with every spelling of its opening tag a reply can have:
+
+```json
+"leadText": { "storyEnvelope": ["<gametxt>", "<maintext>"] }
+```
+
+MVU Helper skips every tag block above the story, whatever it is called, steps into the story block, and puts the lead text in front of the story's first line. ArtificKoi lists `<gametxt>`, and `<maintext>`, which galgame-companion renames it to. A card without this section gets no lead text, and the console says why.
 
 Return them on every reply that should show them. A later resolve of the same reply, like `resolvePostRelay`, updates the block where it stands and never adds a second one. Leave a field out and the reply keeps its block. Send an empty string and the block is removed. Don't write the tags yourself: a text carrying one of them, or `html>`, `<head>`, `<body` or `<%`, is skipped with a warning.
 
