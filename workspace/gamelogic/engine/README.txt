@@ -8,7 +8,8 @@ conditions, arms the next event, and applies a fired event's writes. Your engine
 this game keeps event state, and calls it.
 
 1. GET THE FILE
-   Download: https://github.com/KritBlade/mvu-helper/tree/main/eventpack_lib
+   eventpack.cjs is MvuGameMaker's maker-app/GameLogic/_engine/eventpack.cjs.
+   Download: (link to come: the public repository that will carry it is not published yet)
    Save it as engine/eventpack.cjs and never edit it. To update it, replace the whole file.
 
 2. LOAD IT BEFORE YOUR ENGINE (pack.json)
@@ -20,10 +21,10 @@ this game keeps event state, and calls it.
    The bare minimum. This whole file replaces the blank gameLogic.cjs and runs events:
 
 ----- gameLogic.cjs, with event packs wired in -----
-// test GameLogic Engine, with event packs wired in.
+// test-gam GameLogic Engine, with event packs wired in.
 const ENGINE_VERSION = 'v0.2.0';
-const ENGINE_NAME = 'test';
-const ENGINE_TYPE = 'test';
+const ENGINE_NAME = 'test-gam';
+const ENGINE_TYPE = 'test-gam';
 
 // eventpack.cjs ran first (pack.json engineOrder) and left its functions here.
 const EVENTS = globalThis.__EVENTPACK__ || null;
@@ -41,7 +42,8 @@ function setValue(obj, key, v) {
 const warnings = [];
 
 // WHERE this game keeps event state, and what a fired event may do. mvu-helper reads triggerRoot,
-// armedPath, writes, rewards and scopes off the export below.
+// armedPath, writes, rewards and scopes off the export below, and bodyEntry (where an installed pack's
+// entry goes in the prompt) when one is declared.
 const EVENT_PACK_ADAPTER = {
     triggerRoot: 'EventPack.triggers',
     armedPath: 'EventPack.armed',

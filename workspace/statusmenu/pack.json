@@ -1,14 +1,13 @@
 {
   "format": "1.0",
   "packType": "statusmenu",
-  "id": "artifickoi",
-  "name": "ArtificKoi",
-  "description": "ArtificKoi",
-  "version": "1.6.1",
-  "builtWith": "MvuStatMenuBuilder 2.0.0",
+  "id": "test-status-menu",
+  "name": "test-status-menu",
+  "description": "test-status-menu",
+  "version": "0.1.0",
+  "builtWith": "mvu-helper 0.3.464",
   "engineOrder": [
     "layoutFormatters.cjs",
     "statusMenuLogic.cjs"
-  ],
-  "targetsPackId": "school-v4"
+  ]
 }
