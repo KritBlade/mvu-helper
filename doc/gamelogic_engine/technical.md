@@ -181,7 +181,8 @@ What they return:
 - `applied` > `true` when you changed something. MVU Helper only saves when it's `true`.
 - `log` > lines for the console, for you.
 - `resBlock` > the receipt the player sees in the reply. MVU Helper wraps it in the receipt tag, so don't write the tags yourself.
-- `textReplacements` > optional `{ find: replace }` pairs applied to the reply's text. ArtificKoi uses it to fill in the date and the location.
+- `textReplacements` > optional `{ find: replace }` pairs applied to the reply's text, where the model wrote the find.
+- `leadText`, `endText` > optional text MVU Helper writes into every reply that returns it: at the start of the reply, and right above the status menu. ArtificKoi's date and location bars are its `leadText`. See [The hooks in detail](hooks.md).
 
 Watch out for a few things:
 

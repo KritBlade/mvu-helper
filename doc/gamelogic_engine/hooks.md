@@ -34,7 +34,7 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 | `preAssemblyPatch` | before the PRE calls and the narrator | the base floor's state, `{ type, mid, swipe, generationAttempt }` | JSON Patch ops, or `[]` |
 | `preVerdictPatch` | after the PRE calls, before the narrator | the base floor's state, `{ type, mid, swipe, generationAttempt, preOutputs }` | JSON Patch ops, or `[]` |
 | `pickSameRoundEvent` | after the PRE calls, before the narrator | the base floor's state, `{ type, mid, swipe, generationAttempt, preOutputs }` | an event key, or `''` |
-| `resolveTurn` | after the narrator's reply is parsed (RES1) | the reply's state, `{ mid, swipe, dice, dicePools, ops, sameRoundEventKey }` | `{ statData, applied, log, resBlock?, textReplacements? }` |
+| `resolveTurn` | after the narrator's reply is parsed (RES1) | the reply's state, `{ mid, swipe, dice, dicePools, ops, sameRoundEventKey }` | `{ statData, applied, log, resBlock?, textReplacements?, leadText?, endText? }` |
 | `resolvePostRelay` | after POST's blocks are applied (RES2) | the reply's state, `{ mid, swipe, dice, dicePools, ops }` | the same as `resolveTurn` |
 
 The base floor is the last reply that has state, before the player's message.
@@ -115,9 +115,18 @@ A return that isn't a string plays nothing, and is warned.
 
 **`log`** prints as one `[mvu-helper] [logic-engine] [RES]` line, when the Pipeline debug domain is on.
 
-**`resBlock`** is only the body. MVU Helper wraps it in `<RES_Variable>` and writes it into the reply: after the narrator's `</UpdateVariable>`, else before the status menu placeholder, else at the end. `resolvePostRelay`'s goes in `<RES_POST_Variable>`, right after `<RES_Variable>`. Don't write the tags yourself.
+**`resBlock`** is only the body. MVU Helper wraps it in `<RES_Variable>` and writes it into the reply: after the narrator's `</UpdateVariable>`, else above the end text or the status menu placeholder, else at the end. `resolvePostRelay`'s goes in `<RES_POST_Variable>`, right after `<RES_Variable>`. Don't write the tags yourself.
 
-**`textReplacements`** is `{ find: replace }` pairs, applied to the reply's text as literal text, not regex. A pair whose value isn't a string, or whose key is empty, is skipped with a warning. ArtificKoi fills `<DateAndTime/>` and `<location/>` in the reply this way.
+**`textReplacements`** is `{ find: replace }` pairs, applied to the reply's text as literal text, not regex. A pair whose value isn't a string, or whose key is empty, is skipped with a warning. It only changes text the model actually wrote: a find the reply doesn't carry changes nothing. Text every reply must show belongs in `leadText` or `endText`.
+
+**`leadText`** and **`endText`** are text your engine writes into the reply itself, whatever the model wrote. MVU Helper wraps each in its own tag and places it:
+
+- `<LeadText>` … `</LeadText>` at the start of the reply.
+- `<EndText>` … `</EndText>` right above the status menu. Everything else MVU Helper puts above the menu goes above the end text, so the end text stays the last thing before the menu.
+
+Return them on every reply that should show them. A later resolve of the same reply, like `resolvePostRelay`, updates the block where it stands and never adds a second one. Leave a field out and the reply keeps its block. Send an empty string and the block is removed. Don't write the tags yourself: a text carrying one of them, or `html>`, `<head>`, `<body` or `<%`, is skipped with a warning.
+
+SillyTavern shows the text with its line breaks, and a display regex can style it. The narrator still reads it in its history, so take it out of the prompt with a prompt-only regex, or the model starts writing its own copy. See [Regex](regex.md#regexes-that-change-what-the-model-reads). ArtificKoi's date and location bars are its `leadText`.
 
 **If it throws,** the reply isn't resolved. MVU Helper logs the error and shows a toast.
 

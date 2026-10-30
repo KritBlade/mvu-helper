@@ -243,7 +243,7 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 
 | Hook | Called | `ctx` | Returns |
 | --- | --- | --- | --- |
-| `resolveTurn(statData, ctx)` required | after MVU parses the narrator's reply (RES1), once per reply | `{ mid, swipe, dice, dicePools, ops, sameRoundEventKey }` | `{ statData, applied, log, resBlock?, textReplacements? }` |
+| `resolveTurn(statData, ctx)` required | after MVU parses the narrator's reply (RES1), once per reply | `{ mid, swipe, dice, dicePools, ops, sameRoundEventKey }` | `{ statData, applied, log, resBlock?, textReplacements?, leadText?, endText? }` |
 | `resolvePostRelay(statData, ctx)` | after POST's blocks apply, same reply (RES2) | `{ mid, swipe, dice, dicePools, ops }` (ops include `by: 'post'`) | same as `resolveTurn` |
 | `preAssemblyPatch(statData, ctx)` | before PRE and the narrator, every story turn. `statData` = the base floor | `{ type: 'normal'\|'regenerate'\|'swipe', mid, swipe, generationAttempt }` | JSON Patch ops (`add`/`replace`/`remove`, `/` paths), or `[]` |
 | `preVerdictPatch(statData, ctx)` | after the PRE calls, before the narrator (Extra LLM Calls on, a PRE call ran). `statData` = the base floor | `{ type, mid, swipe, generationAttempt, preOutputs: [{ name, output, appliedOps }] }`; `appliedOps` = the ops that call's patch applied, read them instead of parsing `output` | JSON Patch ops, or `[]` |
@@ -252,7 +252,8 @@ module.exports = { ENGINE_VERSION, ENGINE_NAME, ENGINE_TYPE, resolveTurn };
 - `ctx.ops` = `[{ path, old, new, by }]`, dotted paths, at most 500; `by` is `message`, `pre-sim`, `post`, `plugin:<id>`, `statusmenu:<id>` or `host`. Your own writes never appear. `ctx.dice` / `ctx.dicePools` are `null` when nothing was dealt.
 - Every call crosses the Worker as a copy. Return the `statData` you changed. Only `applied: true` saves.
 - `log` prints as `[mvu-helper] [logic-engine] [RES] <mid>:<swipe>: applied=true → <lines joined by |>` (Pipeline domain).
-- `resBlock` is a body only: MVU Helper wraps it in `<RES_Variable>` (RES2: `<RES_POST_Variable>`). `textReplacements` is `{ find: put }`, literal text, applied to the reply.
+- `resBlock` is a body only: MVU Helper wraps it in `<RES_Variable>` (RES2: `<RES_POST_Variable>`). `textReplacements` is `{ find: put }`, literal text, applied to the reply where the model wrote the find.
+- `leadText` / `endText` are text MVU Helper writes into every reply that returns them, whatever the model wrote: in its own `<LeadText>` at the reply's start and `<EndText>` right above the status menu. A later resolve updates the block in place, an omitted field keeps it, an empty string removes it. Text every reply must show (a date bar, a closing line) goes here, never behind a tag the model has to write. Return the text alone; a text carrying either tag, or `html>`, `<head>`, `<body` or `<%`, is skipped.
 - A hook may be `async`. No call has a time limit. Loading times out after 10 seconds. A throw leaves the reply unresolved, with an error line and a toast.
 - Details: [The hooks in detail](../gamelogic_engine/hooks.md).
 
@@ -332,7 +333,7 @@ A call takes its tag from anywhere in the comment or keys, enabled or not. Put t
 - `destination.prompt: true` rewrites what the model reads and needs `"prompt_rewrite_intended": true`.
 - A `replace_string` containing `html>`, `<head>` or `<body` refuses the pack.
 - `regex/regex-order.json` is optional. When present it is an array listing every `script_name` exactly once, in apply order.
-- Ship a prompt-only regex for every block the narrator must not copy: `<RES_Variable>`, `<RES_POST_Variable>`, `<POSTUpdateVariable>`. ArtificKoi's `PromptDeTagRESVariable` carries `"find_regex": "/<(RES_Variable|RES_POST_Variable)>(?:(?!<\\1>)[\\s\\S])*?<\\/\\1>\\n?/g"`, `"replace_string": ""`, `"destination": { "display": false, "prompt": true }`, `"prompt_rewrite_intended": true`. See [Regex](../gamelogic_engine/regex.md).
+- Ship a prompt-only regex for every block the narrator must not copy: `<RES_Variable>`, `<RES_POST_Variable>`, `<POSTUpdateVariable>`, and `<LeadText>` / `<EndText>` when your engine returns them (ArtificKoi's `PromptDeTagLeadText`). ArtificKoi's `PromptDeTagRESVariable` carries `"find_regex": "/<(RES_Variable|RES_POST_Variable)>(?:(?!<\\1>)[\\s\\S])*?<\\/\\1>\\n?/g"`, `"replace_string": ""`, `"destination": { "display": false, "prompt": true }`, `"prompt_rewrite_intended": true`. See [Regex](../gamelogic_engine/regex.md).
 
 ## 10. Workflow: from a plain card to a first resolved turn
 

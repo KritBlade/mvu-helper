@@ -41,7 +41,7 @@ A POST call writes state when its answer carries an `<UpdateVariable>` block wit
 MVU Helper then:
 
 1. **renames the wrapper to `<POSTUpdateVariable>`,** so it can be told apart from the narrator's own block. The `<JSONPatch>` inside stays as it is.
-2. **writes it into the reply,** right after the narrator's `</UpdateVariable>`. With none, just before `<StatusPlaceHolderImpl/>`. With neither, at the end. That's the player's receipt, and it lets MVU rebuild the state from the chat later.
+2. **writes it into the reply,** right after the narrator's `</UpdateVariable>`. With none, just above `<StatusPlaceHolderImpl/>`, or above the engine's `<EndText>` when it writes one. With neither, at the end. That's the player's receipt, and it lets MVU rebuild the state from the chat later.
 3. **applies only that block** through MVU's own parse, and saves the result. The parse fires MVU's update event, and that's what wakes up RES2, and every installed plugin's `resolveRelay`.
 
 Why apply the block and not the reply? Applying the reply would apply the narrator's ops a second time. And MVU's direct setter writes a value without firing the update event, so RES2 would never see it. Parsing just the block is the one way that does both.

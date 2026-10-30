@@ -37,7 +37,7 @@ An AI model copies its own history. It looks at the last few replies and writes 
 
 We hit this with image generation. Every image tag kept coming out without a camera tag, no matter how we tweaked the prompt, even though the instructions said the camera tag was mandatory. It turned out the last reply had no camera tag, so the next reply copied that. The history beat the instructions.
 
-So anything in a reply that the model shouldn't copy has to be taken out of what it reads: receipts, record blocks, anything written in a fixed format for the engine and not for the story. If the model sees it, sooner or later it writes its own copy, and a copied block can be wrong, half-written, or not belong to this reply at all.
+So anything in a reply that the model shouldn't copy has to be taken out of what it reads: receipts, record blocks, the engine's own lead and end text, anything written in a fixed format for the engine and not for the story. If the model sees it, sooner or later it writes its own copy, and a copied block can be wrong, half-written, or not belong to this reply at all.
 
 ### Example: hiding the engine's receipts
 
@@ -53,6 +53,8 @@ ArtificKoi's `PromptDeTagRESVariable` takes the engine's receipts out of the pro
   "prompt_rewrite_intended": true
 }
 ```
+
+Its `PromptDeTagLeadText` does the same for the date and location bar the engine writes at the start of every reply (its `leadText`).
 
 ## The order
 
