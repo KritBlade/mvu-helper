@@ -47,7 +47,7 @@ ArtificKoi's:
 
 | Field | Required | What it does |
 | --- | --- | --- |
-| `format` | yes | the pack format. MVU Helper understands `"1.0"` |
+| `format` | yes | the pack format, `"1.0"`. Nothing a StatusMenu Pack carries needs a newer number |
 | `packType` | yes | always `"statusmenu"` |
 | `id` | yes | lowercase with dashes. It names the menu's styles and its lorebook entries, so keep it the same once you publish. `registry` is reserved |
 | `name`, `description` | yes | shown on its library row |
@@ -56,7 +56,7 @@ ArtificKoi's:
 | `engineOrder` | yes, with an engine | the engine files in the order they load |
 | `targetsPackId` | no | the GameLogic Pack the menu was drawn for. A label only, never checked |
 
-A StatusMenu Pack can't carry `schema`, `state`, `exposes`, `requires` or `optionalUses`. Those belong to other pack types, and the pack is refused if it has them.
+A StatusMenu Pack can't carry `schema`, `state`, `exposes`, `requires`, `optionalUses` or `requiresUpdateVariable`. Those belong to other pack types, and the pack is refused if it has them.
 
 **One folder per id.** 2 folders with the same id overwrite each other in the library, and then drift apart as you edit one of them.
 

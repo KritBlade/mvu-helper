@@ -192,12 +192,13 @@ Your dice, use them in order: <%= _gmDice.join(' ') %>. Report the die you used,
 
 | Key | Rule |
 | --- | --- |
-| `format`, `packType` | `"1.0"`, `"gamelogic"` |
+| `format`, `packType` | `"1.0"` (`"1.1"` when the file carries `requiresUpdateVariable`), `"gamelogic"` |
 | `id` | kebab-case, never `registry`. Prefixes every lorebook comment the install writes. Keep it once published |
 | `name`, `description` | required |
 | `version` | `M.m` or `M.m.r`, numbers only (`"v1.4"` is refused). Install compares it: same = Repair, newer = Upgrade |
 | `engineOrder` | every file in `engine/`, each exactly once. Joined in this order with no separator. End each file with a newline |
 | `state`, `exposes`, `builtWith` | optional: save fixes ([state](../gamelogic_engine/state.md)), interfaces for plugins ([exposes](../gamelogic_engine/exposes.md)), a note |
+| `requiresUpdateVariable` | optional `true`: your entries make the narrator write an `<UpdateVariable>` block in EVERY reply, and MVU Helper warns about a reply without one ([the reply promise](../gamelogic_engine/pack.md#the-reply-promise)). Needs `"format": "1.1"` |
 
 An unknown key is warned and not installed. `layout`, `targetsPackId`, `requires`, `optionalUses` or `events` gets the pack refused.
 

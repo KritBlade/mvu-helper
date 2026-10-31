@@ -31,7 +31,7 @@ You are an AI coding assistant in a clone of the `mvu-helper-template` workspace
 
 ```
 workspace/plugin-<id>/
-├── pack.json                     # identity, requires / optionalUses, engineOrder
+├── pack.json                     # identity, requires / optionalUses, requiresUpdateVariable, engineOrder
 ├── schema/plugin_root_schema.js  # REQUIRED, exactly one file
 ├── entries/<name>.txt            # entry text (EJS allowed)
 ├── entries/<name>.json           # entry fields, same base name as the .txt
@@ -62,13 +62,14 @@ workspace/plugin-<id>/
 
 | Key | Rule |
 | --- | --- |
-| `format` | `"1.0"` |
+| `format` | `"1.0"` (`"1.1"` when the file carries `requiresUpdateVariable`) |
 | `packType` | `"plugin"` |
 | `id` | kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`), unique in the library, never `registry` |
 | `name`, `description` | required, non-empty |
 | `version` | `M.m` or `M.m.r`, numbers only. Upgrade compares it |
 | `requires` | array of interface names. Unmatched = install refused |
 | `optionalUses` | array of interface names. Unmatched = installs, runs without |
+| `requiresUpdateVariable` | optional `true`: your entries make the narrator write an `<UpdateVariable>` block in EVERY reply, and MVU Helper warns about a reply without one ([the reply promise](../gamelogic_engine/pack.md#the-reply-promise)). Needs `"format": "1.1"` |
 | `engineOrder` | source-only key, consumed by the assembler. Required when `engine/` has files |
 
 An interface name matches `^[a-z][a-z0-9-]*@\d+$`, like `cast@1`. The published set is on [Exposes](../gamelogic_engine/exposes.md#the-interfaces): `cast@1`, `player@1`, `location@1`, `landmarks@1`, `chronicle@1`, `clock@1` (`locale@1` is proposed, nobody publishes it). Example: ArtificKoi's `pack.json` maps `"cast@1": "Classmate"` and `"clock@1": "World"`. Unknown top-level keys only warn, and are not installed.

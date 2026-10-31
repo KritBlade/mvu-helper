@@ -24,7 +24,8 @@ It's the same envelope as a GameLogic Pack. `packType` is what makes it a plugin
   "engine":  "…JS text…",          // optional, resolveRelay and renderPanel
   "panel":   { /* … */ },          // optional, the side panel slot
   "requires":     ["cast@1"],      // optional, unmatched means install is refused
-  "optionalUses": ["clock@1"]      // optional, unmatched means it installs and runs without
+  "optionalUses": ["clock@1"],     // optional, unmatched means it installs and runs without
+  "requiresUpdateVariable": true   // optional, every reply carries an <UpdateVariable>; needs "format": "1.1"
 }
 ```
 
@@ -33,7 +34,7 @@ It's the same envelope as a GameLogic Pack. `packType` is what makes it a plugin
 - **No `init`.** A file with one is refused. A plugin declares no starting state. It creates what it keeps, inside its drawer, when it starts keeping it.
 - **No `regex`.** A plugin has no part of the card's screen to restyle.
 
-`requires` and `optionalUses` are what make a plugin game-bound or standalone. They're on [Running on any game](any_game.md). The `engine` is on [The plugin engine](engine.md), and the `schema` on [Writing into stat_data](writing.md#the-schema).
+`requires` and `optionalUses` are what make a plugin game-bound or standalone. They're on [Running on any game](any_game.md). The `engine` is on [The plugin engine](engine.md), the `schema` on [Writing into stat_data](writing.md#the-schema), and `requiresUpdateVariable` on [The reply promise](../gamelogic_engine/pack.md#the-reply-promise).
 
 ## The folder
 
@@ -42,7 +43,7 @@ This is what you actually write:
 ```
 plugin-<id>/
 ├── pack.json              # the envelope: format, packType, id, name, description, version,
-│                          #   builtWith, requires, optionalUses, plus engineOrder
+│                          #   builtWith, requires, optionalUses, requiresUpdateVariable, plus engineOrder
 ├── entries/
 │   ├── record.json        # one entry's fields: comment, order, position, type …
 │   └── record.txt         # its content, plain text, no JSON escaping

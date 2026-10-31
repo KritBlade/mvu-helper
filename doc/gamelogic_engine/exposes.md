@@ -15,7 +15,7 @@ It's like a mall directory. Every shopper asks for "restrooms", and every mall's
 ```json
 {
   "id": "school-v4",
-  "version": "5.132.0",
+  "version": "5.158.0",
   "exposes": {
     "cast@1": "Classmate",
     "player@1": "Mainchar",

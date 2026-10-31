@@ -15,6 +15,7 @@ The way I see it, SillyTavern is the console, the character card is the cartridg
 - state > fixes for saves that already exist. See [State corrections](state.md).
 - exposes > tells plugins where things live in your game. See [Exposes](exposes.md).
 - panel > an optional slot in MVU Helper's side panel. See [Side Panel](../side_panel/README.md).
+- requiresUpdateVariable > tells MVU Helper that every reply carries an `<UpdateVariable>` block, so it warns about one that doesn't. See [The reply promise](#the-reply-promise).
 
 Every piece is optional except the engine you actually want to run. One GameLogic Pack is active per card.
 
@@ -28,7 +29,7 @@ It's a lot easier to edit one entry in its own file than to edit one giant JSON.
 
 ```
 gamelogic/
-├── pack.json           identity, engineOrder, state, exposes
+├── pack.json           identity, engineOrder, state, exposes, requiresUpdateVariable
 ├── engine/             the engine: one or more files, joined in engineOrder
 ├── entries/            one prompt entry = <name>.txt (its content) + <name>.json (its fields)
 ├── schema/             exactly one file: the Zod registration script
@@ -49,14 +50,15 @@ A workspace can hold more than one pack. A folder with its own `pack.json` is on
 
 ```json
 {
-  "format": "1.0",
+  "format": "1.1",
   "packType": "gamelogic",
   "id": "school-v4",
   "name": "ArtificKoi — School v4",
   "description": "Koikatu-style school dating sim: LogicEngine, schema, worldview and PRE/POST entries. The heroine profiles ship on the card itself.",
-  "version": "5.151.1",
+  "version": "5.158.0",
   "builtWith": "Tools/build_workspace.cjs",
   "engineOrder": ["i18n.cjs", "eventpack.cjs", "globalLogic.cjs"],
+  "requiresUpdateVariable": true,
   "exposes": {
     "cast@1": "Classmate",
     "player@1": "Mainchar",
@@ -65,7 +67,7 @@ A workspace can hold more than one pack. A folder with its own `pack.json` is on
     "chronicle@1": "WorldRecord.Events",
     "clock@1": "World"
   },
-  "state": { "version": "0.2.0", "force": {}, "forceFromInitVar": ["EventPack.triggers"] }
+  "state": { "version": "0.2.1", "force": {}, "forceFromInitVar": ["EventPack.triggers"] }
 }
 ```
 
@@ -75,7 +77,7 @@ Its engine is 3 files joined into one. How that works is on [Where the engine ru
 
 | Field | Required | What it does |
 | --- | --- | --- |
-| `format` | yes | The pack format. MVU Helper understands `"1.0"`. |
+| `format` | yes | The pack format. MVU Helper understands `"1.0"` and `"1.1"`. A pack with `requiresUpdateVariable` declares `"1.1"`. |
 | `packType` | yes | Always `"gamelogic"` for this pack type. |
 | `id` | yes | Lowercase with dashes, like `my-game`. It goes in front of every lorebook comment the install writes, so keep it the same once you publish. `registry` is reserved. |
 | `name` | yes | The name people see, any language. |
@@ -84,6 +86,7 @@ Its engine is 3 files joined into one. How that works is on [Where the engine ru
 | `builtWith` | no | A note on which tool made the file. Stored, never read. |
 | `engine`, `entries`, `schema`, `regex`, `regexOrder` | no | Assembled from the folders. |
 | `state`, `exposes` | no | Written right in `pack.json`. |
+| `requiresUpdateVariable` | no | `true` when every reply carries an `<UpdateVariable>` block. Written right in `pack.json`. See [The reply promise](#the-reply-promise). |
 | `panel` | no | Assembled from `panel/panel.json`. |
 
 A field that isn't in this table is warned and not installed, and everything else still installs. A field that belongs to another pack type (`layout`, `targetsPackId`, `requires`, `optionalUses`, `events`) gets the pack refused.
@@ -91,6 +94,24 @@ A field that isn't in this table is warned and not installed, and everything els
 ## The panel
 
 `panel` puts a slot in MVU Helper's side panel. Its paths read straight from `stat_data`. Or your engine can export `renderPanel(ctx)` and work out the slot itself. The format is on the [Side Panel](../side_panel/README.md) page.
+
+## The reply promise
+
+If your entries tell the narrator to write an `<UpdateVariable>` block in every reply, put `"requiresUpdateVariable": true` in `pack.json` and declare `"format": "1.1"`.
+
+Then MVU Helper checks every reply the narrator finishes: a send, a regenerate, a swipe or a continue. A reply with no `<UpdateVariable>` block of its own changed nothing in the game, so the player sees this toast, and the console names your pack:
+
+> **MVU Helper — no state update**
+> This reply carries no `<UpdateVariable>` block, so the game state did not move this turn. Swipe to retry.
+
+What it doesn't do:
+
+- Count `<POSTUpdateVariable>`, the block a POST call writes. A tag mentioned in the story isn't a block either.
+- Check the greeting, a `/sendas` message or an image post.
+- Warn twice. A reply that was cut off gets the "reply cut off" toast instead.
+- Warn on a card that didn't ask for it. Without the field, a reply with no block is just a quiet turn.
+
+A GameLogic Plugin can make the same promise in its own `pack.json`, so this works on a card with no game too. An older MVU Helper says the pack was built for a newer version, and installs everything except this field.
 
 ## Checks on every import
 

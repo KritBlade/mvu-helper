@@ -72,7 +72,7 @@ All 4 write the same way:
 
 1. Every entry the previous install recorded is deleted, then the pack's entries are written.
 2. The engine goes into `[MVU_LogicEngine]`, the schema into the `Scheme` script, and the regexes into the card's regex list. Regexes an older version installed and this one no longer ships are removed.
-3. `[GameLogicPack:Registry]` records what was written and owned, a fingerprint of the engine and schema text it wrote, the `state`, the `exposes` map and the pack's identity.
+3. `[GameLogicPack:Registry]` records what was written and owned, a fingerprint of the engine and schema text it wrote, the `state`, the `exposes` map, the [reply promise](pack.md#the-reply-promise) and the pack's identity.
 4. The card's state is synced, the `[InitVar]` seed and the `force` map. Then the engine reloads.
 
 ## The install warning

@@ -65,14 +65,14 @@ The template ships the project file as `workspace/statusmenu/sample-layout-schoo
 
 ## pack.json
 
-ArtificKoi's: `{ "format": "1.0", "packType": "statusmenu", "id": "artifickoi", "name": "ArtificKoi", "description": "ArtificKoi", "version": "1.5", "builtWith": "MvuStatMenuBuilder 2.5.2", "engineOrder": ["layoutFormatters.cjs", "statusMenuLogic.cjs"], "targetsPackId": "school-v4" }`.
+ArtificKoi's: `{ "format": "1.0", "packType": "statusmenu", "id": "artifickoi", "name": "ArtificKoi", "description": "ArtificKoi", "version": "1.6.2", "builtWith": "MvuStatMenuBuilder 2.0.0", "engineOrder": ["layoutFormatters.cjs", "statusMenuLogic.cjs"], "targetsPackId": "school-v4" }`.
 
 - `id`: lowercase kebab-case, frozen once published. It names the menu's CSS scope, locale keys and lorebook entries. `registry` is reserved.
 - `version`: 2 or 3 whole numbers. Install compares it to tell an upgrade from a reinstall.
 - `engineOrder`: exactly the files in `engine/`, generated file first. An unlisted file, or a listed missing one, is refused.
 - `targetsPackId`: a label naming the GameLogic Pack, never checked. Set it to your `workspace/gamelogic/pack.json` id.
 - `builtWith`: a receipt, never read.
-- Refused here: `schema`, `state`, `exposes`, `requires`, `optionalUses`.
+- Refused here: `schema`, `state`, `exposes`, `requires`, `optionalUses`, `requiresUpdateVariable`.
 
 ## The two-tool workflow
 
