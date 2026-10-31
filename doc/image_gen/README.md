@@ -30,6 +30,7 @@ So, MVU Helper will get the DNA out of every **named** NPC.
 
 - **SillyTavern's Image Generation extension, set up and working.** MVU Helper doesn't draw by itself. It hands every picture to SillyTavern's `/sd` command, so ComfyUI or any other backend SillyTavern supports works.  You will have to have a working installation of ComfyUI before using this function.
 - **A card.** Any card works. A card built for MVU Helper sets most of the fields below for you, and brings its characters' looks with it.
+- **Disable other auto image generation extension**  If you have other Auto Image generation extension, make sure you disable that in manage extension.
 
 ### ComfyUI and one of my workflows
 
