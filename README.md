@@ -122,7 +122,7 @@ When a system is one size fits all, that also means you can't have unique game c
 
 MVU Helper is trying to fill this gap. This extension is not here to build a one-size-fits-all system that works on any character card.  A lot of Sillytavern-like app is doing something very good at it and I don't want to duplicate the effort.  Each MVU Game Logic Engine is built specifically for one game.
 
-You can still make a game engine generic enough to work on any character card, like a very generic RPG battle engine. However, MVU Game Logic Engine shines at the uniqueness you can give to one single game.
+You can still make a game engine generic enough to work on any character card, like a very generic RPG battle engine. However, MVU Game Logic Engine shines at the uniqueness you can give to one single game.  Like all Chiense based Sillytavern character card, each game is completely unique.
 
 ### It's a game, not a bot
 
