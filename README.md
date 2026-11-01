@@ -118,11 +118,11 @@ Almost every single SillyTavern-like app and extension tries to go the one-size-
 
 MVU Helper goes the opposite way. You create custom gameplay from your own idea, not from the templates on offer. Take [ArtificKoi](https://github.com/KritBlade/ArtificKoi#your-school-day-block-by-block), which is built on this engine. Its time flow is not something you can do in a regular SillyTavern card. A school day is split into 4 blocks of time, and you only get a limited number of moves (replies) in each block before you are forced to jump to the next one. No template-based system can do this.
 
-When a system is one size fits all, that also means you can't have unique game content and events built into the game. That's why you never see an extension or system that can automate the Konosuba story events right inside a SillyTavern card. Konosuba events can't apply to another game, and that breaks the whole concept of one size fits all. Therefore...there is pretty much no game content in SillyTavern cards right now.
+When a system is one size fits all, that also means you can't have unique game content and events built into the game. That's why you never see an extension or system that can automate the Konosuba story events right inside a SillyTavern card. Konosuba events can't apply to another game, and that breaks the whole concept of one size fits all. Therefore...there is pretty much no extension in Sillytavern or even any Sillytavern-like app that is able to reproduce the exact same show as in Konosuba/Re:zero/Dragonball  right now.  That breaks the one size fit all design concept.
 
 MVU Helper is trying to fill this gap. This extension is not here to build a one-size-fits-all system that works on any character card.  A lot of Sillytavern-like app is doing something very good at it and I don't want to duplicate the effort.  Each MVU Game Logic Engine is built specifically for one game.
 
-You can still make a game engine generic enough to work on any character card, like a very generic RPG battle engine. However, MVU Game Logic Engine shines at the uniqueness you can give to one single game.  Like all Chiense based Sillytavern character card, each game is completely unique.
+You can still make a game engine generic enough to work on any character card, like a very generic RPG battle engine. However, MVU Game Logic Engine shines at the uniqueness you can give to one single game.  Like all Chinese based Sillytavern character card, each game is completely unique.
 
 ### It's a game, not a bot
 
