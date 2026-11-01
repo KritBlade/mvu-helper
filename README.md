@@ -112,6 +112,18 @@ You could build game rules from drop-down boxes, or from templates where you pic
 
 I have already made this very friendly for coding with AI, so any half-baked content creator who tries to learn how to use VS Code and chat with AI should be able to make something really quick. Yes, all you need to do is chat with AI and explain, function by function, how you want your system to work. You just need to break it down into small pieces and go through them with AI one by one. No, not a "build me a combat system" kind of chat. You have to be specific.
 
+### Why not one single game engine for every lorebook, like other apps and extensions?
+
+Almost every single SillyTavern-like app and extension tries to go the one-size-fits-all route with templates. However, you can't make a template system work for every scenario. Take RPG as an example. Dragon Quest and Final Fantasy have very different battle mechanics, but they are both RPGs.
+
+MVU Helper goes the opposite way. You create custom gameplay from your own idea, not from the templates on offer. Take [ArtificKoi](https://github.com/KritBlade/ArtificKoi#your-school-day-block-by-block), which is built on this engine. Its time flow is not something you can do in a regular SillyTavern card. A school day is split into 4 blocks of time, and you only get a limited number of moves (replies) in each block before you are forced to jump to the next one. No template-based system can do this.
+
+When a system is one size fits all, that also means you can't have unique game content and events built into the game. That's why you never see an extension or system that can automate the Konosuba story events right inside a SillyTavern card. Konosuba events can't apply to another game, and that breaks the whole concept of one size fits all. Therefore...there is pretty much no game content in SillyTavern cards right now.
+
+MVU Helper is trying to fill this gap. This extension is not here to build a one-size-fits-all system that works on any character card.  A lot of Sillytavern-like app is doing something very good at it and I don't want to duplicate the effort.  Each MVU Game Logic Engine is built specifically for one game.
+
+You can still make a game engine generic enough to work on any character card, like a very generic RPG battle engine. However, MVU Game Logic Engine shines at the uniqueness you can give to one single game.
+
 ### It's a game, not a bot
 
 A character card built with MVU Helper is not a single character to chat with. It's a game, and that means rules and regulations are enforced.
