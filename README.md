@@ -100,6 +100,18 @@ A pack's entries and regexes can carry EJS, which runs on the page too. So befor
 
 Therefore, you only build the part that makes your game different. Everything else is already there. Sounds good?
 
+### Why code, not drop-down menus
+
+You could build game rules from drop-down boxes, or from templates where you pick option A, B or C. I went with code written with AI, for 3 reasons:
+
+**Speed.** ArtificKoi is 5,000+ lines of game rules and 250+ events. Clicking that together box by box takes months. Your AI writes a rule in minutes.
+
+**Testing.** Code can be unit tested, and ArtificKoi runs 24 test suites on every change. A drop-down menu can't be tested, and somebody would first have to build a box for every rule a game could ever need. Let's imagine you have hundreds of drop-down boxes, and each one offers thousands of options...
+
+**Unique games.** Any option on a menu is an option every other game can pick too, so every game ends up the same. Code can be anything you can describe, something completely wild that no one ever thought about. This is not something a drop-down box with option A, B or C can offer.
+
+I have already made this very friendly for coding with AI, so any half-baked content creator who tries to learn how to use VS Code and chat with AI should be able to make something really quick. Yes, all you need to do is chat with AI and explain, function by function, how you want your system to work. You just need to break it down into small pieces and go through them with AI one by one. No, not a "build me a combat system" kind of chat. You have to be specific.
+
 ### It's a game, not a bot
 
 A character card built with MVU Helper is not a single character to chat with. It's a game, and that means rules and regulations are enforced.
