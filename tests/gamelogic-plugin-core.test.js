@@ -732,3 +732,13 @@ describe('pluginInstallNotes — what the success toast tells the user', () => {
         expect(pluginInstallNotes()).toEqual([]);
     });
 });
+
+describe('the plugin registry carries the reply promise (rule 16)', () => {
+    it('reads requiresUpdateVariable back, and absent or not-true reads as no promise', () => {
+        const rec = { id: 'worldsim', ver: '0.3', stateName: 'WorldSim' };
+        const read = (r) => parsePluginRegistry(buildPluginRegistryContent({ activePlugins: [r] })).activePlugins[0].requiresUpdateVariable;
+        expect(read({ ...rec, requiresUpdateVariable: true })).toBe(true);
+        expect(read(rec)).toBe(false);
+        expect(read({ ...rec, requiresUpdateVariable: 'true' })).toBe(false);
+    });
+});

@@ -167,12 +167,12 @@ describe('validatePack — an unknown section is named, never refused', () => {
         expect(res.supportedFormat).toBe(supportedFormat());
         const warn = res.warnings.find((w) => w.includes('"locale"'));
         expect(warn).toContain('declares format "1.0"');
-        expect(warn).toContain('understands 1.0');
+        expect(warn).toContain('understands 1.1');
         expect(warn).toContain('NOT installed; every other section is');
     });
 
     it('a file from a NEWER helper is told to update — not told it misplaced the field', () => {
-        const res = validatePack(base('gamelogic', { format: '1.1', locale: {} }));
+        const res = validatePack(base('gamelogic', { format: '1.2', locale: {} }));
         expect(res.ok).toBe(true);
         const warn = res.warnings.find((w) => w.includes('"locale"'));
         expect(warn).toContain('built for a NEWER mvu-helper');
@@ -187,26 +187,64 @@ describe('validatePack — an unknown section is named, never refused', () => {
     });
 
     it('every OTHER section still installs — the unknown one costs the file nothing else', () => {
-        const res = validatePack(base('statusmenu', { format: '1.1', layout: { rows: [] }, locale: {} }));
+        const res = validatePack(base('statusmenu', { format: '1.2', layout: { rows: [] }, locale: {} }));
         expect(res.ok).toBe(true);
         expect(res.unknownSections).toEqual(['locale']);
     });
 
     it('a newer format carrying only KNOWN sections warns once about redefinition', () => {
-        const res = validatePack(base('gamelogic', { format: '1.1' }));
+        const res = validatePack(base('gamelogic', { format: '1.2' }));
         expect(res.ok).toBe(true);
         expect(res.unknownSections).toEqual([]);
         expect(res.warnings.some((w) => w.includes('REDEFINED at the newer format'))).toBe(true);
     });
 
     it('does not report the same news twice when a newer format ALSO carries an unknown section', () => {
-        const res = validatePack(base('gamelogic', { format: '1.1', locale: {} }));
+        const res = validatePack(base('gamelogic', { format: '1.2', locale: {} }));
         expect(res.warnings.filter((w) => w.includes('REDEFINED at the newer format'))).toEqual([]);
     });
 
     it('supportedFormat is the table max — a section added at a new number raises it in one edit', () => {
-        expect(supportedFormat()).toBe('1.0');
-        expect(supportedFormat({ ...SECTION_MIN_FORMAT, locale: '1.1' })).toBe('1.1');
+        expect(supportedFormat()).toBe('1.1');
+        expect(supportedFormat({ ...SECTION_MIN_FORMAT, locale: '1.2' })).toBe('1.2');
+    });
+});
+
+// Rule 16 — the reply promise: a boolean on gamelogic and plugin, at format 1.1, and nowhere else.
+describe('validatePack — rule 16: requiresUpdateVariable', () => {
+    it('installs on a gamelogic pack and a plugin that declare format 1.1, true or false', () => {
+        expect(validatePack(base('gamelogic', { format: '1.1', requiresUpdateVariable: true })).ok).toBe(true);
+        expect(validatePack(base('plugin', { format: '1.1', requiresUpdateVariable: true })).ok).toBe(true);
+        expect(validatePack(base('gamelogic', { format: '1.1', requiresUpdateVariable: false })).ok).toBe(true);
+    });
+
+    it('MUTATION TARGET — a file still declaring 1.0 is told to declare 1.1, the number an older helper reads as "update"', () => {
+        const res = validatePack(base('gamelogic', { requiresUpdateVariable: true }));
+        expect(res.ok).toBe(false);
+        expect(res.errors.join(' ')).toContain('rule 5: section "requiresUpdateVariable" needs format 1.1');
+    });
+
+    it('MUTATION TARGET — refuses anything but a boolean: a string "false" would read as a promise made', () => {
+        for (const value of ['false', 1, null, {}]) {
+            const res = validatePack(base('gamelogic', { format: '1.1', requiresUpdateVariable: value }));
+            expect(res.ok).toBe(false);
+            expect(res.errors.join(' ')).toContain('rule 16');
+        }
+    });
+
+    it('refuses it on a statusmenu and an eventpack: neither decides what the narrator writes', () => {
+        for (const t of ['statusmenu', 'eventpack']) {
+            const res = validatePack(base(t, { format: '1.1', requiresUpdateVariable: true }));
+            expect(res.ok).toBe(false);
+            expect(res.errors.join(' ')).toMatch(/rule 2: a "[a-z]+" file may not carry "requiresUpdateVariable"/);
+        }
+    });
+
+    it('the card registry reads the promise back, and absent reads as no promise', () => {
+        const record = { activePackId: 'school-v4', ver: '5.158.0' };
+        expect(parsePackRegistry(buildPackRegistryContent('gamelogic', { ...record, requiresUpdateVariable: true })).requiresUpdateVariable).toBe(true);
+        expect(parsePackRegistry(buildPackRegistryContent('gamelogic', record)).requiresUpdateVariable).toBe(false);
+        expect(parsePackRegistry(buildPackRegistryContent('gamelogic', { ...record, requiresUpdateVariable: 'true' })).requiresUpdateVariable).toBe(false);
     });
 });
 

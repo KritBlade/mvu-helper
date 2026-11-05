@@ -84,13 +84,19 @@ export async function waitUntilReady(isReady, { deadlineMs, intervalMs, sleep })
 }
 
 /**
- * Does the Main tab's "Install MVU" offer show after this bootstrap result?
+ * The Main tab's MVU status after this bootstrap result. The result only reads the GLOBAL scope, so a running
+ * MVU (window.Mvu) is asked too: a vanilla MVU from a card's own script, or any script whose bundle url this
+ * scan does not recognise, runs MVU just as well — telling that user "MVU not installed" is false.
  *
- * @param {string} result  ensureGlobalMvuImport's return value
- * @returns {'show'|'hide'|'keep'}  'keep' = the result says nothing about MVU (the API was not attached)
+ * @param {string} result         ensureGlobalMvuImport's return value
+ * @param {boolean} isMvuRunning  MVU answers on the page right now (getMvu)
+ * @returns {'global'|'elsewhere'|'missing'|'keep'}
+ *   'global' = an enabled global MVU import; 'elsewhere' = no global import, but MVU runs from another script —
+ *   the install offer stays, for a user who wants MVU Helper's own; 'keep' = the result says nothing about MVU
+ *   (the API was not attached)
  */
-export function installOfferAfter(result) {
-    if (result === 'present' || result === 'installed') return 'hide';
-    if (result === 'declined' || result === 'failed') return 'show';
+export function mvuStatusAfter(result, isMvuRunning) {
+    if (result === 'present' || result === 'installed') return 'global';
+    if (result === 'declined' || result === 'failed') return isMvuRunning ? 'elsewhere' : 'missing';
     return 'keep';
 }

@@ -60,7 +60,7 @@ the file.
 
 ```
 gamelogic/
-├── pack.json           identity, engineOrder, state, exposes
+├── pack.json           identity, engineOrder, state, exposes, requiresUpdateVariable
 ├── engine/             the engine: one or more files, joined in engineOrder
 ├── entries/            one prompt entry = <name>.txt (its content) + <name>.json (its fields)
 ├── schema/             exactly one file: the Zod registration script
@@ -71,8 +71,8 @@ gamelogic/
 - Only `pack.json` sits at the root, and only these directories (`layout/` and `events/` belong to other
   pack types and are refused here). Any path with a segment starting with `.`, and any `README.txt` or
   `README.md`, is ignored.
-- **`pack.json`** carries the top-level fields below, plus `engineOrder`. `state` and `exposes` exist only
-  here — no directory produces them.
+- **`pack.json`** carries the top-level fields below, plus `engineOrder`. `state`, `exposes` and
+  `requiresUpdateVariable` exist only here — no directory produces them.
 - **`engine/`** — `engineOrder` must name every file in `engine/`, and every name must exist. The files are
   joined in that order, with no separator, into the one `engine` string. A file that does not end with a
   newline is warned: its last line would merge with the next file's first. `engineOrder` itself is not part
@@ -92,7 +92,7 @@ immediate subfolder with a `pack.json` is one. Subfolders without one are not ar
 
 | Field | Required | What mvu-helper does |
 | --- | --- | --- |
-| `format` | **yes** | `"<major>.<minor>"`. This mvu-helper understands `"1.0"`. |
+| `format` | **yes** | `"<major>.<minor>"`. This mvu-helper understands up to `"1.1"`. A file carrying `requiresUpdateVariable` declares `"1.1"`; any other file may declare `"1.0"`. |
 | `packType` | **yes** | `"gamelogic"`. |
 | `id` | **yes** | kebab-case. It prefixes every lorebook comment the install writes, so keep it stable once published. `"registry"` is reserved. |
 | `name` | **yes** | Display name, any script. |
@@ -105,11 +105,30 @@ immediate subfolder with a `pack.json` is one. Subfolders without one are not ar
 | `regex`, `regexOrder` | no | Regexes and their order (§7). |
 | `state` | no | `{ version, force, forceFromInitVar }` (§8). |
 | `exposes` | no | Interface map for plugins (§9). |
+| `requiresUpdateVariable` | no | `true` or `false`. `true` promises an `<UpdateVariable>` block in every narrator reply (below). |
 | `panel` | no | Side-panel declaration (§10). |
 
 A top-level key not in this table is warned and not installed; every other section still installs. A
 section that belongs to another pack type (`layout`, `targetsPackId`, `requires`, `optionalUses`, `events`)
 is refused.
+
+### `requiresUpdateVariable` — the reply promise
+
+A GameLogic Pack or GameLogic Plugin whose entries ask the narrator for an `<UpdateVariable>` block in every
+reply declares `"requiresUpdateVariable": true` (rule 16), and the file then declares `"format": "1.1"`. The
+install records it in the card's registry, so it holds after the library file is deleted, and the export writes it
+back.
+
+- **What mvu-helper does:** when a narrator reply arrives (a send, regenerate, swipe or continue) with no
+  `<UpdateVariable>` block of its own, it logs a warning naming every pack and plugin that declared the field, and
+  shows the toast "MVU Helper — no state update". `<POSTUpdateVariable>` does not count, and the tag named in prose
+  is not a block.
+- **What it never does:** check a greeting, a `/sendas` message or an image post; warn twice about one reply (a
+  cut reply gets the "reply cut off" toast alone); warn on a card where nothing declared the field, which is every
+  plain card and every pack installed before the field existed.
+- **Limit:** the whole reply is read, so a complete block drafted inside a thinking block counts as present.
+- **An older mvu-helper** reads `"format": "1.1"`, warns that the file was built for a newer mvu-helper, leaves
+  this one field out and installs everything else.
 
 ### Checks on the content
 

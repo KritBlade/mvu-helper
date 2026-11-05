@@ -136,3 +136,19 @@ export function buildAllPackInfo({ boundWorld = '', worldbookReadable = false, b
         disagreements,
     };
 }
+
+// WHO PROMISED AN <UpdateVariable> BLOCK IN EVERY NARRATOR REPLY (rule 16)? The active GameLogic Pack and each
+// installed GameLogic Plugin whose registry record says so, in that order, for the reply check to name. [] when
+// nothing promised it: a plain card, a card with no pack, or a pack installed before the field existed.
+// `packRegistry` is parsePackRegistry's output or null; `pluginRegistry` is parsePluginRegistry's or null.
+export function updateVariableDeclarers({ packRegistry = null, pluginRegistry = null } = {}) {
+    const declarers = [];
+    if (packRegistry && packRegistry.requiresUpdateVariable === true && packRegistry.activePackId) {
+        declarers.push({ packType: 'gamelogic', id: str(packRegistry.activePackId) });
+    }
+    const plugins = (pluginRegistry && Array.isArray(pluginRegistry.activePlugins)) ? pluginRegistry.activePlugins : [];
+    for (const plugin of plugins) {
+        if (plugin && plugin.requiresUpdateVariable === true && plugin.id) declarers.push({ packType: 'plugin', id: str(plugin.id) });
+    }
+    return declarers;
+}

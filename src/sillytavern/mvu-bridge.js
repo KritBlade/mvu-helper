@@ -18,6 +18,16 @@ export function getMvu() {
     return (typeof globalThis !== 'undefined' && globalThis.Mvu) || (typeof window !== 'undefined' && window.Mvu) || null;
 }
 
+// MVU's bundle emits this (TavernHelper eventEmit, so on the main eventSource) right after it sets
+// window.parent.Mvu — later than extension init, so a check made earlier needs it to see MVU arrive. MVU unsets
+// window.Mvu when its script unloads, and emits nothing then.
+const MVU_INITIALIZED_EVENT = 'global_Mvu_initialized';
+
+// Calls `listener` each time an MVU script exposes window.Mvu.
+export function onMvuInitialized(listener) {
+    eventSource.on(MVU_INITIALIZED_EVENT, () => listener());
+}
+
 export function latestMsgId() {
     try {
         const chat = (typeof SillyTavern !== 'undefined' && SillyTavern.getContext) ? SillyTavern.getContext().chat : null;

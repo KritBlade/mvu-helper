@@ -77,7 +77,9 @@ One JSON object, the same envelope as the other two artifact types. `packType` r
   "engine":  "…JS text…",          // optional — §7, runs in the shared Worker
   "panel":   { /* §10 */ },        // optional — the side-panel slot (devdoc/side-panel-format.md)
   "requires":     ["cast@1"],      // optional — §8.2; unmatched ⇒ install refused, by name
-  "optionalUses": ["clock@1"]      // optional — §8.2; unmatched ⇒ installs and runs without them
+  "optionalUses": ["clock@1"],     // optional — §8.2; unmatched ⇒ installs and runs without them
+  "requiresUpdateVariable": true   // optional — your entries ask for an <UpdateVariable> in every reply;
+                                   //   needs "format": "1.1" (gamelogic-pack-format.md §3, the reply promise)
 }
 ```
 
@@ -92,7 +94,8 @@ folder** assemble it:
 ```
 plugin-<id>/
 ├── pack.json            # the envelope (format, packType, id, name, description, version, builtWith,
-│                        #   requires, optionalUses) plus engineOrder — the engine files in load order
+│                        #   requires, optionalUses, requiresUpdateVariable) plus engineOrder — the engine
+│                        #   files in load order
 ├── entries/
 │   ├── record.json      # one entry's fields (comment, order, position, type …)
 │   └── record.txt       # its content — plain text, no JSON escaping

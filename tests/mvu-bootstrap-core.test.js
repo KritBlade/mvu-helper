@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import {
     decideBootstrapAction,
-    installOfferAfter,
+    mvuStatusAfter,
     waitUntilReady,
     findMvuBundleImports,
     enabledMvuImports,
@@ -106,21 +106,28 @@ describe('decideBootstrapAction — the ordinary branches', () => {
     });
 });
 
-describe('installOfferAfter — the MVU status on the Main tab follows each bootstrap result', () => {
-    it('hides once MVU runs', () => {
-        expect(installOfferAfter('present')).toBe('hide');
-        expect(installOfferAfter('installed')).toBe('hide');
+describe('mvuStatusAfter — the MVU status on the Main tab follows each bootstrap result and the running MVU', () => {
+    it('reads global once the global MVU import runs, whether or not window.Mvu is up yet', () => {
+        expect(mvuStatusAfter('present', false)).toBe('global');
+        expect(mvuStatusAfter('installed', true)).toBe('global');
     });
 
-    it('shows while MVU is missing', () => {
-        expect(installOfferAfter('declined')).toBe('show');
-        expect(installOfferAfter('failed')).toBe('show');
+    it('reads missing while no global import exists and MVU does not run', () => {
+        expect(mvuStatusAfter('declined', false)).toBe('missing');
+        expect(mvuStatusAfter('failed', false)).toBe('missing');
+    });
+
+    // A vanilla MVU from the card's own script: the global scan finds nothing, yet MVU runs.
+    it('reads elsewhere when no global import exists but MVU runs', () => {
+        expect(mvuStatusAfter('declined', true)).toBe('elsewhere');
+        expect(mvuStatusAfter('failed', true)).toBe('elsewhere');
     });
 
     // A blind attempt says nothing about MVU, so the row stays as the last real answer left it.
     it('keeps the row as it is when the API was not attached, or for an unknown result', () => {
-        expect(installOfferAfter('unavailable')).toBe('keep');
-        expect(installOfferAfter(undefined)).toBe('keep');
+        expect(mvuStatusAfter('unavailable', true)).toBe('keep');
+        expect(mvuStatusAfter(undefined, false)).toBe('keep');
+        expect(mvuStatusAfter(null, true)).toBe('keep');
     });
 });
 

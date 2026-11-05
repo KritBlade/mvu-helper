@@ -93,10 +93,14 @@ const SHARED_KEYS = ['format', 'packType', 'id', 'name', 'description', 'version
 // regex: its whole surface is the entries it creates under its own key prefix, and the trigger rows
 // it merges into the EventPack root. One artifact is ONE pack — the format caps a pack at
 // MAX_ROWS_PER_PACK rows, so a long route splits into several artifacts that chain by prereq.
+// `requiresUpdateVariable` on `gamelogic` AND `plugin` (rule 16): each can be the artifact whose prompt
+// entries ask the narrator for an <UpdateVariable> block in every reply, and a plugin can run on a card
+// with no game at all. NOT on `statusmenu` or `eventpack`: a menu only reads the state, and an event pack's
+// prose rides the game's own prompt, so neither decides what the narrator's reply carries.
 const SECTIONS_BY_TYPE = {
-    gamelogic: ['engine', 'state', 'exposes', 'schema', 'regex', 'regexOrder', 'panel'],
+    gamelogic: ['engine', 'state', 'exposes', 'schema', 'regex', 'regexOrder', 'panel', 'requiresUpdateVariable'],
     statusmenu: ['engine', 'layout', 'targetsPackId', 'regex', 'regexOrder'],
-    plugin: ['engine', 'requires', 'optionalUses', 'panel', 'schema'],
+    plugin: ['engine', 'requires', 'optionalUses', 'panel', 'schema', 'requiresUpdateVariable'],
     eventpack: ['events'],
 };
 
@@ -240,14 +244,14 @@ function isRegisteredRootClosed(schemaText) {
     return Boolean(shape && !shape.isOpened && CLOSED_ROOT_FORMS.includes(shape.baseForm));
 }
 
-// Rule 5 machinery — the derived-format cross-check. EVERY section is a "1.0" section, so the check
-// cannot fire yet; the table exists so that the FIRST format bump has somewhere to land, and the
-// validator takes it as a parameter so a test can prove the gate works before reality needs it (a gate
-// no input can reach can ship broken with nothing to say so).
+// Rule 5 machinery — the derived-format cross-check. `requiresUpdateVariable` is the one section at
+// "1.1": a file carrying it must declare "1.1", and an mvu-helper that predates it reads that number,
+// names the section it does not know and says to update, instead of calling the field misplaced. The
+// validator takes the table as a parameter so a test can prove the gate on any number.
 export const SECTION_MIN_FORMAT = {
     engine: '1.0', layout: '1.0', state: '1.0', exposes: '1.0',
     requires: '1.0', optionalUses: '1.0', targetsPackId: '1.0', schema: '1.0', entries: '1.0',
-    regex: '1.0', regexOrder: '1.0', panel: '1.0', events: '1.0',
+    regex: '1.0', regexOrder: '1.0', panel: '1.0', events: '1.0', requiresUpdateVariable: '1.1',
 };
 
 // "major.minor" compare, local and tiny — pack-file formats are exactly two numbers, not semver.
@@ -680,6 +684,13 @@ export function validatePack(pack, opts = {}) {
         }
     }
 
+    // Rule 16 — `requiresUpdateVariable` (gamelogic, plugin): the artifact promises that every finished
+    // narrator reply carries its own <UpdateVariable> block, and mvu-helper warns about a reply that does
+    // not (sillytavern/reply-integrity.js). A boolean only: a string "false" would read as a promise made.
+    if (pack.requiresUpdateVariable !== undefined && typeof pack.requiresUpdateVariable !== 'boolean') {
+        errors.push('rule 16: "requiresUpdateVariable", when present, must be true or false — got ' + JSON.stringify(pack.requiresUpdateVariable));
+    }
+
     // Rule 9 — an unsubstituted token reaches the PROMPT verbatim. WARN, never refuse: prose we do not
     // own may legitimately contain braces, and blocking an install over the plugin's own prompt text
     // would be the platform overreaching on a guess. Plugin-only — the token vocabulary is the plugin
@@ -995,8 +1006,8 @@ export async function judgePackFile(text, opts = {}) {
 // `[GameLogicPack:Registry]` in the card's standalone book — ONE record, because one GameLogic Pack is
 // active per card. Shape:
 //   { activePackId, ver, installedComments: [..], engineOwned, engineFingerprint, schemaOwned, schemaFingerprint,
-//     installedRegexNames: [..], stateVersion, force, forceFromInitVar, exposes, name, description, format, builtWith?,
-//     regexOrder?, installedAt }
+//     installedRegexNames: [..], stateVersion, force, forceFromInitVar, exposes, requiresUpdateVariable?, name,
+//     description, format, builtWith?, regexOrder?, installedAt }
 //   • engineOwned / schemaOwned — did THIS pack write the [MVU_LogicEngine] entry / the `Scheme`
 //     script? Uninstall deletes only what the pack owns.
 //   • engineFingerprint / schemaFingerprint — the slotFingerprint of the text the install wrote into each, so the
@@ -1010,6 +1021,8 @@ export async function judgePackFile(text, opts = {}) {
 //     book itself.
 //   • exposes — the interface map, recorded for the same reason: a plugin's `requires` still resolves
 //     after the library file is gone.
+//   • requiresUpdateVariable — written only when the pack declares it true; the reply check reads it here
+//     (pack-info readUpdateVariableDeclarers), so it holds on a card whose library file is gone.
 //   • name / description / format / builtWith / regexOrder — the artifact's identity and declared
 //     regex order, which the export reads back.
 //
@@ -1052,6 +1065,8 @@ export function parsePackRegistry(raw) {
         // The regex names THIS pack wrote: the only handle uninstall has, and what tells a repair of
         // our own regexes from overwriting the card's. Absent reads as "this pack installed none".
         installedRegexNames: Array.isArray(obj.installedRegexNames) ? obj.installedRegexNames.map(String) : [],
+        // Does every narrator reply owe an <UpdateVariable> block (rule 16)? Absent reads as "no promise made".
+        requiresUpdateVariable: obj.requiresUpdateVariable === true,
         // The pack's interface map ({"cast@1": "YourCastRoot"}), recorded verbatim at activation so
         // a plugin's `requires` still resolves after the library file is gone. Absent reads as "exposes
         // nothing".
@@ -1323,7 +1338,8 @@ export async function buildWorkspaceArtifacts(files, { readMenuEngine } = {}) {
 // ── release export — the pack file back from the card ────────────────────────
 
 // PURE half of the export button: the shared artifact export (card-artifact-store buildArtifactExportFile)
-// plus what only a GameLogic Pack owns — the card's "Scheme" script, the state seed and the exposes map.
+// plus what only a GameLogic Pack owns — the card's "Scheme" script, the state seed, the exposes map and the
+// requiresUpdateVariable promise.
 export function buildPackExportFile({ registry, entries, engineText, schemaText, cardRegexes } = {}) {
     const reg = registry || {};
     if (!reg.activePackId) return { pack: null, errors: ['no pack is active on this card — nothing to export'] };
@@ -1345,6 +1361,7 @@ export function buildPackExportFile({ registry, entries, engineText, schemaText,
                 if (forceFromInitVar.length) pack.state.forceFromInitVar = forceFromInitVar;
             }
             if (reg.exposes && typeof reg.exposes === 'object' && Object.keys(reg.exposes).length) pack.exposes = reg.exposes;
+            if (reg.requiresUpdateVariable === true) pack.requiresUpdateVariable = true;
         },
     });
 }

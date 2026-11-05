@@ -53,15 +53,19 @@
                 </div>
                 <div class="mvuh-page-status">
                     <span class="mvuh-chip"><i class="fa-solid fa-globe"></i><span data-i18n="Global">Global</span></span>
-                    <!-- One of the two shows once the MVU check has answered (features/mvu-bootstrap/mvu-bootstrap-ui.js). -->
+                    <!-- One of the two shows once the MVU check has answered (features/mvu-bootstrap/mvu-bootstrap-ui.js).
+                         "MVU ready" also covers an MVU that runs from another script than MVU Helper's global one. -->
                     <span id="mvuh_mvu_ready_pill" class="mvuh-pill is-success" style="display:none;" data-i18n="MVU ready">MVU ready</span>
                     <span id="mvuh_mvu_missing_pill" class="mvuh-pill is-warning" style="display:none;" data-i18n="MVU not installed">MVU not installed</span>
                 </div>
             </header>
 
+            <!-- Two wordings, one shown per MVU status (features/mvu-bootstrap/mvu-bootstrap-ui.js). -->
             <div id="mvuh_mvu_install_offer" class="mvuh-notice is-warning" style="display:none;">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <p class="mvuh-notice-text" data-i18n="MVU missing notice">Every state feature is off until MVU is installed.</p>
+                <i class="fa-solid fa-triangle-exclamation" data-mvuh-mvu-notice="missing"></i>
+                <p class="mvuh-notice-text" data-mvuh-mvu-notice="missing" data-i18n="MVU missing notice">Every state feature is off until MVU is installed.</p>
+                <i class="fa-solid fa-circle-info" data-mvuh-mvu-notice="elsewhere" style="display:none;"></i>
+                <p class="mvuh-notice-text" data-mvuh-mvu-notice="elsewhere" style="display:none;" data-i18n="MVU elsewhere notice">MVU runs from another script, not from MVU Helper's global one. Installing MVU Helper's switches this card's own MVU script off.</p>
                 <button type="button" id="mvuh_mvu_install" class="mvuh-btn mvuh-btn-primary"><i class="fa-solid fa-download"></i><span data-i18n="Install MVU">Install MVU</span></button>
             </div>
             <div class="mvuh-notice is-warning" data-mvuh-notice-for="card" style="display:none;">

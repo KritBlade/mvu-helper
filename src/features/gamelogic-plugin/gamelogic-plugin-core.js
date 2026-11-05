@@ -72,6 +72,7 @@ function normalizePluginRecord(rec) {
         installedComments: Array.isArray(r.installedComments) ? r.installedComments.map(String) : [],
         requires: Array.isArray(r.requires) ? r.requires.map(String) : [],
         optionalUses: Array.isArray(r.optionalUses) ? r.optionalUses.map(String) : [],
+        requiresUpdateVariable: r.requiresUpdateVariable === true,
         ...artifactIdentityRecord(r),
         schemaOwned: Boolean(r.schemaOwned),
         keepsCardSchema: Boolean(r.keepsCardSchema),
@@ -406,6 +407,8 @@ export function buildPluginRecord({ plugin, stateName, preCall = '', postCall = 
         // after its file leaves the library. Verbatim from the validated file.
         requires: (plugin && Array.isArray(plugin.requires)) ? plugin.requires.map(String) : [],
         optionalUses: (plugin && Array.isArray(plugin.optionalUses)) ? plugin.optionalUses.map(String) : [],
+        // The reply promise (rule 16), recorded because the reply check reads the card, not the library.
+        ...(plugin && plugin.requiresUpdateVariable === true ? { requiresUpdateVariable: true } : {}),
         ...artifactIdentityRecord(plugin),
         // Did THIS plugin write the card's "Scheme" script? Uninstall deletes it only when so, and only
         // while the card still carries exactly that text (pluginOwnsCardSchema).
@@ -589,6 +592,7 @@ export function buildPluginExportFile({ record, entries } = {}) {
             if (rec.schema) pack.schema = String(rec.schema);
             if (Array.isArray(rec.requires) && rec.requires.length) pack.requires = rec.requires.map(String);
             if (Array.isArray(rec.optionalUses) && rec.optionalUses.length) pack.optionalUses = rec.optionalUses.map(String);
+            if (rec.requiresUpdateVariable === true) pack.requiresUpdateVariable = true;
         },
     });
 }

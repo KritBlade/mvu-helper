@@ -36,7 +36,7 @@ import { extraLlmCallsDefaults } from './features/small-llm/index.js';
 import { wireExtraLlmCalls, updateExtraLlmCallsUI, refreshExtraLlmCallsUI } from './features/small-llm/index.js';
 import { importCardConfig } from './features/card-config/index.js';
 import { statBoxProfileDefaults } from './features/statbox/index.js';
-import { wireReplyIntegrity } from './sillytavern/reply-integrity.js';
+import { wireReplyIntegrity, setUpdateVariableDeclarersSource } from './sillytavern/reply-integrity.js';
 import { wireFinishReasonTap } from './sillytavern/finish-reason-tap.js';
 import { wireRenderVisibility } from './sillytavern/render-visibility.js';
 import { wireRenderedRegionPlacement } from './sillytavern/rendered-region-placement.js';
@@ -169,7 +169,7 @@ import { publicSettings } from './features/public-settings/index.js';
 import { wireEventPackTab, refreshEventPackUI } from './features/event-pack/index.js';
 // The dev loop's eventpack lane — the install without the tab.
 import { installEventPackArtifact, eventPackIdsIn, eventPacksOnCard, eventPackArtifactTexts } from './features/event-pack/index.js';
-import { packInfo } from './features/pack-info/index.js';
+import { packInfo, readUpdateVariableDeclarers } from './features/pack-info/index.js';
 import { wireGameLogicPackTab, wireArtifactTabs, refreshArtifactTab, wireBlankPackCard, gameLogicPackSyncPass, readActiveForcePayload, registerArtifactLane, readActivePackIdFrom, getActiveExposes, installPackToLibrary, listLibraryPacks, activatePack, packAdoptionPending } from './features/gamelogic-pack/index.js';
 import { getStandaloneLorebookEntries } from './sillytavern/lorebook.js';
 import {
@@ -268,7 +268,7 @@ async function createSettings(settingsHtml) {
     wireSettingsPanel(TABS);
 
     wireMain();            // general options (global)
-    wireMvuInstallOffer(); // Main tab's "Install MVU" row (shown only while MVU is not installed)
+    wireMvuInstallOffer(); // Main tab's MVU status: pill + "Install MVU" notice (hidden only while the global MVU runs)
     wireImageSettings();   // image-gen (global) settings handlers
     wireRoster();          // character-DNA roster panel (per-card route, unified list)
     refreshRosterUI();     // first paint (async fire-and-forget; it logs its own failures)
@@ -399,6 +399,8 @@ async function createSettings(settingsHtml) {
     wireReplyIntegrity();  // truncated-reply watchdog — NO panel, no settings, deliberately ungated:
                            // a reply cut off mid-<UpdateVariable> loses its writes silently, and a
                            // card's own GUI shows that as an empty panel rather than an error.
+    setUpdateVariableDeclarersSource(readUpdateVariableDeclarers); // and a reply with no block at all,
+                           // reported only when an installed pack or plugin promises one (rule 16).
     wireFinishReasonTap(); // feeds the watchdog the finish reason ST drops (observation-only fetch
                            // clone — the user-decided doctrine exception, see the tap's header).
     wireRenderedRegionPlacement(); // our region got adopted by an unclosed tag - move it back, nothing else

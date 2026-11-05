@@ -23,7 +23,7 @@ export {
 export { installPackToLibrary, listLibraryPacks, readLibraryPack } from './gamelogic-pack-library.js';
 // The install warning every lane's install asks first, of the pack in the library.
 export { confirmLibraryPackReach } from './library-pack-reach.js';
-export { activatePack, packAdoptionPending, gameLogicPackSyncPass, readActiveForcePayload, readActivePackIdFrom, readActiveExposesFrom, getActiveExposes, packOwnsCardSchema } from './gamelogic-pack-activation.js';
+export { activatePack, packAdoptionPending, gameLogicPackSyncPass, readActiveForcePayload, readActivePackIdFrom, readActiveExposesFrom, getActiveExposes, packOwnsCardSchema, readPackRegistryFrom } from './gamelogic-pack-activation.js';
 export { wireGameLogicPackTab } from './gamelogic-pack-ui.js';
 export { wireArtifactTabs, refreshArtifactTab, registerArtifactLane } from './artifact-tabs-ui.js';
 // The StatusMenu lane paints its tab's header pill from the same rule as the GameLogic Pack's.

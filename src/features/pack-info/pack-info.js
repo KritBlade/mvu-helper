@@ -11,11 +11,11 @@
 
 import { getStandaloneLorebookEntries, getPrimaryLorebookName } from '../../sillytavern/lorebook.js';
 import { ARTIFACT_TYPES } from '../../shared/card-artifact-store.js';
-import { packRegistryComment, parsePackRegistry, listLibraryPacks } from '../gamelogic-pack/index.js';
+import { packRegistryComment, parsePackRegistry, listLibraryPacks, readPackRegistryFrom } from '../gamelogic-pack/index.js';
 import { menuRegistryComment, parseMenuRegistry } from '../statusmenu-pack/index.js';
-import { pluginRegistryComment, parsePluginRegistry } from '../gamelogic-plugin/index.js';
+import { pluginRegistryComment, parsePluginRegistry, readPluginRegistryFrom } from '../gamelogic-plugin/index.js';
 import { REGISTRY_COMMENT, parseRegistry, eventPackInfo } from '../event-pack/index.js';
-import { buildAllPackInfo } from './pack-info-core.js';
+import { buildAllPackInfo, updateVariableDeclarers } from './pack-info-core.js';
 
 // Each type's registry: where its entry lives and how to read it. ONE table, so adding a fifth
 // artifact type is one row here rather than a new branch in the report builder.
@@ -75,5 +75,22 @@ export async function packInfo() {
         byType,
         library,
         eventPackDetail: detail,
+    });
+}
+
+/**
+ * Which installed artifacts promise an <UpdateVariable> block in every narrator reply (rule 16): the
+ * active GameLogic Pack and each GameLogic Plugin whose registry record says so. Read from the card's
+ * registries, never the library, so the answer holds after a library file is deleted. Each lane's own
+ * reader logs a malformed registry and hands back nothing, which promises nothing here.
+ *
+ * @returns {Promise<Array<{ packType: 'gamelogic'|'plugin', id: string }>>} [] when nothing promised it
+ */
+export async function readUpdateVariableDeclarers() {
+    const entries = await getStandaloneLorebookEntries();
+    if (entries === null) return [];
+    return updateVariableDeclarers({
+        packRegistry: readPackRegistryFrom(entries).registry,
+        pluginRegistry: readPluginRegistryFrom(entries).registry,
     });
 }

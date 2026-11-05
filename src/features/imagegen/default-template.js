@@ -522,9 +522,12 @@ const CLOTHES_CHANGE_EXAMPLE = writeCastRecord({
     attributes: { clothes: 'every garment they now wear, each with its colour' },
 });
 
-// Who may be registered, and how a name is written. Every registration text carries it.
+// Who may be registered, and how a name is written. Every registration text carries it. A POST call reads a reply it did
+// not write, and its record reaches that reply's pictures under the name they use: its text lists that name, so the
+// listed spelling wins over any longer or shorter form the story also writes. The narrator's text lists nobody it
+// registers, so it copies from the story.
 export const REGISTRATION_NAME_RULES = `NAMED MEANS NAMED: the story must have given a proper name you can copy. Only a role/appearance to call them by ("the middle-aged mage", "a guard", "the old man") ⇒ NOT registerable, however important — wait for the story to name them. A role or description as name= creates an entry nothing can match.
-- name= IS NEVER A TRANSLATION: copy the name character-for-character from the story's own text, in the story's own script. NEVER translate, romanize, transliterate, shorten, or reformat — Chinese/Japanese/Korean/Russian names STAY in that script. Same spelling every time. A <pic> naming them ⇒ name= matches that tag's char= exactly.`;
+- name= IS NEVER A TRANSLATION: copy the name character-for-character — when this text lists them, from that list, the spelling the reply's pictures use, even if the story also writes a longer or shorter form; otherwise from the story's own text, in the story's own script. NEVER translate, romanize, transliterate, shorten, or reformat — Chinese/Japanese/Korean/Russian names STAY in that script. Same spelling every time. A <pic> naming them ⇒ name= matches that tag's char= exactly.`;
 
 // A NEW character's look. Only a text that asks for one carries it.
 export const REGISTRATION_BODY_RULES = `Describing a character (identity + current outfit), one record:

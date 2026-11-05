@@ -119,6 +119,7 @@
     "General": "常规",
     "MVU not installed": "MVU 未安装",
     "MVU missing notice": "安装 MVU 之前，所有状态功能都处于关闭状态。",
+    "MVU elsewhere notice": "MVU 正由其他脚本运行，而不是 MVU Helper 的全局脚本。安装 MVU Helper 的版本会关闭此角色卡自带的 MVU 脚本。",
     "Install MVU": "安装 MVU",
     "Rendering": "渲染",
     "Rendering desc": "图片是否出现在聊天中、出现在哪里，以及由谁撰写。",

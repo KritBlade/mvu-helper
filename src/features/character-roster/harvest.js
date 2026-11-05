@@ -33,6 +33,7 @@ import { isUncastName } from './reply-cast-core.js';
 import { uncastNamesFor } from './reply-cast-prompt.js';
 import { registrationFromCastRecord, registrationToEntryContent, registrationClothesTarget, hasStoredAppearance, hasClothesOnFile, hasBodyOnly, pickCharEntry, findNameSplits, namesWithoutRegistration, mayStoryReplaceClothes, replaceClothesInContent, entryAnswersTo, parseDnaSections, listAliases, drawnClothesFor } from './dna-core.js';
 import { createModuleLog } from '../../sillytavern/log.js';
+import { toast } from '../../sillytavern/mvu-bridge.js';
 
 const log = createModuleLog('character-roster');
 
@@ -195,6 +196,8 @@ export async function harvestCastRegistrations(text, { drawnPics = [], informedN
                 + `entries with separate appearances, and which one a <pic> renders depends on the spelling `
                 + `that tag happened to use. Fix: add "${shorter}" as an [Alias] on the "${longer}" entry in `
                 + `the Roster tab — then both spellings resolve to her.`);
+            // The other spelling resolves to nobody: it is a name a <pic> in this reply draws, so the picture has no look.
+            if (!theirs) toast('warning', `"${other}" is drawn with no look: the look is stored as "${name}". In the Roster tab, add "${other}" to that entry's aliases.`);
         }
     };
     // ── the ONLY path that overwrites clothes already on file ────────────────────────

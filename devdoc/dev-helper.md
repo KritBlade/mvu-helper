@@ -515,8 +515,10 @@ shared teaching contract. It is independent of the Roster tab: Image Insert Type
 the Roster tab owns whether looks are stored.
 
 **Each drawn person's look** is, in order: their stored entry; else the look their cast record in the same reply gives
-them; else nothing — they are drawn from the scene alone, and the console names them. A picture whose people need a
-look from the reply waits for the finished reply instead of drawing mid-stream.
+them; else no body at all, and the console names them. Their picture's `outfit=` still decides their clothes:
+`undressed` draws them bare, any other value wears the clothes it names when the reply or the worn-outfit store holds
+them, and with neither body nor clothes they are drawn from the scene alone. A picture whose people need a look from the
+reply waits for the finished reply instead of drawing mid-stream.
 
 > **Scope note:** the Backend card's settings are **GLOBAL** (the same for every card: streaming, queue concurrency, the
 > bust LoRA, resolution presets), and so is the `/sd` prefix LIST. Everything else on the tab is **PER-CARD**, and greys

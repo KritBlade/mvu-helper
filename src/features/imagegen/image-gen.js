@@ -16,7 +16,7 @@
 // the roster's route and Harvest via own whether looks are stored.
 //
 // Each drawn person's look is their stored look, else the look their <cast> record in the same reply gives
-// them, else nothing — they are then drawn from the scene alone, and the log names them.
+// them, else no body at all: the clothes their picture's outfit= names, or the scene alone, and the log names them.
 
 import { extension_settings, getContext } from '../../../../../../extensions.js';
 import {
@@ -317,17 +317,18 @@ async function resolveDrawnPeople(rawTag, replyRecords, worn, shownFor) {
     return { people, mainchar, hasEveryoneALook };
 }
 
-// The exact /sd prompt for one tag. A person with no look anywhere is drawn from the scene alone, and
-// said so: that is the one way a picture of a named character comes out as a stranger.
+// The exact /sd prompt for one tag. A person with no look anywhere has no body described, and said so:
+// that is the one way a picture of a named character comes out as a stranger.
 async function assemblePrompt(rawTag, composition, replyRecords, worn, shownFor) {
     // User prefix — the card's chosen preset from the GLOBAL list — prepended to every /sd prompt.
     const prefix = getActiveSdPromptPrefixPreset()?.text || '';
     const drawn = await resolveDrawnPeople(rawTag, replyRecords, worn, shownFor);
+    const drawnWithNoLook = (person) => (person.clothes ? 'drawn in the clothes this picture names, with no body described' : 'drawn from the scene alone');
     for (const person of drawn.people) {
-        if (person.source === 'none') log.warn(`"${person.name}" has no look on file and none in this reply's <cast> record — drawn from the scene alone`);
+        if (person.source === 'none') log.warn(`"${person.name}" has no look on file and none in this reply's <cast> record — ${drawnWithNoLook(person)}`);
     }
     if (drawn.mainchar && drawn.mainchar.source === 'none') {
-        if (drawn.mainchar.name) log.warn(`the main character's entry "${drawn.mainchar.name}" holds no look — drawn from the scene alone`);
+        if (drawn.mainchar.name) log.warn(`the main character's entry "${drawn.mainchar.name}" holds no look — ${drawnWithNoLook(drawn.mainchar)}`);
         else log.domain('imagegen', 'verbose', 'the main character is in the shot, but this card names no main-character entry — drawn from the scene alone');
     }
     // The cleanup runs only when everyone in the shot has a look; otherwise the composition may be
@@ -338,8 +339,8 @@ async function assemblePrompt(rawTag, composition, replyRecords, worn, shownFor)
     const prompt = composeImagePrompt({
         prefix,
         composition,
-        people: drawn.people.filter((p) => p.source !== 'none'),
-        mainchar: drawn.mainchar && drawn.mainchar.source !== 'none' ? drawn.mainchar : null,
+        people: drawn.people,
+        mainchar: drawn.mainchar,
         cleanup: drawn.hasEveryoneALook,
         onRemoved,
     });
@@ -458,8 +459,9 @@ function processQueue() {
 // [outfit|body <from>|clothes <from>]: the outfit= the tag wrote ("left out" = none written), where their body and
 // where their clothes came from (stored · reply · carried from the worn-outfit store as the picture sees it · saved,
 // on a regen, in the store saved with the reply — each of the last two with the outfit or "one-off" and the message
-// of her last picture; clothes none = no clothes described), which differ when a stored look wears a one-off, or
-// [outfit|NO LOOK] — not what the tag asked for, so a dropped or repeated slot is visible here. `mainchar=` is the main
+// of her last picture; clothes none = no clothes described; body none = no look, drawn in those clothes), which differ
+// when a stored look wears a one-off, or [outfit|NO LOOK] when neither exists — not what the tag asked for, so a dropped
+// or repeated slot is visible here. `mainchar=` is the main
 // character the same way when drawn; otherwise what the tag wrote: "not-in-picture", "none written" (warned), or
 // "dropped" when the card's ceiling left him out (warned). `camera=` is the camera= the tag wrote and what became of
 // it: "added" (its words now close the composition), "already in the composition" (the narrator wrote them itself),
@@ -475,7 +477,7 @@ function logDrawnPicture(kind, { resolution, drawn, camera, mainchar, bust, comp
         }
         return `clothes ${person.clothesSource || 'none'}`;
     };
-    const lookLabel = (person) => (person.source === 'none' ? 'NO LOOK' : `body ${person.source}|${clothesLabel(person)}`);
+    const lookLabel = (person) => (person.source === 'none' && !person.clothes ? 'NO LOOK' : `body ${person.source}|${clothesLabel(person)}`);
     const drawnLabel = drawn.people.length
         ? drawn.people.map((p, i) => `${i + 1}:"${p.name}"[${p.outfit || 'left out'}|${lookLabel(p)}]`).join(' ')
         : 'scenery (no char=)';
@@ -1204,7 +1206,7 @@ async function planDrawPass(message, mesId, prof, duties, tags, onDrawn) {
     // (lookSourceFor) — both pure, both tested.
     //   • a RESERVED word as a name (an outfit= value, or "none") is a contract violation that costs the
     //     character any look: always a warn.
-    //   • a name nothing knows, with no look in this reply either, is drawn from the scene alone. While
+    //   • a name nothing knows, with no look in this reply either, has no body described. While
     //     looks are stored by the narrator, its NAME is minted as a name-only entry, so the Roster's Merge
     //     tool — which needs both entries to exist — can make this spelling an alias of the entry it
     //     duplicates. A name with a look in this reply needs none of that: harvest stores it.
@@ -1230,7 +1232,7 @@ async function planDrawPass(message, mesId, prof, duties, tags, onDrawn) {
     for (const name of new Set(slotNames)) {
         if (!placeholderLc.has(name.toLowerCase()) || lookSourceFor(name, entries, replyRecords) !== 'none') continue;
         log.warn(`<pic char="${name}"> resolves to a NAME-ONLY registry entry and this reply gives no look — `
-            + 'the image is drawn from the composition alone. Open the Roster tab and either give that entry appearance text, '
+            + 'the image describes no body for them. Open the Roster tab and either give that entry appearance text, '
             + 'or Merge it onto the entry it duplicates so this spelling resolves through an alias.');
     }
     for (const f of validateCharSlots(slotNames, RESERVED_OUTFIT_NAMES, known)) {
@@ -1241,8 +1243,8 @@ async function planDrawPass(message, mesId, prof, duties, tags, onDrawn) {
         if (lookSourceFor(f.name, entries, replyRecords) !== 'none') continue;   // described in this reply
         if (duties.stores && duties.lookTarget === 'narrate') {
             const minted = await registerPlaceholderCharDna(f.name);
-            log.warn(`<pic char="${f.name}"> matches no roster key${rosterLabel} and no registry entry, and this reply describes nobody by that name`
-                + ' — drawn from the scene alone.'
+            log.warn(`<pic char="${f.name}"> matches no roster key${rosterLabel} and no registry entry, and this reply gives no body= for that name`
+                + ' — the image describes no body for them.'
                 + (minted.ok
                     ? ` Added "${f.name}" to the character registry as a NAME-ONLY entry: open the Roster tab and either give it appearance text, or Merge it onto the entry it duplicates so this spelling becomes an alias.`
                     : ' Register them in the Roster tab, or add this spelling as an [Alias] on their existing entry.'));

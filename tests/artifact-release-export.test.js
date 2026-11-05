@@ -59,6 +59,7 @@ function gameRegistryOf(pack, plan) {
         installedRegexNames: pack.regex.map((r) => r.script_name),
         ...packStateRecord(pack),
         exposes: pack.exposes,
+        ...(pack.requiresUpdateVariable === true ? { requiresUpdateVariable: true } : {}),
         ...artifactIdentityRecord(pack),
         ...(Array.isArray(pack.regexOrder) ? { regexOrder: pack.regexOrder } : {}),
         installedAt: '2026-09-03',
@@ -77,6 +78,15 @@ describe('W6 gamelogic — export(install(A)) equals A', () => {
         const { pack, errors } = buildPackExportFile(args());
         expect(errors).toEqual([]);
         expect(pack).toEqual(GAME);
+        expect(validatePack(pack).ok).toBe(true);
+    });
+    it('MUTATION TARGET — a pack that promises an <UpdateVariable> in every reply keeps the promise on export', () => {
+        const promising = { ...GAME, format: '1.1', requiresUpdateVariable: true };
+        const a = args();
+        a.registry = gameRegistryOf(promising, plan);
+        const { pack, errors } = buildPackExportFile(a);
+        expect(errors).toEqual([]);
+        expect(pack).toEqual(promising);
         expect(validatePack(pack).ok).toBe(true);
     });
     it('a recorded entry the card lost REFUSES BY NAME (§8.3)', () => {
@@ -282,6 +292,22 @@ describe('W6 plugin — export(install(A)) equals A, tokens restored', () => {
         });
         expect(errors).toEqual([]);
         expect(pack).toEqual(PLUGIN_FILE);
+        expect(validatePack(pack).ok).toBe(true);
+    });
+    it('MUTATION TARGET — a plugin that promises an <UpdateVariable> in every reply keeps the promise on export', () => {
+        const promising = { ...PLUGIN_FILE, format: '1.1', requiresUpdateVariable: true };
+        const promisingRecord = buildPluginRecord({
+            plugin: promising, stateName: 'WorldSim', preCall: BINDINGS.preCall, postCall: '',
+            installedComments, installedAt: '2026-09-03',
+        });
+        expect(promisingRecord.requiresUpdateVariable).toBe(true);
+        expect(record.requiresUpdateVariable).toBeUndefined();   // no promise, no field written
+        const { pack, errors } = buildPluginExportFile({
+            record: promisingRecord,
+            entries: onCard([...plan.entries, engineEntry, panelEntry]),
+        });
+        expect(errors).toEqual([]);
+        expect(pack).toEqual(promising);
         expect(validatePack(pack).ok).toBe(true);
     });
     it('unsubstituteTokens is the exact inverse of substituteTokens on this record', () => {

@@ -434,12 +434,12 @@ export function withoutMacroBraces(text) {
  * @param {object} input
  * @param {string} input.prefix       the /sd prompt-prefix preset text ('' for none)
  * @param {string} input.composition  what the narrator authored (scene, pose, action)
- * @param {Array<{name: string, body: string, clothes: string}>} input.people  each drawn person WITH a
- *        look, in slot order; a person with none is left out by the caller and drawn from the scene.
+ * @param {Array<{name: string, body: string, clothes: string}>} input.people  each drawn person, in slot
+ *        order; one with neither body nor clothes adds nothing and is drawn from the scene.
  * @param {{body: string, clothes: string}|null} [input.mainchar]  the main character's look, null when
- *        he is not drawn or has none — his sentence closes the prompt.
- * @param {boolean} [input.cleanup]   true only when EVERYONE in the shot has a look: otherwise the
- *        composition may be someone's only description, and it is left untouched.
+ *        he is not drawn — his sentence closes the prompt, and neither body nor clothes means no sentence.
+ * @param {boolean} [input.cleanup]   true only when EVERYONE in the shot has a body or a look on file:
+ *        otherwise the composition may be someone's only description, and it is left untouched.
  * @param {(removed: Array<{tag: string, why: string}>) => void} [input.onRemoved]  told what the cleanup
  *        dropped. Optional so this file stays pure; image-gen.js passes a logger.
  * @returns {string}
@@ -473,8 +473,9 @@ export function composeImagePrompt({ prefix, composition, people, mainchar = nul
     const shared = cast.length > 1 ? sharedClothesOf(cast) : '';
     if (shared) parts.push(sentenceEnd(`${cast.length === 2 ? 'Both wear' : `All ${cast.length} wear`}: ${lookText(shared)}`));
     cast.forEach((person) => {
+        // Someone with no body whose clothes the shared sentence states has nothing left of her own to say.
         const traits = traitsOf(person.body, shared ? '' : person.clothes);
-        parts.push(`${personOpening(person.name, cast.length)}: ${ownedLook(person.name, traits)}`);
+        if (traits) parts.push(`${personOpening(person.name, cast.length)}: ${ownedLook(person.name, traits)}`);
     });
     parts.push(closing);
     return parts.filter(Boolean).join(' ');

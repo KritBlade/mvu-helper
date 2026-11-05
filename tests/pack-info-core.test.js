@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { buildAllPackInfo, normalizeInstalledRecords } from '../src/features/pack-info/pack-info-core.js';
+import { buildAllPackInfo, normalizeInstalledRecords, updateVariableDeclarers } from '../src/features/pack-info/pack-info-core.js';
 
 describe('normalizeInstalledRecords — four registry shapes, one row shape', () => {
     it('reads the gamelogic registry ONE active pack', () => {
@@ -161,5 +161,42 @@ describe('buildAllPackInfo — where it read from', () => {
     it('says nothing is readable when no world is bound', () => {
         const info = buildAllPackInfo(healthy({ boundWorld: '', worldbookReadable: false }));
         expect(info.source.cardReadFrom).toContain('no bound worldbook');
+    });
+});
+
+// Who promised an <UpdateVariable> in every reply (rule 16). An empty answer is what keeps the reply check
+// silent on a plain card, a card with no pack, and a pack installed before the field existed.
+describe('updateVariableDeclarers — the reply check asks only the card registries', () => {
+    it('MUTATION TARGET — nothing recorded is no promise: the check stays silent', () => {
+        expect(updateVariableDeclarers()).toEqual([]);
+        expect(updateVariableDeclarers({ packRegistry: null, pluginRegistry: null })).toEqual([]);
+        expect(updateVariableDeclarers({
+            packRegistry: { activePackId: 'school-v4', requiresUpdateVariable: false },
+            pluginRegistry: { activePlugins: [{ id: 'worldsim', requiresUpdateVariable: false }] },
+        })).toEqual([]);
+    });
+
+    it('names the active pack and every plugin that promised, pack first', () => {
+        expect(updateVariableDeclarers({
+            packRegistry: { activePackId: 'school-v4', requiresUpdateVariable: true },
+            pluginRegistry: { activePlugins: [
+                { id: 'worldsim', requiresUpdateVariable: true },
+                { id: 'weather', requiresUpdateVariable: false },
+            ] },
+        })).toEqual([
+            { packType: 'gamelogic', id: 'school-v4' },
+            { packType: 'plugin', id: 'worldsim' },
+        ]);
+    });
+
+    it('a standalone plugin promises on a card with no game at all', () => {
+        expect(updateVariableDeclarers({
+            packRegistry: null,
+            pluginRegistry: { activePlugins: [{ id: 'worldsim', requiresUpdateVariable: true }] },
+        })).toEqual([{ packType: 'plugin', id: 'worldsim' }]);
+    });
+
+    it('only a real true counts — a string "true" is no promise', () => {
+        expect(updateVariableDeclarers({ packRegistry: { activePackId: 'school-v4', requiresUpdateVariable: 'true' } })).toEqual([]);
     });
 });

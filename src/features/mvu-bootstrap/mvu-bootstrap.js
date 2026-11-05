@@ -32,7 +32,7 @@ import {
     bounceScript,
     isScriptApiAvailable,
 } from '../../sillytavern/tavern-script.js';
-import { toast } from '../../sillytavern/mvu-bridge.js';
+import { toast, getMvu, onMvuInitialized } from '../../sillytavern/mvu-bridge.js';
 import { decideBootstrapAction, findMvuBundleImports, enabledMvuImports, duplicateCardMvuImports, waitUntilReady } from './mvu-bootstrap-core.js';
 import { paintMvuStatusFor, wireInstallOfferButton } from './mvu-bootstrap-ui.js';
 
@@ -101,17 +101,27 @@ const SCRIPT_API_POLL_MS = 500;
 // this, two overlapping calls could stack two consent popups for one question.
 let inFlight = null;
 
+// The last bootstrap result that said something about MVU ('unavailable' says nothing). MVU's arrival repaints
+// the Main tab from it (wireMvuInstallOffer).
+let lastStatusResult = null;
+
+// Paint the Main tab's MVU status (paintMvuStatusFor) from the latest bootstrap result and whether MVU runs now.
+function paintMvuStatus(result) {
+    if (result !== 'unavailable') lastStatusResult = result;
+    paintMvuStatusFor(lastStatusResult, Boolean(getMvu()));
+}
+
 // Ensure MVU is installed globally. Called once the API attaches after extension load
 // (ensureGlobalMvuImportAtLoad) and on every chat load, where it asks first; and
 // by the Main tab's "Install MVU" button with `{ isRequestedByUser: true }`, where the click is the consent.
-// Every result also repaints the Main tab's MVU status: its notice and pill (paintMvuStatusFor).
+// Every result also repaints the Main tab's MVU status: its notice and pill (paintMvuStatus).
 //
 // Returns one of: 'present' (an enabled MVU import already exists globally — ours or the user's own, either
 // is fine) · 'installed' · 'declined' · 'unavailable' (script API not attached yet) · 'failed'. Never throws.
 export async function ensureGlobalMvuImport({ isRequestedByUser = false } = {}) {
     if (inFlight) return inFlight;
     inFlight = runGlobalMvuImport({ isRequestedByUser })
-        .then((result) => { paintMvuStatusFor(result); return result; })
+        .then((result) => { paintMvuStatus(result); return result; })
         .finally(() => { inFlight = null; });
     return inFlight;
 }
@@ -220,9 +230,11 @@ async function runGlobalMvuImport({ isRequestedByUser }) {
     return 'installed';
 }
 
-// Wire the Main tab's "Install MVU" button. The click is the consent, so it installs without a popup.
+// Wire the Main tab's MVU status. The "Install MVU" click is the consent, so it installs without a popup. A
+// vanilla MVU (a card's own script) loads after the chat-load check has painted, so its arrival repaints.
 export function wireMvuInstallOffer() {
     wireInstallOfferButton(() => ensureGlobalMvuImport({ isRequestedByUser: true }));
+    onMvuInitialized(() => paintMvuStatus(lastStatusResult));
 }
 
 // Per-card duplicate NEUTRALIZER (cost 2). Cheap — two script reads — and silent unless it finds a duplicate,

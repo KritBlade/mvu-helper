@@ -361,6 +361,8 @@ async function writeActivation(pack, state, action, sections = null) {
         // `state` is RECORDED here, not written as an entry (packStateRecord): the registry is already
         // the card-level record that outlives the library file, and it is already swept on uninstall.
         ...packStateRecord(pack),
+        // The reply promise (rule 16), recorded because the reply check reads the card, not the library.
+        ...(pack.requiresUpdateVariable === true ? { requiresUpdateVariable: true } : {}),
         // The pack's interface map, VERBATIM. Recorded here rather than read from the library
         // at match time because the registry outlives the library file (the amber state): a plugin's
         // `requires` must still resolve after the pack file is deleted, exactly like `force` above.

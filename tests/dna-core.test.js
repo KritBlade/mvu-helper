@@ -589,6 +589,48 @@ describe('chooseLook — one drawn person: stored, else this reply, else none', 
         expect(chooseLook({ name: 'Aria', record: { name: 'Aria', attributes: { outfit: 'newclothes', clothes: 'x' } } }).source).toBe('none');
     });
 
+    // Staging ArtificRealm msg 2: the narrator drew 英妮 in a habit, POST stored her under a longer name, and she came out
+    // bare. Her slot decides whether she is dressed, not whether a look was found. MUTATION TARGET: source 'none' draws no clothes.
+    it('MUTATION TARGET — nothing stored: her slot still dresses her, with no body', () => {
+        const record = { name: '英妮', attributes: { outfit: 'newclothes', clothes: 'black latex nun habit' } };
+        expect(chooseLook({ name: '英妮', record, outfit: 'newclothes' }))
+            .toEqual({ source: 'none', body: '', clothes: 'black latex nun habit', clothesSource: 'reply', wornEntry: null, bust: null, warnings: [] });
+    });
+
+    it('nothing stored: "same-as-last-picture" wears the one-off the store holds, and says from which picture', () => {
+        const carried = { outfit: 'newclothes', clothes: 'black latex nun habit', lastPictureMessage: 2 };
+        expect(chooseLook({ name: '英妮', outfit: OUTFIT_SAME_AS_LAST_PICTURE, carried }))
+            .toMatchObject({ source: 'none', body: '', clothes: 'black latex nun habit', clothesSource: 'carried', wornEntry: { outfit: '', lastPictureMessage: 2 } });
+    });
+
+    it('nothing stored: a regen wears the one-off the reply saved', () => {
+        const shown = { outfit: 'newclothes', clothes: 'black latex nun habit', lastPictureMessage: 2 };
+        expect(chooseLook({ name: '英妮', outfit: 'newclothes', shown }))
+            .toMatchObject({ source: 'none', clothes: 'black latex nun habit', clothesSource: 'saved', wornEntry: { outfit: '', lastPictureMessage: 2 } });
+    });
+
+    // Naked characters are drawn on purpose. MUTATION TARGET: drop the "undressed" check for someone with nothing stored.
+    it('MUTATION TARGET — nothing stored: "undressed" outranks her record, the store and the saved reply', () => {
+        const record = { name: '英妮', attributes: { clothes: 'black latex nun habit' } };
+        const held = { outfit: 'newclothes', clothes: 'grey robe', lastPictureMessage: 2 };
+        expect(chooseLook({ name: '英妮', record, outfit: 'undressed', carried: held, shown: held }))
+            .toEqual({ source: 'none', body: '', clothes: '', clothesSource: '', wornEntry: null, bust: null, warnings: [] });
+    });
+
+    it('nothing stored: "newclothes" with no clothes= anywhere invents none', () => {
+        expect(chooseLook({ name: '英妮', record: { name: '英妮', attributes: { outfit: 'newclothes' } }, outfit: 'newclothes' }))
+            .toMatchObject({ source: 'none', clothes: '', clothesSource: '' });
+    });
+
+    // The store and the picture read one rule, so the clothes the store records are the clothes she was drawn in.
+    it('nothing stored: the worn-outfit report names the clothes her picture drew', () => {
+        const records = [{ name: '英妮', attributes: { outfit: 'newclothes', clothes: 'black latex nun habit' } }];
+        expect(wornReportsOf([{ name: '英妮', outfit: 'newclothes' }], records, []))
+            .toEqual([{ key: '英妮', outfit: 'newclothes', clothes: 'black latex nun habit' }]);
+        expect(wornReportsOf([{ name: '英妮', outfit: 'undressed' }], records, []))
+            .toEqual([{ key: '英妮', outfit: '', clothes: '' }]);
+    });
+
     // The picture log prints both, so a one-off on a stored look never reads as stored clothes. MUTATION TARGET:
     // report the look's source for the clothes too.
     it('where her clothes came from is reported apart from where her look came from', () => {
@@ -944,6 +986,22 @@ describe('namesNearMiss — the shape that splits one character across two keys'
     it('a middle name still splits against the given name', () => {
         expect(namesNearMiss('Amand', 'Amand de Brouwer')).toBe(true);
     });
+
+    it('MUTATION TARGET: a written middle dot separates the parts of a name, as a space does', () => {
+        for (const dot of ['·', '・', '･', '‧', '•']) {
+            expect(namesNearMiss(`英妮${dot}維賽塔`, '英妮')).toBe(true);
+            expect(namesNearMiss('英妮', `英妮${dot}維賽塔`)).toBe(true);
+        }
+    });
+
+    it('two full names sharing a given name are still two people, whichever separator they use', () => {
+        expect(namesNearMiss('英妮·維賽塔', '英妮·卡特')).toBe(false);
+    });
+
+    it('a separator is a separator: a letter of an ordinary name splits nothing', () => {
+        expect(namesNearMiss('Sasha', 'Sa')).toBe(false);
+        expect(namesNearMiss('Sa', 'Sasha')).toBe(false);
+    });
 });
 
 describe('findNameSplits — which pairs get reported', () => {
@@ -954,6 +1012,11 @@ describe('findNameSplits — which pairs get reported', () => {
     it('MUTATION TARGET: catches the within-reply split with an EMPTY registry', () => {
         const hits = findNameSplits('Nanami Kujou', { drawnNames: ['Mitsuki', 'Nanami'], entries: [] });
         expect(hits).toEqual([{ other: 'Nanami', where: 'drawn by a <pic> in this same reply' }]);
+    });
+
+    it('catches the within-reply split of a name written with a middle dot', () => {
+        const hits = findNameSplits('英妮·維賽塔', { drawnNames: ['英妮'], entries: [] });
+        expect(hits).toEqual([{ other: '英妮', where: 'drawn by a <pic> in this same reply' }]);
     });
 
     it('catches the cross-reply split against an existing entry', () => {

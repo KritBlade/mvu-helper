@@ -75,6 +75,17 @@ describe('composeImagePrompt — one person', () => {
     it('no people at all = pure scenery, byte for byte', () => {
         expect(composeImagePrompt({ prefix: 'p', composition: 'empty classroom', people: [] })).toBe('p, empty classroom');
     });
+
+    // MUTATION TARGET: print the sentence with nothing in it — "A is: [A]  [/A]".
+    it('two people with no body in one outfit: the shared sentence says it, and no empty look follows', () => {
+        const out = composeImagePrompt({ prefix: '', composition: '2girls', people: [{ name: 'A', body: '', clothes: 'habit' }, { name: 'B', body: '', clothes: 'habit' }] });
+        expect(out).toBe('2girls. Both wear: habit.');
+    });
+
+    it('someone with no look beside someone with one: the one with a look keeps her sentence', () => {
+        const out = composeImagePrompt({ prefix: '', composition: '2girls', people: [{ name: 'A', body: 'tall', clothes: 'habit' }, { name: 'B', body: '', clothes: 'habit' }] });
+        expect(out).toBe('2girls. Both wear: habit. A is: [A] tall [/A]');
+    });
 });
 
 describe('composeImagePrompt — several people, by name', () => {
@@ -409,6 +420,22 @@ describe('maincharNamedButNotDrawn — the main character named on a tag that do
         expect(maincharNamedButNotDrawn(TAG, '1girl, mitsuki, sitting, classroom', ['Goten', 'Mainchar'])).toBe('');
         expect(maincharNamedButNotDrawn(TAG, '', ['Goten'])).toBe('');
         expect(maincharNamedButNotDrawn('', undefined, undefined)).toBe('');
+    });
+});
+
+// The hand-off runs in the host-coupled image-gen.js, so it is gated as SOURCE: a filter on `source` there would drop
+// the clothes of someone with no stored look, and she would come out bare (D46). composeImagePrompt alone decides who
+// adds a sentence.
+describe('SOURCE GATE — everyone drawn reaches composeImagePrompt', () => {
+    const src = readFileSync(new URL('../src/features/imagegen/image-gen.js', import.meta.url), 'utf8');
+
+    it('MUTATION TARGET — assemblePrompt hands over every person and the main character, whatever their source', () => {
+        const at = src.indexOf('async function assemblePrompt(rawTag, composition, replyRecords, worn, shownFor) {');
+        expect(at).toBeGreaterThan(-1);
+        const body = src.slice(at, at + src.slice(at).search(/\r?\n\}\r?\n/));
+        expect(body).toContain('people: drawn.people,');
+        expect(body).toContain('mainchar: drawn.mainchar,');
+        expect(body).toContain('cleanup: drawn.hasEveryoneALook,');
     });
 });
 

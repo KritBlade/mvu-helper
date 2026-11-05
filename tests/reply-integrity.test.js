@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { diagnoseTruncatedReply, explain, remedy, damage, damagePlain } from '../src/sillytavern/reply-integrity-core.js';
+import {
+    diagnoseTruncatedReply, explain, remedy, damage, damagePlain,
+    isGenerationReplyType, hasUpdateVariableBlock, missingUpdateVariableLog, missingUpdateVariableToast,
+} from '../src/sillytavern/reply-integrity-core.js';
 
 const OPS = '[{"op":"replace","path":"/A/0","value":1}]';
 
@@ -221,5 +224,42 @@ describe('a provider-REPORTED cut with a clean text shape — the filter kill be
         expect(cut.truncated).toBe(true);
         expect(cut.defect).toBe('unterminated-tag');
         expect(cut.cause).toBe('filter');
+    });
+});
+
+// The second duty: a reply with no <UpdateVariable> block at all, reported only when a pack or plugin
+// promised one (rule 16). The decisions live here; the host file only orders them after the cut verdict.
+describe('the promised <UpdateVariable> block', () => {
+    it('MUTATION TARGET — a real block counts, wherever it sits in the reply', () => {
+        expect(hasUpdateVariableBlock(`<maintext>prose</maintext>\n<UpdateVariable>\n<JSONPatch>${OPS}</JSONPatch>\n</UpdateVariable>`)).toBe(true);
+        expect(hasUpdateVariableBlock(`prose <UpdateVariable><JSONPatch>${OPS}</JSONPatch></UpdateVariable>`)).toBe(true);
+    });
+
+    it('MUTATION TARGET — POST\'s own block is not the narrator\'s (live 2026-10-31: only POST\'s block, the engine resolved nothing)', () => {
+        const postOnly = '<maintext>prose</maintext>\n<POSTUpdateVariable>\n<JSONPatch>\n[{"op":"replace","path":"/Intent/presentAtEnd/0","value":"none"}]\n</JSONPatch>\n</POSTUpdateVariable>';
+        expect(hasUpdateVariableBlock(postOnly)).toBe(false);
+    });
+
+    it('a prose MENTION of the tag is not a block', () => {
+        expect(hasUpdateVariableBlock('She told him to emit an <UpdateVariable> block next time.')).toBe(false);
+        expect(hasUpdateVariableBlock('')).toBe(false);
+        expect(hasUpdateVariableBlock(null)).toBe(false);
+    });
+
+    it('MUTATION TARGET — only a generation\'s reply is checked: a greeting, /sendas and an image post are no narrator turn', () => {
+        for (const type of ['normal', 'regenerate', 'swipe', 'continue', 'append', 'appendFinal']) expect(isGenerationReplyType(type)).toBe(true);
+        for (const type of ['first_message', 'command', 'extension', 'impersonate', 'quiet', undefined, null, '']) expect(isGenerationReplyType(type)).toBe(false);
+    });
+
+    it('the console names every declaration, so a false alarm traces back to the one that raised it', () => {
+        const line = missingUpdateVariableLog([{ packType: 'gamelogic', id: 'school-v4' }, { packType: 'plugin', id: 'worldsim' }]);
+        expect(line).toContain('<UpdateVariable>');
+        expect(line).toContain('GameLogic Pack "school-v4"');
+        expect(line).toContain('GameLogic Plugin "worldsim"');
+        expect(line).toContain('requiresUpdateVariable');
+    });
+
+    it('the toast says what it cost and what to do', () => {
+        expect(missingUpdateVariableToast()).toMatch(/game state did not move this turn\. Swipe to retry\.$/);
     });
 });

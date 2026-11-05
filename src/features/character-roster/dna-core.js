@@ -214,15 +214,20 @@ export function replaceClothesInContent(content, variant, clothesText) {
 // generation used the short form in both tags, the next registered long and drew short and the
 // character vanished from her own "2girls" render).
 //
-// SPACED NAMES ONLY, deliberately. A CJK full name is written unspaced (来栖遥香) so it has no first
-// token, and a prefix test over two-character kanji given names would fire on ordinary unrelated
-// pairs. That case is left for its own decision rather than folded in silently here.
+// NAMES WITH A WRITTEN SEPARATOR ONLY, deliberately: a space, or the middle dot a CJK script writes between the parts
+// of a name (英妮·維賽塔, ヴェイ・ホリス). A CJK full name written with neither (来栖遥香) has no first token, and a
+// prefix test over two-character kanji given names would fire on ordinary unrelated pairs. That case is left for its
+// own decision rather than folded in silently here.
 // Case-insensitive, matching every other key comparison in this file.
+const NAME_PART_SEPARATOR = /[\s·・･‧•]/;
 export function namesNearMiss(a, b) {
     const x = String(a || '').trim().toLowerCase();
     const y = String(b || '').trim().toLowerCase();
     if (!x || !y || x === y) return false;
-    const firstToken = (s) => (s.includes(' ') ? s.slice(0, s.indexOf(' ')) : '');
+    const firstToken = (s) => {
+        const at = s.search(NAME_PART_SEPARATOR);
+        return at > 0 ? s.slice(0, at) : '';
+    };
     return firstToken(x) === y || firstToken(y) === x;
 }
 
@@ -775,7 +780,7 @@ export const wornOutfitCleaningMission = {
 // Where one person's look comes from — PURE, the first source that exists:
 //   stored  her registry entry carries an appearance (a name-only placeholder does not);
 //   reply   her <cast> record in the same reply carries body=;
-//   none    neither: she is drawn from the scene alone, and the caller says so.
+//   none    neither: no body describes her, and the caller says so. Her clothes still follow her slot (chooseLook).
 // `entry` is her resolved registry entry or null; `record` her replyRecordOf result or null.
 export function lookSourceOf({ entry = null, record = null } = {}) {
     if (entry && hasStoredAppearance(entry.content)) return 'stored';
@@ -834,7 +839,8 @@ export function lookWaitsForRegistration(name, entries) {
 // body) came from; `clothesSource` is where her clothes came from, which can differ — a stored look wearing this
 // reply's one-off is 'stored' with clothes from the 'reply', and one wearing what the store holds has them 'carried'
 // or 'saved' ('' = no clothes described; `wornEntry` as selectClothesForOutfit). `bust` is her [Bust] value, null when
-// she declares none — a look from the reply never does.
+// she declares none — only a stored look can. Source 'none' has an empty body and the same clothes as a look from the
+// reply: "undressed" is what draws someone bare, never the lack of a stored look.
 export function chooseLook({ name = '', entry = null, record = null, outfit = '', carried = null, shown = null } = {}) {
     const warnings = [];
     const attributes = (record && record.attributes) || {};
@@ -849,18 +855,15 @@ export function chooseLook({ name = '', entry = null, record = null, outfit = ''
         warnings.push(...bust.warnings);
         return { source: 'stored', body: sections.body, clothes, clothesSource, wornEntry, bust: bust.value, warnings };
     }
-    if (source === 'reply') {
-        // A look from this reply's record: on a regen her one-off as the reply saved it, else its clothes=, else what the
-        // store holds for her. She has no outfit on file, so a saved outfit name draws nothing here.
-        const undressed = String(outfit || '').trim().toLowerCase() === OUTFIT_UNDRESSED;
-        const saved = !undressed && shown && String(shown.outfit || '').trim().toLowerCase() === OUTFIT_NEW_CLOTHES ? String(shown.clothes || '').trim() : '';
-        if (saved) return { source, body: read('body'), clothes: saved, clothesSource: 'saved', wornEntry: { outfit: '', lastPictureMessage: shown.lastPictureMessage ?? null }, bust: null, warnings };
-        const own = undressed ? '' : read('clothes');
-        const earlier = !undressed && !own && carried ? String(carried.clothes || '').trim() : '';
-        const wornEntry = earlier ? { outfit: '', lastPictureMessage: carried.lastPictureMessage ?? null } : null;
-        return { source, body: read('body'), clothes: own || earlier, clothesSource: own ? 'reply' : (earlier ? 'carried' : ''), wornEntry, bust: null, warnings };
-    }
-    return { source, body: '', clothes: '', clothesSource: '', wornEntry: null, bust: null, warnings };
+    // Nothing stored: on a regen her one-off as the reply saved it, else this reply's clothes=, else what the store holds
+    // for her. She has no outfit on file, so a saved outfit name draws nothing here.
+    const undressed = String(outfit || '').trim().toLowerCase() === OUTFIT_UNDRESSED;
+    const saved = !undressed && shown && String(shown.outfit || '').trim().toLowerCase() === OUTFIT_NEW_CLOTHES ? String(shown.clothes || '').trim() : '';
+    if (saved) return { source, body: read('body'), clothes: saved, clothesSource: 'saved', wornEntry: { outfit: '', lastPictureMessage: shown.lastPictureMessage ?? null }, bust: null, warnings };
+    const own = undressed ? '' : read('clothes');
+    const earlier = !undressed && !own && carried ? String(carried.clothes || '').trim() : '';
+    const wornEntry = earlier ? { outfit: '', lastPictureMessage: carried.lastPictureMessage ?? null } : null;
+    return { source, body: read('body'), clothes: own || earlier, clothesSource: own ? 'reply' : (earlier ? 'carried' : ''), wornEntry, bust: null, warnings };
 }
 
 // Words that never name an outfit or a character: the outfit= values, and "none", which models write for nobody

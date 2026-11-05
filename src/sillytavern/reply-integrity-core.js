@@ -42,6 +42,8 @@ export function diagnoseTruncatedReply(text, finishReason) {
     //
     // "No update block" cannot mean truncated on its own — a card that writes no variables this reply
     // is the normal quiet turn, and toasting that would be the false alarm this file exists to avoid.
+    // (A pack or plugin that PROMISES a block in every reply is held to that promise by its own check,
+    // hasUpdateVariableBlock below; this one only asks whether the reply was cut.)
     // So the shape is proved by TWO independent signals, and BOTH must hold:
     //   (1) an unterminated tag OPEN — a '<' that begins a tag and never reaches its '>'. A finished
     //       generation does not stop mid-tag; a killed one frequently does. Cannot simply look at the
@@ -181,4 +183,38 @@ export function remedy(cut) {
     if (cut.cause === 'token-cap') return 'It hit the token cap — raise max tokens for this connection.';
     if (cut.cause === 'filter') return 'The provider blocked it on content.';
     return 'The provider stopped the generation.';
+}
+
+// IS THIS MESSAGE A NARRATOR'S REPLY? The MESSAGE_RECEIVED types a GENERATION produces (SillyTavern's
+// saveReply and stream end). The others are messages no narrator wrote: 'first_message' (a greeting),
+// 'command' (/sendas and kin), 'extension' (an image post). A missing block on those is no lost turn, and a
+// type SillyTavern adds later stays silent until it is named here.
+const GENERATION_REPLY_TYPES = new Set(['normal', 'regenerate', 'swipe', 'continue', 'append', 'appendFinal']);
+export function isGenerationReplyType(type) {
+    return GENERATION_REPLY_TYPES.has(String(type));
+}
+
+// DOES THE REPLY CARRY ITS OWN <UpdateVariable> BLOCK? An opener read the way the balance test reads one
+// (structureOnly), so a prose MENTION of the tag is not a block. <POSTUpdateVariable> is a different tag and
+// never counts: it is the bookkeeper's block, written after the narrator, and a reply holding only that one
+// is exactly the turn whose narrator recorded nothing (live 2026-10-31: POST's block present, no
+// <UpdateVariable>, the engine resolved nothing and the clock stood still).
+export function hasUpdateVariableBlock(text) {
+    return /<UpdateVariable>/i.test(structureOnly(String(text == null ? '' : text)));
+}
+
+// Who promised the block, by kind and id, so a false alarm can be traced to the declaration that raised it.
+const DECLARER_KIND = { gamelogic: 'GameLogic Pack', plugin: 'GameLogic Plugin' };
+function declarerNames(declarers) {
+    return (declarers || []).map((d) => (DECLARER_KIND[d.packType] || d.packType) + ' "' + d.id + '"').join(', ');
+}
+
+// The missing-block report, one wording per surface: the console names the tag and the declaration, the
+// toast says what it cost and what to do. `declarers` is pack-info's readUpdateVariableDeclarers rows.
+export function missingUpdateVariableLog(declarers) {
+    return 'the reply carries no <UpdateVariable> block, though every reply must carry one (requiresUpdateVariable, declared by '
+        + declarerNames(declarers) + ') — none of the narrator\'s updates for this turn were recorded';
+}
+export function missingUpdateVariableToast() {
+    return 'This reply carries no <UpdateVariable> block, so the game state did not move this turn. Swipe to retry.';
 }

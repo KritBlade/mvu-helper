@@ -138,6 +138,29 @@ describe('registration texts: every example is a readable cast record', () => {
 
 // Every picture renders at the card's Image type, so the narrator is never taught type=: a
 // vocabulary the code ignores would only spend tokens and invite the model to argue with the setting.
+// A POST call reads a reply it did not write, and its record reaches that reply's pictures under the name they use.
+describe('how a registration text says a name is written', () => {
+    it('MUTATION TARGET — a listed name wins over a longer or shorter form the story also writes', () => {
+        expect(imageTemplate.REGISTRATION_NAME_RULES).toContain('when this text lists them, from that list, the spelling the reply\'s pictures use, even if the story also writes a longer or shorter form');
+    });
+
+    it('a name no text lists is still copied from the story, in its own script', () => {
+        expect(imageTemplate.REGISTRATION_NAME_RULES).toContain('otherwise from the story\'s own text, in the story\'s own script');
+    });
+
+    it('a POST call\'s text carries the rule and lists the name it applies to', () => {
+        const reader = imageTemplate.readerRegistrationContract({ newcomers: ['英妮'] });
+        expect(reader).toContain(imageTemplate.REGISTRATION_NAME_RULES);
+        expect(reader).toMatch(/REGISTER these characters[^\n]*: 英妮/);
+    });
+
+    it('the narrator\'s text lists nobody it registers, so the rule sends it to the story', () => {
+        const narrator = imageTemplate.narrateRegistrationContract({ isStoring: true });
+        expect(narrator).toContain(imageTemplate.REGISTRATION_NAME_RULES);
+        expect(narrator).not.toContain('REGISTER these characters');
+    });
+});
+
 describe('the narrator is not taught type=', () => {
     it('MUTATION TARGET — no shipped <pic> instruction mentions type=', () => {
         const texts = {

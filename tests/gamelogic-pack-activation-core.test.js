@@ -21,7 +21,7 @@ const pack = (extra = {}) => ({
 });
 const registry = (extra = {}) => ({
     activePackId: 'rpg-artific', ver: '1.0', installedComments: [], engineOwned: false, schemaOwned: false,
-    engineFingerprint: '', schemaFingerprint: '', installedRegexNames: [], exposes: {}, stateVersion: '', forceFromInitVar: [], installedAt: '',
+    engineFingerprint: '', schemaFingerprint: '', installedRegexNames: [], exposes: {}, requiresUpdateVariable: false, stateVersion: '', forceFromInitVar: [], installedAt: '',
     // W7 identity — parse always emits the three; builtWith/targetsPackId only when recorded.
     name: '', description: '', format: '', ...extra,
 });
