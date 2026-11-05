@@ -81,7 +81,7 @@ Mitsuki is: [Mitsuki] <body>, <clothes> [/Mitsuki] Mana is: [Mana] <body>, <clot
 
 Clothes everyone wears word for word, like a card's shared school uniform, are said once: `Both wear: …` for 2, `All 3 wear: …` for 3. Then each look follows without them.
 
-Each look comes from that person's saved look, in the outfit the slot names. Someone with no look anywhere is left out here, and drawn from the composition alone. The console names them, because that's the one way a named character comes out as a stranger.
+Each look comes from that person's saved look, in the outfit the slot names. Someone with no look anywhere has no body here, only the clothes their slot names, so `undressed` still draws them bare. With no clothes either, they're left out and drawn from the composition alone. The console names them, because that's the one way a named character comes out as a stranger.
 
 ### 5. The main character
 
@@ -182,7 +182,7 @@ gen [landscape 1152x768] drawn=1:"Mitsuki"[school-uniform|body stored|clothes st
 
 | Part | What it tells you |
 | --- | --- |
-| `drawn=` | who was resolved, in slot order: the outfit the tag wrote, and where their body and clothes came from. `NO LOOK` means drawn from the scene alone. On a redraw, `clothes saved` means what that reply saved for them |
+| `drawn=` | who was resolved, in slot order: the outfit the tag wrote, and where their body and clothes came from. `body none` means no look, drawn in those clothes. `NO LOOK` means drawn from the scene alone. On a redraw, `clothes saved` means what that reply saved for them |
 | `mainchar=` | the main character the same way, or `not-in-picture`, `none written` or `dropped (over the ceiling)` |
 | `camera=` | the value, and whether its words were added or already in the composition |
 | `prefix=` | the preset name, `none`, or `MISSING:<id>` for a preset that's gone |
