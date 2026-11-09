@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
-    diagnoseTruncatedReply, explain, remedy, damage, damagePlain,
+    diagnoseTruncatedReply, explain, remedy, damage, damagePlain, isBrokenBlock, headline, toastTitle,
     isGenerationReplyType, hasUpdateVariableBlock, missingUpdateVariableLog, missingUpdateVariableToast,
 } from '../src/sillytavern/reply-integrity-core.js';
+import { COMPLETION_NORMAL_FINISHES } from '../src/shared/completion-finish.js';
 
-const OPS = '[{"op":"replace","path":"/A/0","value":1}]';
+const OPS ='[{"op":"replace","path":"/A/0","value":1}]';
 
 describe('diagnoseTruncatedReply — a lost turn must not look like a quiet one', () => {
     it('a complete reply is not truncated (the overwhelming majority — never toast these)', () => {
@@ -86,9 +88,9 @@ describe('diagnoseTruncatedReply — a lost turn must not look like a quiet one'
         expect(c.cause).toBe('complete-but-malformed');   // a finish reason DID arrive → not a drop
     });
 
-    it('an unterminated <JSONPatch> counts even when <UpdateVariable> is balanced', () => {
+    it('an open <JSONPatch> counts even when <UpdateVariable> is balanced — as a block the reply wrote past', () => {
         expect(diagnoseTruncatedReply('<UpdateVariable><JSONPatch>[{"op":"add"</UpdateVariable>', 'stop').defect)
-            .toBe('unterminated-tag');
+            .toBe('patch-left-open');
     });
 });
 
@@ -219,11 +221,108 @@ describe('a provider-REPORTED cut with a clean text shape — the filter kill be
         expect(diagnoseTruncatedReply('Clean text.', '').truncated).toBe(false);
         expect(diagnoseTruncatedReply('Clean text.', undefined).truncated).toBe(false);
     });
+    // MUTATION TARGET — live 2026-11-08: a complete reply, every block in place, ended on "tool_calls" and was
+    // warned as cut-mid-prose. The tap already counted it a normal finish; this check read a list of its own.
+    it('a tool-call handoff is a normal finish, the same list the finish-reason tap reads', () => {
+        const complete = `<gametxt>scene</gametxt>\n<UpdateVariable><JSONPatch>${OPS}</JSONPatch></UpdateVariable>`;
+        expect(diagnoseTruncatedReply(complete, 'tool_calls').truncated).toBe(false);
+        expect(diagnoseTruncatedReply(complete, 'function_call').truncated).toBe(false);
+        expect(diagnoseTruncatedReply('Clean text.', 'STOP').truncated).toBe(false);
+        for (const reason of COMPLETION_NORMAL_FINISHES) expect(diagnoseTruncatedReply('Clean text.', reason).truncated).toBe(false);
+    });
+    it('a broken shape under a tool-call handoff is the patch itself, never a provider cut', () => {
+        const cut = diagnoseTruncatedReply('<JSONPatch>[{"op":"replace","path":"/A/0",}]</JSONPatch>', 'tool_calls');
+        expect(cut).toMatchObject({ truncated: true, defect: 'unparseable-json', cause: 'complete-but-malformed' });
+    });
     it('a shape defect still names ITS defect when a reason is also present', () => {
         const cut = diagnoseTruncatedReply('<UpdateVariable>' + String.fromCharCode(10) + '<JSONPatch>' + String.fromCharCode(10) + '[{ "op": "add",', 'content_filter');
         expect(cut.truncated).toBe(true);
         expect(cut.defect).toBe('unterminated-tag');
         expect(cut.cause).toBe('filter');
+    });
+});
+
+describe('a block the narrator wrote BROKEN is not a cut — live 2026-11-08', () => {
+    // Verbatim shape of the live reply: a valid op list, <JSONPatch> never closed, </UpdateVariable> written
+    // after it. MVU reads only a closed patch tag, so none of the seven writes saved — but the reply went on
+    // past the fault, so the toast that blamed a dead stream sent the player to a connection that was fine.
+    const LIVE = '<combat_log>\n[EmotionalRequest] on Mana — Success\n</combat_log>\n\n<UpdateVariable>\n<JSONPatch>\n[\n'
+        + '  { "op": "replace", "path": "/PendingState/AddClassmate/0", "value": "" },\n'
+        + '  { "op": "replace", "path": "/Classmate/Mana/Thoughts/0", "value": "太好了……" }\n]\n</UpdateVariable>\n';
+
+    it('MUTATION TARGET — an open patch tag closed over by its block is its own defect, the narrator\'s, finish reason or not', () => {
+        for (const reason of [undefined, '', 'stop']) {
+            expect(diagnoseTruncatedReply(LIVE, reason)).toMatchObject({ truncated: true, defect: 'patch-left-open', cause: 'complete-but-malformed' });
+        }
+    });
+
+    it('MUTATION TARGET — WHERE the closer lands decides: a patch still open at the end of the text is a cut', () => {
+        // No </UpdateVariable> after the open patch: the text simply ends — the live 2026-08-11 drop.
+        expect(diagnoseTruncatedReply('<UpdateVariable>\n<JSONPatch>\n[{"op":"replace","path":"/A/0","value":1}', undefined))
+            .toMatchObject({ defect: 'unterminated-tag', cause: 'no-finish-reason' });
+        // A bare patch with no block around it has no closer to write past either.
+        expect(diagnoseTruncatedReply(`<JSONPatch>\n${OPS}`, undefined).defect).toBe('unterminated-tag');
+        // A first block closed whole, a second one cut: the open block is the cut, the earlier closer is not "after" it.
+        const twoBlocks = `<UpdateVariable>\n<JSONPatch>\n${OPS}\n</JSONPatch>\n</UpdateVariable>\n<UpdateVariable>\n<JSONPatch>\n[{"op":`;
+        expect(diagnoseTruncatedReply(twoBlocks, undefined).defect).toBe('unterminated-tag');
+        // A whole block, then a bare patch cut at the end: the block's closer came BEFORE the open patch.
+        const wholeThenBarePatch = `<UpdateVariable>\n<JSONPatch>\n${OPS}\n</JSONPatch>\n</UpdateVariable>\n<JSONPatch>\n[{"op":`;
+        expect(diagnoseTruncatedReply(wholeThenBarePatch, undefined).defect).toBe('unterminated-tag');
+    });
+
+    it('MUTATION TARGET — a closed body that will not parse was written past too, so silence there is no dead stream', () => {
+        expect(diagnoseTruncatedReply('<JSONPatch>[{"op":"replace","path":"/A/0",}]</JSONPatch>', undefined))
+            .toMatchObject({ defect: 'unparseable-json', cause: 'complete-but-malformed' });
+    });
+
+    it('every surface calls it a broken block, never a cut, and points at the narrator, never the connection', () => {
+        const cut = diagnoseTruncatedReply(LIVE, undefined);
+        expect(isBrokenBlock(cut)).toBe(true);
+        expect(headline(cut)).toMatch(/update block is BROKEN/);
+        expect(toastTitle(cut)).toBe('MVU Helper — update block broken');
+        expect(damage(cut)).toMatch(/never closed/);
+        expect(damagePlain(cut)).toMatch(/broken/);
+        expect(damagePlain(cut)).not.toMatch(/cut off/);
+        expect(explain(cut)).toMatch(/narrator wrote the block broken/);
+        expect(explain(cut)).not.toMatch(/provider said ""/);
+        expect(remedy(cut)).toMatch(/not the connection/);
+        expect(remedy(cut)).not.toMatch(/provider stopped|died/);
+        // The same block under a reported normal finish says the same thing, with the reason named.
+        const withStop = diagnoseTruncatedReply(LIVE, 'stop');
+        expect(toastTitle(withStop)).toBe('MVU Helper — update block broken');
+        expect(explain(withStop)).toMatch(/provider said "stop"/);
+    });
+
+    it('a real cut keeps the cut wording', () => {
+        const cut = diagnoseTruncatedReply('<UpdateVariable>\n<JSONPatch>\n[{"op":', undefined);
+        expect(isBrokenBlock(cut)).toBe(false);
+        expect(headline(cut)).toMatch(/TRUNCATED/);
+        expect(toastTitle(cut)).toBe('MVU Helper — reply cut off');
+        // A reply that stopped by itself before any block has no block to call broken.
+        const stoppedEarly = diagnoseTruncatedReply('<gametxt>scene <font color="#56B4E', 'stop');
+        expect(stoppedEarly.defect).toBe('cut-before-update-block');
+        expect(isBrokenBlock(stoppedEarly)).toBe(false);
+    });
+
+    it('the toast sentence names no tag: the toast renders HTML, and a written tag vanishes from it', () => {
+        const shapes = [
+            [LIVE, undefined], ['<JSONPatch>[{"op":"replace","path":"/A/0",}]</JSONPatch>', 'stop'],
+            ['<UpdateVariable>\n<JSONPatch>\n[{"op":', undefined], ['<gametxt>scene <font color="#56B4E', 'content_filter'],
+            ['Clean text.', 'length'],
+        ];
+        for (const [text, reason] of shapes) {
+            const cut = diagnoseTruncatedReply(text, reason);
+            expect(cut.truncated).toBe(true);
+            expect(`${damagePlain(cut)} ${remedy(cut)} ${toastTitle(cut)}`).not.toMatch(/</);
+        }
+    });
+
+    it('SOURCE GATE — the host judges the text as it arrived, and waits for a late finish reason before any verdict', () => {
+        const host = readFileSync(new URL('../src/sillytavern/reply-integrity.js', import.meta.url), 'utf8').replace(/\r/g, '');
+        expect(host).toMatch(/diagnoseTruncatedReply\(narratorText,/);
+        expect(host).toMatch(/if \(observed\) \{\s*decide\(observed\);\s*\} else \{\s*setTimeout\(/);
+        expect(host).toMatch(/toastTitle\(cut\)/);
+        expect(host).not.toMatch(/'MVU Helper — reply cut off'/);
     });
 });
 

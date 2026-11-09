@@ -5,7 +5,7 @@
     "js": "src/index.js",
     "css": "src/features/settings-panel/settings-panel.css",
     "author": "KritBlade",
-    "version": "0.3.468",
+    "version": "0.3.470",
     "homePage": "https://github.com/KritBlade/mvu-helper",
     "auto_update": false,
     "generate_interceptor": "mvuHelperInterceptor",

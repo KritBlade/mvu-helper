@@ -4,10 +4,13 @@
 // file cannot be unit-tested AT ALL, so "add a test" is not a buildable fix until the decision is
 // extracted first. Same core/host split this folder already uses for lorebook-core / lorebook.
 
-// IS THE FINISHED REPLY CUT OFF MID-WRITE? Unterminated tag, or a well-closed block whose body will
-// not parse. Also NAMES THE LIKELY CAUSE, because the two candidates want opposite fixes and are
-// very easy to confuse (live 2026-08-11: a sexual line was blamed for a cut that landed 79 characters
-// LATER, inside a JSON path — the model had already emitted the "offending" text happily):
+import { COMPLETION_NORMAL_FINISHES } from '../shared/completion-finish.js';
+
+// IS THE FINISHED REPLY DAMAGED? Cut off mid-write (an unterminated tag), or arrived whole with its update
+// block written broken (a patch tag left open inside a closed block, or a well-closed body that will not
+// parse) — either way MVU saves none of that block. Also NAMES THE LIKELY CAUSE, because the candidates want
+// opposite fixes and are very easy to confuse (live 2026-08-11: a sexual line was blamed for a cut that
+// landed 79 characters LATER, inside a JSON path — the model had already emitted the "offending" text happily):
 //   · a provider CONTENT FILTER reports itself — the API sends a finish reason ("content_filter",
 //     Google's "SAFETY"). The fix is the prompt or the content.
 //   · a DROPPED STREAM cannot report anything, because nothing survived to send it. The fix is
@@ -27,10 +30,16 @@ export function diagnoseTruncatedReply(text, finishReason) {
     if (!s.trim()) return { truncated: false };
     const s2 = structureOnly(s);
     const count = (re) => (s2.match(re) || []).length;
-    const unterminated = (count(/<UpdateVariable>/gi) > count(/<\/UpdateVariable>/gi))
-        || (count(/<JSONPatch>/gi) > count(/<\/JSONPatch>/gi));
+    const blockOpen = count(/<UpdateVariable>/gi) > count(/<\/UpdateVariable>/gi);
+    const patchOpen = count(/<JSONPatch>/gi) > count(/<\/JSONPatch>/gi);
+    // A <JSONPatch> the narrator never closed, with its </UpdateVariable> written AFTER it: the reply went on
+    // past the open tag, so nothing cut it there — the block is broken as written. MVU reads only a CLOSED
+    // patch tag and drops an open one without a word, so every op inside is lost all the same (live
+    // 2026-11-08: a valid op list, no </JSONPatch>, none of its seven writes saved).
+    const patchLeftOpen = !blockOpen && patchOpen && blockClosesOverOpenPatch(s2);
+    const unterminated = (blockOpen || patchOpen) && !patchLeftOpen;
     let badJson = false;
-    if (!unterminated) {
+    if (!unterminated && !patchLeftOpen) {
         const m = /<JSONPatch>([\s\S]*?)<\/JSONPatch>/i.exec(s2);
         if (m) badJson = !parsesAsPatch(m[1]);
     }
@@ -54,7 +63,7 @@ export function diagnoseTruncatedReply(text, finishReason) {
     // Alone, either one false-alarms: models write sloppy unclosed <font>/<p> in perfectly complete
     // replies (2 without 1), and prose can contain a bare "a<b" (1 without 2). Together they describe
     // a generation that stopped while writing markup, which is what a killed stream looks like.
-    const cutBeforeBlock = !unterminated && !badJson
+    const cutBeforeBlock = !unterminated && !patchLeftOpen && !badJson
         && !/<(UpdateVariable|JSONPatch)>/i.test(s2)
         && hasUnterminatedTagOpen(s) && hasUnclosedBlockTag(s);
     const fr = String(finishReason == null ? '' : finishReason).trim();
@@ -63,20 +72,28 @@ export function diagnoseTruncatedReply(text, finishReason) {
     // but everything the reply would have written after the cut point (prose AND blocks) was never
     // generated. The reason word is the proof; the shape merely says where the damage is visible
     // (live 2026-08-31: a content_filter kill at 313 chars whose surviving text parsed perfectly).
-    const reportedCut = Boolean(fr) && !/^stop$|^end_turn$/i.test(fr);
-    if (!unterminated && !badJson && !cutBeforeBlock && !reportedCut) return { truncated: false };
+    // Which words mean the model FINISHED is the one list the finish-reason tap reads too
+    // (COMPLETION_NORMAL_FINISHES), a tool-call handoff included: a provider that ends a complete reply
+    // on "tool_calls" is no cut.
+    const reportedCut = Boolean(fr) && !COMPLETION_NORMAL_FINISHES.has(fr.toLowerCase());
+    if (!unterminated && !patchLeftOpen && !badJson && !cutBeforeBlock && !reportedCut) return { truncated: false };
     // FIVE causes, because each wants a DIFFERENT fix and a label that covers two of them sends the
     // reader at the wrong one. `length`/`max_tokens` in particular is neither a drop nor a malformed
     // patch: the text really was cut, the provider really did say so, and the remedy is the token cap
     // (an earlier draft filed it as "complete-but-malformed" — a label that flatly contradicts the
     // finish reason printed beside it).
+    // A broken block the reply WROTE PAST (a closing tag after the fault) is the narrator's, finish reason
+    // or not: a dropped stream ends the text, it never writes on after the break. Blaming the connection
+    // there sends the reader to fix a transport that delivered every byte.
+    const writtenPastFault = patchLeftOpen || badJson;
     const cause = /content.?filter|safety|blocked|prohibited/i.test(fr) ? 'filter'
         : /^length$|^max_tokens$/i.test(fr) ? 'token-cap'
-            : (fr && !/^stop$|^end_turn$/i.test(fr)) ? 'reported'
-                : fr ? 'complete-but-malformed' : 'no-finish-reason';
+            : reportedCut ? 'reported'
+                : (fr || writtenPastFault) ? 'complete-but-malformed' : 'no-finish-reason';
     const defect = cutBeforeBlock ? 'cut-before-update-block'
         : unterminated ? 'unterminated-tag'
-            : badJson ? 'unparseable-json' : 'cut-mid-prose';
+            : patchLeftOpen ? 'patch-left-open'
+                : badJson ? 'unparseable-json' : 'cut-mid-prose';
     return { truncated: true, defect, cause, finishReason: fr };
 }
 
@@ -97,6 +114,19 @@ function structureOnly(s) {
         const rest = line.slice(offset + tag.length).trim();
         return (rest === '' || /^[<[{]/.test(rest)) ? tag : '';
     })).join('\n');
+}
+
+// Does an </UpdateVariable> arrive while a <JSONPatch> is still open? Walks the two tag pairs in order, so it
+// asks WHERE the closer landed, not how many there are: a patch cut at the end of the text has no closer after
+// it, and only that one is a cut. Reads structureOnly's text, so a prose mention opens nothing.
+function blockClosesOverOpenPatch(s2) {
+    let isPatchOpen = false;
+    for (const m of s2.matchAll(/<(\/?)(UpdateVariable|JSONPatch)>/gi)) {
+        const isClosing = m[1] === '/';
+        if (m[2].toLowerCase() === 'jsonpatch') isPatchOpen = !isClosing;
+        else if (isClosing && isPatchOpen) return true;
+    }
+    return false;
 }
 
 // Signal (1): does any '<' start a tag and never reach its '>'? Scans EVERY candidate rather than the
@@ -147,6 +177,25 @@ function parsesAsPatch(body) {
     try { JSON.parse('[' + trimmed + ']'); return true; } catch { return false; }
 }
 
+// IS THE DAMAGE A BROKEN BLOCK RATHER THAN A CUT? The reply arrived whole and the narrator wrote its update
+// block wrong — nothing stopped the generation. Every surface opens with this distinction, because "cut
+// off" sends the reader to the connection and "broken block" sends them to the model, and only one is true.
+// A reply that stopped by itself before any block (a normal finish over a cut shape) is still a cut: it has
+// no block to call broken.
+export function isBrokenBlock(cut) {
+    return cut.cause === 'complete-but-malformed' && cut.defect !== 'cut-before-update-block';
+}
+
+// The console line's opening words — what kind of damage this is.
+export function headline(cut) {
+    return isBrokenBlock(cut) ? "the reply's update block is BROKEN" : 'the reply is TRUNCATED';
+}
+
+// The toast's title — the same distinction in the player's words.
+export function toastTitle(cut) {
+    return isBrokenBlock(cut) ? 'MVU Helper — update block broken' : 'MVU Helper — reply cut off';
+}
+
 // The player-facing sentence for each cause. Split out so the wording lives in ONE place and the
 // console line and the toast can never disagree about what happened (log-sanity).
 export function explain(cut) {
@@ -154,7 +203,8 @@ export function explain(cut) {
     if (cut.cause === 'no-finish-reason') return 'no finish reason was observed — with the finish-reason tap armed that usually means the stream DIED before the final chunk (transport), not a content block; check the connection before rewriting prose';
     if (cut.cause === 'token-cap') return `the reply hit the TOKEN CAP ("${cut.finishReason}") — raise max tokens, or ask the card for a shorter update block`;
     if (cut.cause === 'reported') return `the provider reported "${cut.finishReason}"`;
-    return `the provider said "${cut.finishReason}", so the text arrived complete and the PATCH ITSELF is malformed`;
+    if (cut.finishReason) return `the provider said "${cut.finishReason}", so the text arrived complete and the narrator wrote it this way — not a cut, not the connection`;
+    return 'the reply went on past the fault (a closing tag arrived after it), so nothing cut it — the narrator wrote the block broken, not the connection';
 }
 
 // What was actually LOST, per defect. Split from the cause for the same single-source reason: the two
@@ -163,6 +213,7 @@ export function explain(cut) {
 // reached the record at all, and saying "its writes were lost" implies a block that existed.
 export function damage(cut) {
     if (cut.defect === 'cut-before-update-block') return 'it stopped mid-scene and NEVER REACHED its <UpdateVariable> block, so this turn recorded nothing at all';
+    if (cut.defect === 'patch-left-open') return 'its <JSONPatch> was never closed (</UpdateVariable> came first), and MVU reads only a closed patch, so NONE of its writes were saved';
     if (cut.defect === 'unparseable-json') return 'its <JSONPatch> body does not parse, so its writes were LOST';
     if (cut.defect === 'cut-mid-prose') return 'the surviving text looks whole, but everything the reply would have written after the cut point — prose and any blocks — was never generated';
     return 'its <UpdateVariable> writes were LOST';
@@ -171,9 +222,12 @@ export function damage(cut) {
 // The same fact in the toast's plainer register — one function per SURFACE, matching explain/remedy,
 // so the two can never drift into describing different damage. Kept separate from damage() rather
 // than shared because the console reader wants the tag names and the player wants the consequence.
+// No tag names here at all: the toast renders HTML, so a written <tag> would vanish from the sentence.
 export function damagePlain(cut) {
     if (cut.defect === 'cut-before-update-block') return 'This reply was cut off in the middle of the scene, before it reached its update block, so NOTHING from this turn was saved.';
     if (cut.defect === 'cut-mid-prose') return 'The provider stopped this reply early. What you see reads complete, but the rest of the reply was never generated.';
+    if (cut.defect === 'patch-left-open') return "This reply's update block is broken: the narrator never closed its patch tag, so MVU skipped the patch and none of its changes were saved.";
+    if (cut.defect === 'unparseable-json') return "This reply's update block is broken: its patch is not valid JSON, so MVU skipped it and its changes were NOT saved.";
     return 'This reply was cut off mid-update, so its variable changes did NOT save.';
 }
 
@@ -182,6 +236,7 @@ export function remedy(cut) {
     if (cut.cause === 'no-finish-reason') return 'No finish reason arrived — the stream likely died in transport. Check the connection; this is probably not a content block.';
     if (cut.cause === 'token-cap') return 'It hit the token cap — raise max tokens for this connection.';
     if (cut.cause === 'filter') return 'The provider blocked it on content.';
+    if (cut.cause === 'complete-but-malformed') return 'The reply arrived whole, so this is not the connection or a content block — the narrator wrote it wrong.';
     return 'The provider stopped the generation.';
 }
 
