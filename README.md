@@ -45,7 +45,7 @@ Game Content - If you want to make a Konosuba game and want to play as the main 
 
 Event Trigger - When you first come to the town with Aqua in Konosuba, you are supposed to meet Megumin in a restaurant after numerous people refuse to join your party. This is an event triggered after you are in the restaurant and after numerous people refuse to join your party. You can't do this kind of event triggering with prose alone in SillyTavern. This is an event trigger.
 
-MVU Helper rides on [MVU (MagVarUpdate)](https://github.com/MagicalAstrogy/MagVarUpdate), the stat and state tracking framework a lot of Chinese game cards are built on.  MVU Helper houses the **[MVU Game Engine v2.0](doc/gamelogic_engine/README.md)**.
+MVU Helper rides on [MVU (MagVarUpdate)](https://github.com/MagicalAstrogy/MagVarUpdate), the stat and state tracking framework a lot of Chinese game cards are built on.  MVU Helper houses the **[MVU Game Engine v2.0](doc/gamelogic_engine/README.md)**.  The first implemention as a technical demo is **[Artifickoi](https://github.com/KritBlade/ArtificKoi)**.
 
 ### Why a plain lorebook is not enough
 
@@ -99,6 +99,30 @@ Even the schema a pack installs is filtered. The schema runs on the page as a Ta
 A pack's entries and regexes can carry EJS, which runs on the page too. So before a pack installs, MVU Helper reads that code, and when it can reach your SillyTavern settings or change SillyTavern outside the chat, a warning names what it found and asks you first. See [The install warning](doc/gamelogic_engine/install.md#the-install-warning).
 
 Therefore, you only build the part that makes your game different. Everything else is already there. Sounds good?
+
+### Why code, not drop-down menus
+
+You could build game rules from drop-down boxes, or from templates where you pick option A, B or C. I went with code written with AI, for 3 reasons:
+
+**Speed.** ArtificKoi is 5,000+ lines of game rules and 250+ events. Clicking that together box by box takes months. Your AI writes a rule in minutes.
+
+**Testing.** Code can be unit tested, and ArtificKoi runs 24 test suites on every change. A drop-down menu can't be tested, and somebody would first have to build a box for every rule a game could ever need. Let's imagine you have hundreds of drop-down boxes, and each one offers thousands of options...
+
+**Unique games.** Any option on a menu is an option every other game can pick too, so every game ends up the same. Code can be anything you can describe, something completely wild that no one ever thought about. This is not something a drop-down box with option A, B or C can offer.
+
+I have already made this very friendly for coding with AI, so any half-baked content creator who tries to learn how to use VS Code and chat with AI should be able to make something really quick. Yes, all you need to do is chat with AI and explain, function by function, how you want your system to work. You just need to break it down into small pieces and go through them with AI one by one. No, not a "build me a combat system" kind of chat. You have to be specific.
+
+### Why not one single game engine for every lorebook, like other apps and extensions?
+
+Almost every single SillyTavern-like app and extension tries to go the one-size-fits-all route with templates. However, you can't make a template system work for every scenario. Take RPG as an example. Dragon Quest and Final Fantasy have very different battle mechanics, but they are both RPGs.
+
+MVU Helper goes the opposite way. You create custom gameplay from your own idea, not from the templates on offer. Take [ArtificKoi](https://github.com/KritBlade/ArtificKoi#your-school-day-block-by-block), which is built on this engine. Its time flow is not something you can do in a regular SillyTavern card. A school day is split into 4 blocks of time, and you only get a limited number of moves (replies) in each block before you are forced to jump to the next one. No template-based system can do this.
+
+When a system is one size fits all, that also means you can't have unique game content and events built into the game. That's why you never see an extension or system that can automate the Konosuba story events right inside a SillyTavern card. Konosuba events can't apply to another game, and you also can't apply the same revive game mechanism from Re:Zero to another game, that breaks the whole concept of one size fits all. Therefore...there is pretty much no extension in Sillytavern or even any Sillytavern-like app that is able to reproduce the exact same show as in Konosuba/Re:zero/Dragonball  right now.  That breaks the one size fit all design concept.
+
+MVU Helper is trying to fill this gap. This extension is not here to build a one-size-fits-all system that works on any character card.  A lot of Sillytavern-like app is doing something very good at it and I don't want to duplicate the effort.  Each MVU Game Logic Engine is built specifically for one game.
+
+You can still make a game engine generic enough to work on any character card, like a very generic RPG battle engine. However, MVU Game Logic Engine shines at the uniqueness you can give to one single game.  Like all Chinese based Sillytavern character card, each game is completely unique.
 
 ### It's a game, not a bot
 
