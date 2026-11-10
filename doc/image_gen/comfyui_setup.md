@@ -112,7 +112,7 @@ The workflow looks each file up by its exact name. So when a download comes with
 | [Krea2 Cat Tower v1.0 (Turbo INT4 ConvRot)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3165660) | `models\diffusion_models` | `krea2CatTower_v10TurboINT4Convrot.safetensors` |
 | [Krea2 Filter Bypass (fedor)](https://civitai.red/models/2746817/krea2-filter-bypass-fedor) | `models\loras` | `fedor_bypass.safetensors` |
 | [SNOFS](https://civitai.red/models/1972981/snofs-sex-nudes-other-fun-stuff?modelVersionId=3390681) | `models\loras` | `snofs_krea_v1_5.safetensors` |
-| [[KREA2] Breast Slider](https://civitai.red/models/2993835/krea2-breast-slider?modelVersionId=3395188) | `models\loras` | `breast_size_v2_krea2_loraholic.safetensors` |
+| [[KREA2] Breast Slider](https://civitai.red/models/2993835/krea2-breast-slider) | `models\loras` | `CrunchyBanana_Krea2_BreastSlider_V1.safetensors` |
 
 Take Krea2 Cat Tower **v1.0 Turbo INT4 ConvRot**. It's about 7.5GB, small enough for a 12GB video card.  If you have 16GB VRAM, download the [(Turbo INT8 ConvRot version)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) .   Do NOT download v2.0 raw, it won't work with this workflow and I found it does wierd thing in NSFW scene.
 
@@ -157,13 +157,15 @@ Go to SillyTavern > Extensions > **Image Generation**:
 
 Then go back to the [Quick start](README.md#quick-start), and send a message.
 
-Don't test this one with a plain `/sd a cat` though. The workflow waits for the bust number, and only MVU Helper's own pictures set it, see below.
+You can test it with a plain `/sd a cat sitting on a desk` in any chat. The workflow needs a bust number, and MVU Helper gives every chat one, see below.
 
 ### Keep the bust multiplier on
 
 Both workflows already carry `"%bust_strength%"` on their breast slider LoRA. So keep **Send bust multiplier** on, in the Backend card of MVU Helper's Image Generation tab. It's on by default.
 
-Turning it on is what adds the matching placeholder to SillyTavern. Turn it off, and the placeholder goes away, the text `%bust_strength%` reaches ComfyUI as it is, and ComfyUI refuses the job because that's not a number. See [Send bust multiplier](README.md#send-bust-multiplier).
+Turning it on is what adds the matching placeholder to SillyTavern. It also gives every chat you open a bust number, the **Default value**, when the chat has none yet. That's what lets SillyTavern's own pictures draw too, on any card: its Generate Image button, or a typed `/sd`.
+
+Turn it off, and the placeholder goes away, the text `%bust_strength%` reaches ComfyUI as it is, and ComfyUI refuses the job because that's not a number. See [Send bust multiplier](README.md#send-bust-multiplier).
 
 Basically, ComfyUI Desktop, 4 extensions, one workflow pasted into SillyTavern, and you're drawing.
 

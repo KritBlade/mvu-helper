@@ -139,7 +139,9 @@ It's written per job, right before the call, never once per reply. Pre-generatio
 
 That's also why it needs Queue concurrency 1. There's one variable, and 2 jobs running at once would overwrite each other's number.
 
-A blank variable name skips it with a warning. Off, and nothing is written, so the workflow keeps whatever value it already had.
+A chat that holds no bust variable, missing or blank, gets the **Default value** when it opens, when the switch is turned on, and when the variable is renamed. That covers pictures MVU Helper doesn't draw: SillyTavern's own Generate Image, a typed `/sd`, a card without the `<pic>` contract. Without it, `{{getvar::bust_strength}}` reads an empty string, and ComfyUI refuses the job because that's not a number. A value already in the chat is never overwritten.
+
+A blank variable name skips it with a warning. Off, and nothing is written.
 
 ### The ComfyUI placeholder
 

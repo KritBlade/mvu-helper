@@ -41,7 +41,7 @@ I made 2 ComfyUI workflows for MVU Helper. Pick one of them:
 
 How to install ComfyUI Desktop, test the workflow, and hook it up to SillyTavern is on [Set up ComfyUI](comfyui_setup.md).
 
-Using your own workflow instead? Test `/sd` first. Type `/sd a cat sitting on a desk` in the chat. If you get a cat, you're good. My 2 workflows wait for the bust number that only MVU Helper's own pictures set, so test those inside ComfyUI instead, as the setup page says.
+Test `/sd` first, whichever workflow you use. Type `/sd a cat sitting on a desk` in the chat. If you get a cat, you're good.
 
 ## Quick start
 
@@ -284,6 +284,8 @@ Skip this one unless your workflow loads a breast slider LoRA. Without one, the 
 
 A character's look can carry a **Bust** value. Right before each picture, MVU Helper writes it into a SillyTavern chat variable, `bust_strength` by default.
 
+A chat that has no `bust_strength` yet gets the **Default value** when you open it. So pictures MVU Helper doesn't draw still get a number: SillyTavern's own Generate Image button, a typed `/sd`, a card without MVU Helper's picture setup. A value already in the chat is never overwritten.
+
 Your workflow reads that variable through a custom placeholder in SillyTavern's ComfyUI Workflow Editor: find `bust_strength`, replace `{{getvar::bust_strength}}`. You don't type it in yourself. Turning the switch on adds it to SillyTavern's Image Generation settings, and turning it off removes it. If you already wrote your own under the same name, MVU Helper leaves yours alone.
 
 The one part that's still yours is the workflow. Put `"%bust_strength%"` on the strength input of the LoRA node, like `LoraLoaderModelOnly.strength_model`. The Workflow Editor ticks `%bust_strength%` in its Custom list once the workflow has it.
@@ -299,7 +301,7 @@ It needs **Queue concurrency 1**. There's only one variable, so 2 pictures drawi
 | Field | Default | What it does |
 | --- | --- | --- |
 | **Bust variable name** | `bust_strength` | the chat variable it writes |
-| **Default value** | 1 | the number when nobody in the picture has a Bust value |
+| **Default value** | 1 | the number when nobody in the picture has a Bust value, and what a chat with no bust variable gets when you open it |
 | **Shared value** | 1.5 | the number when 2 or more people have one |
 
 Only people with a Bust value count. With 1 of them, the picture gets theirs. 2 or more can't each get their own, because the LoRA is one strength for the whole picture. So they share one number, and their own sizes still differ in the prompt.
