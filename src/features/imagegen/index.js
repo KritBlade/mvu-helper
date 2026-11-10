@@ -5,3 +5,4 @@ export { imagegenProfileDefaults } from './imagegen-profile-core.js';
 // The Image-tab settings panel is its own file (P5a); the barrel re-exports it from there.
 export { wireImageSettings, updateImageUI } from './image-settings-ui.js';
 export { seedComfyBustPlaceholder } from './comfy-placeholder-seed.js';
+export { seedBustVariableForChat } from './image-gen.js';

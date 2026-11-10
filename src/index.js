@@ -24,7 +24,7 @@ import { applyHelperLocale } from './sillytavern/i18n.js';
 
 // Image-gen: importing registers its runtime event listeners (prompt-inject,
 // streaming pre-gen, MESSAGE_RECEIVED → harvest + /sd, regen button).
-import { imageDefaults, imagegenProfileDefaults, wireImageSettings, updateImageUI, auditRenderedImagesAfterForeignWrites, wornOutfitWriteTask, deleteGlobalPromptInjection, seedComfyBustPlaceholder } from './features/imagegen/index.js';
+import { imageDefaults, imagegenProfileDefaults, wireImageSettings, updateImageUI, auditRenderedImagesAfterForeignWrites, wornOutfitWriteTask, deleteGlobalPromptInjection, seedComfyBustPlaceholder, seedBustVariableForChat } from './features/imagegen/index.js';
 import { wireRoster, refreshRosterUI, updateRosterUI, wornOutfitCleaningMission, characterRegistryJournalTask, resetCharacterRegistryForChat, wornOutfitEditJournalTask, resetWornOutfitEditsForChat } from './features/character-roster/index.js';
 import { registerOwnStateTask } from './features/own-state/index.js';
 import { registerCleaningMission, streetcleanerTask } from './features/streetcleaner/index.js';
@@ -563,7 +563,7 @@ $(function () {
         // control left open across the awaits would edit a card that has gone. The MVU install check goes next
         // and unawaited: it needs only TavernHelper, never the card sync, so nothing in the chain may hold it
         // up. The duplicate neutralizer stays LAST: its restart of the global MVU must not overlap the sync.
-        eventSource.on(event_types.CHAT_CHANGED, async () => { paintCardScope(); resetCharacterRegistryForChat(); resetWornOutfitEditsForChat(); void ensureGlobalMvuImport(); await importCardConfig(); await loadLogicEngine(); await syncCardDataWithRetry(); repaintTabsOnChatChange(); devLoopChatChanged(); checkLorebookApiAvailable(); void refreshTaskTargets().then(() => reportUnrunnableRoutedCalls({ isChatLoad: true })).catch((e) => log.warn('chat load: re-applying llm-task routing or the routing check failed:', e)); void neutralizeCardMvuDuplicates(); });
+        eventSource.on(event_types.CHAT_CHANGED, async () => { paintCardScope(); resetCharacterRegistryForChat(); resetWornOutfitEditsForChat(); void seedBustVariableForChat('chat opened'); void ensureGlobalMvuImport(); await importCardConfig(); await loadLogicEngine(); await syncCardDataWithRetry(); repaintTabsOnChatChange(); devLoopChatChanged(); checkLorebookApiAvailable(); void refreshTaskTargets().then(() => reportUnrunnableRoutedCalls({ isChatLoad: true })).catch((e) => log.warn('chat load: re-applying llm-task routing or the routing check failed:', e)); void neutralizeCardMvuDuplicates(); });
         // 'mag_variable_initialized' = MVU's OWN init signal (MagVarUpdate bundle; === Mvu.events.VARIABLE_INITIALIZED).
         // MVU emits it with the variable blob (`s`) it is ABOUT to persist to msg 0 (via updateMessages, AFTER this
         // event). syncCardData gets that blob so its writes land in MVU's own persist, instead of a separate

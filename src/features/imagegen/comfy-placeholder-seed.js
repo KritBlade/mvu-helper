@@ -15,9 +15,9 @@
 // side ("%<variable>%" on a typed FLOAT input of the LoRA node) is the user's own file and is never touched.
 
 import { extension_settings } from '../../../../../../extensions.js';
-import { getGlobal, saveSettingsDebounced } from '../../sillytavern/settings-store.js';
+import { saveSettingsDebounced } from '../../sillytavern/settings-store.js';
 import { createModuleLog } from '../../sillytavern/log.js';
-import { imageDefaults } from './image-gen.js';
+import { bustSettings } from './image-gen.js';
 import { planBustPlaceholderSeed, seededBustPlaceholderIndexes } from './comfy-placeholder-core.js';
 
 const log = createModuleLog('imagegen');
@@ -27,10 +27,6 @@ const differsWarned = new Set();
 function sdSettings() {
     const sd = extension_settings.sd;
     return sd && typeof sd === 'object' ? sd : null;
-}
-
-function bustSettings() {
-    return getGlobal().bustStrength || imageDefaults.bustStrength;
 }
 
 // Seed the entry for the configured variable, while the checkbox is ticked.

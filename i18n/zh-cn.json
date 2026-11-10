@@ -80,7 +80,7 @@
     "Bust variable name hint": "写入倍率的聊天变量。",
     "Bust variable name detail": "开启开关会在 SillyTavern 的 ComfyUI 设置中添加对应占位符（bust_strength → {{getvar::bust_strength}}），关闭则移除。你的工作流必须把 \"%bust_strength%\" 放在有类型的 FLOAT 输入上，例如 LoraLoaderModelOnly.strength_model；原始的 rgthree 控件不会生效。LoRA 会放大外观中已写明的罩杯尺寸。",
     "Bust default": "默认值",
-    "Bust default hint": "画面中无人声明 [Bust] 时使用。",
+    "Bust default hint": "画面中无人声明 [Bust] 时使用；没有胸围变量的聊天也会写入此值。",
     "Bust shared": "共享值",
     "Bust shared hint": "两人或以上声明 [Bust] 时使用。LoRA 只有一个强度。",
     "Image type": "图片类型",

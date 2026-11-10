@@ -66,13 +66,14 @@ export const imageDefaults = {
     ...sdPromptPrefixDefaults,     // sdPromptPrefixPresets: the NAMED style/quality prefix list prepended to EVERY /sd prompt (before composition + looks); separate from ST's own SD prompt-prefix. The list is global; WHICH preset a card uses is per-card (imagegen.sdPromptPrefixPresetId). See sd-prompt-prefix-presets.js.
     // Bust multiplier — MACHINE-level because it describes YOUR /sd workflow, not a card: the backend
     // loads a bust LoRA whose strength reads a custom placeholder. ON by default: the cost on a workflow
-    // that ignores the variable is one chat-variable write per image, so the safe-by-default reading is
-    // the one where a configured LoRA receives its value. `variableName` is the ST chat variable we /setvar
-    // (the workflow's placeholder maps it, e.g. `bust_strength` → `{{getvar::bust_strength}}`).
+    // that ignores the variable is one chat-variable write per image and one per chat that holds none
+    // (seedBustVariableForChat), so the safe-by-default reading is the one where a configured LoRA receives
+    // its value. `variableName` is the ST chat variable we /setvar (the workflow's placeholder maps it,
+    // e.g. `bust_strength` → `{{getvar::bust_strength}}`).
     bustStrength: {
         enabled: true,
         variableName: 'bust_strength',
-        defaultValue: 1,      // nobody in the picture declares [Bust] — neutral, changes nothing
+        defaultValue: 1,      // nobody in the picture declares [Bust], or a chat that holds no bust variable yet — neutral, changes nothing
         sharedValue: 1.5,     // two or more declare one: the LoRA is one model-wide strength, so one shared middle value covers them all
     },
     streamingPregen: true,         // start generating the moment a complete tag appears mid-stream
@@ -378,10 +379,27 @@ async function assembleForReply(mesId, rawTag, composition, { shownFor = null } 
     return { ...assembled, camera: { ...camera, wasAdded: scene !== withCamera(composition, '') }, mainchar };
 }
 
+// The bust multiplier's GLOBAL settings (imageDefaults.bustStrength until the user saves one).
+export function bustSettings() {
+    return getGlobal().bustStrength || imageDefaults.bustStrength;
+}
+
 // The bust value for one picture (bustValueFor): only people whose entry declares [Bust] count.
 function resolveBustStrength(drawn) {
-    const settings = getGlobal().bustStrength || imageDefaults.bustStrength;
-    return bustValueFor([...drawn.people, ...(drawn.mainchar ? [drawn.mainchar] : [])], settings);
+    return bustValueFor([...drawn.people, ...(drawn.mainchar ? [drawn.mainchar] : [])], bustSettings());
+}
+
+// The ST chat variable the multiplier is written to, or null (with a warning) when its name is blank.
+function bustVariableName() {
+    const name = String(bustSettings().variableName || '').trim();
+    if (!name) log.warn('bust strength is enabled but its variable name is blank — skipping');
+    return name || null;
+}
+
+// The one write of the bust chat variable: SillyTavern's own /setvar, whose metadata save is SillyTavern's
+// debounced one (SillyTavern cancels it when another chat starts loading).
+async function writeBustVariable(name, value) {
+    await getContext().executeSlashCommandsWithOptions(`/setvar key=${name} ${value}`, { handleExecutionErrors: true });
 }
 
 // Hand the multiplier to the /sd backend through a ST chat variable, which the ComfyUI workflow
@@ -392,13 +410,34 @@ function resolveBustStrength(drawn) {
 // the tag was detected would be stale by the time that job runs.
 async function applyBustStrength(value) {
     if (value === null) return;
-    const name = String((getGlobal().bustStrength || imageDefaults.bustStrength).variableName || '').trim();
-    if (!name) { log.warn('bust strength is enabled but its variable name is blank — skipping'); return; }
+    const name = bustVariableName();
+    if (!name) return;
     try {
-        const ctx = getContext();
-        await ctx.executeSlashCommandsWithOptions(`/setvar key=${name} ${value}`, { handleExecutionErrors: true });
+        await writeBustVariable(name, value);
     } catch (e) {
         log.warn(`could not set the bust-strength variable (${name}=${value}) — this image renders at whatever value the workflow already held:`, e);
+    }
+}
+
+// Give the open chat the Default value when it holds no bust variable (missing or blank), so a picture MVU
+// Helper does not draw — SillyTavern's own Generate Image, a typed /sd, a card with no <pic> contract — still
+// hands the workflow a number. Without it `{{getvar::<name>}}` reads "" and ComfyUI refuses the job: "" is not
+// a FLOAT. The value is bustValueFor's for a picture where nobody declares [Bust]. A value already there is
+// left as it is; each MVU Helper picture writes its own before its /sd call (applyBustStrength).
+// Runs on CHAT_CHANGED, when the switch is ticked, and when the variable is renamed.
+export async function seedBustVariableForChat(reason) {
+    const value = bustValueFor([], bustSettings());
+    if (value === null) return;   // Send bust multiplier is off
+    const ctx = getContext();
+    if (!ctx.getCurrentChatId()) return;   // no chat open (the welcome screen): nothing to write into
+    const name = bustVariableName();
+    if (!name) return;
+    if (String(ctx.variables.local.get(name) ?? '').trim() !== '') return;
+    try {
+        await writeBustVariable(name, value);
+        log.lifecycle(`this chat held no "${name}" variable — set it to the Default value ${value} (${reason}), so a picture MVU Helper does not draw still hands the workflow a number`);
+    } catch (e) {
+        log.warn(`could not set the bust-strength variable (${name}=${value}) for this chat — a picture MVU Helper does not draw here will be refused by ComfyUI:`, e);
     }
 }
 

@@ -17,7 +17,7 @@ import { renderLlmTaskSelect } from '../llm-task-router/index.js';
 import { syncSliders } from '../settings-panel/index.js';
 import { DEFAULT_PROMPT, DEFAULT_REGEX } from './default-template.js';
 import {
-    imageDefaults, getImagegenProfile,
+    imageDefaults, getImagegenProfile, seedBustVariableForChat,
     CHARIMG_TASK_ID, PICTURES_TASK_ID, syncImageTaskRouting,
 } from './image-gen.js';
 import { INSERT_TYPE, writerPairRuledOut } from './prompt-assembly-core.js';
@@ -252,9 +252,12 @@ export function wireImageSettings() {
         if (s.bustStrength.enabled && (parseInt(s.queueConcurrency) || 1) > 1) {
             toast('warning', 'Bust multiplier needs Queue concurrency 1 — with parallel jobs the shared variable races and images get each other\'s value.', 'MVU Helper', { timeOut: 9000 });
         }
-        // The checkbox owns SillyTavern's ComfyUI custom placeholder for the variable (comfy-placeholder-seed.js).
-        if (s.bustStrength.enabled) seedComfyBustPlaceholder('checkbox ticked');
-        else removeComfyBustPlaceholder(s.bustStrength.variableName, 'checkbox unticked');
+        // The checkbox owns SillyTavern's ComfyUI custom placeholder for the variable (comfy-placeholder-seed.js),
+        // and ticking it also gives the open chat the Default value when it holds none (seedBustVariableForChat).
+        if (s.bustStrength.enabled) {
+            seedComfyBustPlaceholder('checkbox ticked');
+            void seedBustVariableForChat('checkbox ticked');
+        } else removeComfyBustPlaceholder(s.bustStrength.variableName, 'checkbox unticked');
         updateImageUI();
         saveSettingsDebounced();
     });
@@ -264,9 +267,10 @@ export function wireImageSettings() {
         s.bustStrength.variableName = String($(this).val() || '').trim();
         saveSettingsDebounced();
     });
-    // A rename moves the seeded placeholder: the old name's entry goes and the new name's comes, once the edit is
-    // done ('change' fires on blur) — per keystroke it would seed "b", "bu", "bus"…. The field is disabled while
-    // the checkbox is off, so a rename always happens with it ticked.
+    // A rename moves the seeded placeholder (the old name's entry goes and the new name's comes) and gives the open
+    // chat the new name's Default value when it holds none, once the edit is done ('change' fires on blur) — per
+    // keystroke it would seed "b", "bu", "bus"…. The field is disabled while the checkbox is off, so a rename always
+    // happens with it ticked.
     $('#mvuh_img_bust_var').on('focus', function () {
         $(this).data('mvuhNameBefore', String($(this).val() || '').trim());
     });
@@ -276,6 +280,7 @@ export function wireImageSettings() {
         if (before === after) return;
         if (before) removeComfyBustPlaceholder(before, `variable renamed to "${after}"`);
         seedComfyBustPlaceholder(`variable renamed from "${before}"`);
+        void seedBustVariableForChat(`variable renamed from "${before}"`);
         $(this).data('mvuhNameBefore', after);
     });
     for (const [selector, field] of [['#mvuh_img_bust_default', 'defaultValue'], ['#mvuh_img_bust_shared', 'sharedValue']]) {
