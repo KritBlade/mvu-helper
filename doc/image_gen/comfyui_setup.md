@@ -11,9 +11,9 @@ I made 2 workflows for MVU Helper. You only need one of them.   MVU-Helper is tu
 | Workflow | For | Files |
 | --- | --- | --- |
 | **Anima 2.9** | a less powerful GPU with 6GB VRAM | [anima2.9-api.txt](../../comfyui-workflow/anima2.9-api.txt), test: [anima2.9-test.json](../../comfyui-workflow/anima2.9-test.json) |
-| **Krea 2** | a video card with 12GB or more | [krea2-api.txt](../../comfyui-workflow/krea2-api.txt), test: [krea2-test.json](../../comfyui-workflow/krea2-test.json) |
+| **Krea 2** | a video card with 16GB VRAM, or 8GB with the smaller INT4 file | [krea2-api.txt](../../comfyui-workflow/krea2-api.txt), test: [krea2-test.json](../../comfyui-workflow/krea2-test.json) |
 
-Krea 2 understands the scene better, so it usually draws better than Anima. And Krea2 can ALWAYS draw the same girl exactly the same with the same DNA.   Anima would struggle when more than 1 girl on the scene.   If your video card has 12GB or more, pick Krea 2. Below that, pick Anima.
+Krea 2 understands the scene better, so it usually draws better than Anima. And Krea2 can ALWAYS draw the same girl exactly the same with the same DNA.   Anima would struggle when more than 1 girl on the scene.   If your video card has 16GB or more, pick Krea 2. With 8GB to 12GB, Krea 2's smaller INT4 file might fit, see step 11. Below that, pick Anima.
 
 Each one comes in 2 files. The `-test.json` is for ComfyUI itself, so you can check it draws. The `-api.txt` is the one SillyTavern uses.
 
@@ -109,12 +109,14 @@ The workflow looks each file up by its exact name. So when a download comes with
 | --- | --- | --- |
 | [Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled](https://huggingface.co/ahmed22xa/Huihui-Qwen3-VL-4B-Instruct-abliterated-comfy/tree/main) | `models\text_encoders` | `Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors` |
 | [qwen_image_vae](https://huggingface.co/f5aiteam/VAE/tree/main) | `models\vae` | `qwen_image_vae.safetensors` |
-| [Krea2 Cat Tower v1.0 (Turbo INT4 ConvRot)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3165660) | `models\diffusion_models` | `krea2CatTower_v10TurboINT4Convrot.safetensors` |
+| [Krea2 Cat Tower v1.0 (Turbo INT8 ConvRot)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) | `models\diffusion_models` | `krea2CatTower_v10TurboINT8Convrot.safetensors` |
 | [Krea2 Filter Bypass (fedor)](https://civitai.red/models/2746817/krea2-filter-bypass-fedor) | `models\loras` | `fedor_bypass.safetensors` |
 | [SNOFS](https://civitai.red/models/1972981/snofs-sex-nudes-other-fun-stuff?modelVersionId=3390681) | `models\loras` | `snofs_krea_v1_5.safetensors` |
 | [[KREA2] Breast Slider](https://civitai.red/models/2993835/krea2-breast-slider) | `models\loras` | `CrunchyBanana_Krea2_BreastSlider_V1.safetensors` |
 
-Take Krea2 Cat Tower **v1.0 Turbo INT4 ConvRot**. It's about 7.5GB, small enough for a 12GB video card.  If you have 16GB VRAM, download the [(Turbo INT8 ConvRot version)](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3163788) .   Do NOT download v2.0 raw, it won't work with this workflow and I found it does wierd thing in NSFW scene.
+Take Krea2 Cat Tower **v1.0 Turbo INT8 ConvRot**, for a video card with 16GB VRAM. It's the one both Krea 2 workflow files load. Do NOT download v2.0 raw, it won't work with this workflow and I found it does weird things in NSFW scenes.
+
+With less than 16GB VRAM, the same download page has a [Turbo INT4 ConvRot version](https://civitai.com/models/2805913/krea2-cat-tower?modelVersionId=3165660) that might fit an 8GB video card. The workflows don't load it as they ship, so change them to match: in both `krea2-api.txt` and `krea2-test.json`, replace every `krea2CatTower_v10TurboINT8Convrot.safetensors` with the name of the INT4 file you downloaded, like `krea2CatTower_v10TurboINT4Convrot.safetensors`. Do it before step 12. If you already pasted the workflow into SillyTavern in step 13, change it there too.
 
 The INT4 version needs ComfyUI v0.28 or later. The update in step 6 gives you that.
 

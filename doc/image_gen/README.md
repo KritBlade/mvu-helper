@@ -37,7 +37,7 @@ So, MVU Helper will get the DNA out of every **named** NPC.
 I made 2 ComfyUI workflows for MVU Helper. Pick one of them:
 
 - **Anima 2.9**, for a less powerful GPU.
-- **Krea 2**, for a video card with 12GB or more. It understands the scene better, so it usually draws better than Anima.
+- **Krea 2**, for a video card with 16GB VRAM, or 8GB with its smaller INT4 file. It understands the scene better, so it usually draws better than Anima.
 
 How to install ComfyUI Desktop, test the workflow, and hook it up to SillyTavern is on [Set up ComfyUI](comfyui_setup.md).
 
