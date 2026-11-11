@@ -7,7 +7,7 @@ This is the full list: every macro MVU Helper fills in, every function and setti
 ## What's on this page
 
 1. [Where each one works](#where-each-one-works) > the 4 places your code can run, and what reaches each.
-2. [Macros](#macros) > `{{mvuhelper::…}}` in PRE and POST entries, PRE and POST reading each other, the engine's name, and the placeholders in MVU Helper's own settings.
+2. [Macros](#macros) > `{{mvuhelper::…}}` in PRE and POST entries, PRE and POST reading each other, the engine's name, the bust number, and the placeholders in MVU Helper's own settings.
 3. [`MvuHelper`](#mvuhelper-on-the-page) > the page API: identity, dice, install report, logging, settings.
 4. [`LogicEngine`](#logicengine-your-engine-from-the-page) > your own engine's functions, called from EJS.
 5. [`mvuHelper`](#mvuhelper-the-calls-answers) > this turn's PRE and POST answers, and the debug handles.
@@ -24,7 +24,7 @@ Your code can run in 4 places, and each one gets a different set:
 
 | Where | What it is | What reaches it |
 | --- | --- | --- |
-| **the page** | your entries' EJS, a Tavern Helper script, another extension | `MvuHelper`, `LogicEngine`, `mvuHelper`, the events, the flags, `{{mvuhelperEngineName}}` |
+| **the page** | your entries' EJS, a Tavern Helper script, another extension | `MvuHelper`, `LogicEngine`, `mvuHelper`, the events, the flags, `{{mvuhelperEngineName}}`, `{{mvuhelperBustStrength}}` |
 | **PRE and POST entries** | the entries routed to a call | all of the page, plus the `{{mvuhelper::…}}` macros |
 | **the engine sandbox** | your GameLogic Engine, a plugin's engine, your menu engine | its own `MvuHelper`: identity, logging, settings, the message list. Nothing on the page |
 | **the status menu frame** | the menu the builder made | a small prelude, plus `MvuHelperFrame` |
@@ -146,6 +146,19 @@ These work anywhere SillyTavern fills in macros: the narrator's entries, PRE and
 | `{{mvuhelperEngineVersion}}` | the running engine's `ENGINE_VERSION`. Empty on a card with no engine |
 
 They're for plain text only. EJS runs before macros are filled in, so `<% if ('{{mvuhelperEngineName}}' === 'School') %>` is ALWAYS false: EJS sees the raw token. Branching code uses `MvuHelper.engineInfo()`. See [The ordering trap](../gamelogic_plugin/any_game.md#the-ordering-trap).
+
+### `{{mvuhelperBustStrength}}`
+
+The number for the breast slider LoRA in your ComfyUI workflow. It works anywhere SillyTavern fills in macros, and it's made for the replace of a ComfyUI custom placeholder: find `bust_strength`, replace `{{mvuhelperBustStrength}}`.
+
+| The chat holds | You get |
+| --- | --- |
+| a number in its bust variable, `bust_strength` by default | that number. MVU Helper writes each of its own pictures' number there right before the picture, so those pictures get theirs |
+| no bust variable, a blank one, or one that isn't a number | the **Default value** from Breast slider LoRA config, 1 unless you changed it |
+
+So it's never empty. That's the difference from `{{getvar::bust_strength}}`, the replace in the placeholder MVU Helper adds to SillyTavern: in a chat that never held the variable, `getvar` gives empty text, and ComfyUI refuses the job because that's not a number.
+
+It reads the variable whatever **Send bust multiplier** says. With the switch off, nothing writes the variable.
 
 ### Placeholders in MVU Helper's own settings
 
