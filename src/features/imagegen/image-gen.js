@@ -424,7 +424,7 @@ async function applyBustStrength(value) {
 // hands the workflow a number. Without it `{{getvar::<name>}}` reads "" and ComfyUI refuses the job: "" is not
 // a FLOAT. The value is bustValueFor's for a picture where nobody declares [Bust]. A value already there is
 // left as it is; each MVU Helper picture writes its own before its /sd call (applyBustStrength).
-// Runs on CHAT_CHANGED, when the switch is ticked, and when the variable is renamed.
+// Runs on every chat open (the CHAT_CHANGED listener below), when the switch is ticked, and when the variable is renamed.
 export async function seedBustVariableForChat(reason) {
     const value = bustValueFor([], bustSettings());
     if (value === null) return;   // Send bust multiplier is off
@@ -440,6 +440,13 @@ export async function seedBustVariableForChat(reason) {
         log.warn(`could not set the bust-strength variable (${name}=${value}) for this chat — a picture MVU Helper does not draw here will be refused by ComfyUI:`, e);
     }
 }
+
+// Registered when this module loads, so it hears every chat open, the startup one included. SillyTavern loads every
+// extension module before Auto-load Last Chat opens a chat, and replays no CHAT_CHANGED to a listener added later, so
+// a listener the extension's init attaches after its awaits misses that chat. CHAT_CHANGED fires once a chat has
+// finished loading, so the write and the save it schedules never land while SillyTavern is still reading the chat
+// file; a save in that span writes the half-loaded chat over the file.
+eventSource.on(event_types.CHAT_CHANGED, () => { void seedBustVariableForChat('chat opened'); });
 
 // What {{mvuhelperBustStrength}} expands to (bustMacroValue): the open chat's bust variable when it holds a number,
 // else the Default value. Registered at startup (src/index.js). SillyTavern expands a macro each time it fills in a
