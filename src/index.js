@@ -24,7 +24,7 @@ import { applyHelperLocale } from './sillytavern/i18n.js';
 
 // Image-gen: importing registers its runtime event listeners (prompt-inject,
 // streaming pre-gen, MESSAGE_RECEIVED → harvest + /sd, regen button).
-import { imageDefaults, imagegenProfileDefaults, wireImageSettings, updateImageUI, auditRenderedImagesAfterForeignWrites, wornOutfitWriteTask, deleteGlobalPromptInjection, seedComfyBustPlaceholder, seedBustVariableForChat } from './features/imagegen/index.js';
+import { imageDefaults, imagegenProfileDefaults, wireImageSettings, updateImageUI, auditRenderedImagesAfterForeignWrites, wornOutfitWriteTask, deleteGlobalPromptInjection, seedComfyBustPlaceholder, seedBustVariableForChat, bustStrengthMacroText } from './features/imagegen/index.js';
 import { wireRoster, refreshRosterUI, updateRosterUI, wornOutfitCleaningMission, characterRegistryJournalTask, resetCharacterRegistryForChat, wornOutfitEditJournalTask, resetWornOutfitEditsForChat } from './features/character-roster/index.js';
 import { registerOwnStateTask } from './features/own-state/index.js';
 import { registerCleaningMission, streetcleanerTask } from './features/streetcleaner/index.js';
@@ -408,11 +408,13 @@ async function createSettings(settingsHtml) {
                            // reply-integrity: a menu that built fine inside a display:none ancestor
                            // shows as "missing" with a healthy console; this names the ancestor.
 
-    // The plain-text half of engine identity — {{mvuhelperEngineName}} and {{mvuhelperEngineVersion}}
-    // for entries that are not EJS. Function values, so every expansion reads the CURRENT engine. Empty
-    // string when no engine: a plain-text entry cannot branch anyway, and branching code uses
-    // globalThis.MvuHelper.engineInfo(). EJS renders FIRST, then macros expand, so a macro read INSIDE
-    // <% %> yields the literal token.
+    // MVU Helper's SillyTavern macros. Function values, so every expansion reads the CURRENT value.
+    //   {{mvuhelperEngineName}} / {{mvuhelperEngineVersion}} — the plain-text half of engine identity, for
+    //     entries that are not EJS. Empty string when no engine: a plain-text entry cannot branch anyway, and
+    //     branching code uses globalThis.MvuHelper.engineInfo(). EJS renders FIRST, then macros expand, so a
+    //     macro read INSIDE <% %> yields the literal token.
+    //   {{mvuhelperBustStrength}} — the bust LoRA number (imagegen bustStrengthMacroText), never empty, made for
+    //     the replace of a ComfyUI custom placeholder.
     // Plain camelCase keys: with ST's experimental macro engine on, a `::` key registers without error and
     // never expands, while a plain key expands under both engines.
     try {
@@ -420,8 +422,9 @@ async function createSettings(settingsHtml) {
         if (typeof ctx.registerMacro === 'function') {
             ctx.registerMacro('mvuhelperEngineName', () => engineInfo().name || '', 'The active game engine\'s name (its ENGINE_NAME export), or empty');
             ctx.registerMacro('mvuhelperEngineVersion', () => engineInfo().version || '', 'The active game engine\'s version (its ENGINE_VERSION export), or empty');
+            ctx.registerMacro('mvuhelperBustStrength', () => bustStrengthMacroText(), 'The bust LoRA strength for the picture being drawn: the chat\'s bust variable when it holds a number, else the Default value');
         } else {
-            log.child('macros').warn('context.registerMacro unavailable — {{mvuhelperEngineName}}/{{mvuhelperEngineVersion}} will reach prompts unexpanded');
+            log.child('macros').warn('context.registerMacro unavailable — {{mvuhelperEngineName}}, {{mvuhelperEngineVersion}} and {{mvuhelperBustStrength}} will stay unexpanded');
         }
     } catch (e) {
         log.child('macros').warn('registering the mvuhelper macros failed — they will reach prompts unexpanded:', e);

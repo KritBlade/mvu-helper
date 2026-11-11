@@ -334,6 +334,17 @@ export function bustValueFor(people, settings) {
     return settings.sharedValue;
 }
 
+// The number {{mvuhelperBustStrength}} hands the workflow, PURE: what the chat's bust variable holds when it is a
+// number, else the Default value — never empty, because ComfyUI refuses a FLOAT input it cannot convert, and a chat
+// whose variable nobody wrote reads "" through {{getvar::…}}. `stored` is the variable as SillyTavern returns it: a
+// number, a string, or '' when unset. It reads the variable whatever the switch says; with the switch off nothing
+// writes it, so a chat holds the Default value unless someone set the variable by hand.
+export function bustMacroValue(stored, settings) {
+    const text = String(stored ?? '').trim();
+    const value = text === '' ? NaN : Number(text);
+    return Number.isFinite(value) ? value : settings.defaultValue;
+}
+
 // ── the composition cleanup ──────────────────────────────────────────────────────────────────
 // The contract tells the narrator to write ZERO appearance; each person's look is attached as their own
 // sentence. A FIXED ATTRIBUTE the narrator writes anyway is a second, competing copy: a wrong one ("red

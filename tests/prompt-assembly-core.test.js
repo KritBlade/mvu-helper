@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import {
     composeImagePrompt, sanitizeComposition, validateCharSlots, decideExplicitBlock, classifyDeclaredPathRead, declaredPathWarning,
-    imageDuties, placeNarratorPictureParts, isPictureWriterOffered, isHarvestTargetOffered, writerPairRuledOut, INSERT_TYPE, NARRATOR_TAG_ACTION, HISTORY_PICTURES, picSlots, maincharOf, fitPeopleToCeiling, bustValueFor, sceneRosterText, oneOffNamesOf, drawnPeopleOf, isLastPictureOf,
+    imageDuties, placeNarratorPictureParts, isPictureWriterOffered, isHarvestTargetOffered, writerPairRuledOut, INSERT_TYPE, NARRATOR_TAG_ACTION, HISTORY_PICTURES, picSlots, maincharOf, fitPeopleToCeiling, bustValueFor, bustMacroValue, sceneRosterText, oneOffNamesOf, drawnPeopleOf, isLastPictureOf,
     resolveStatPath, maincharNamedButNotDrawn, cameraOf, withCamera,
 } from '../src/features/imagegen/prompt-assembly-core.js';
 import { DEFAULT_REGEX, SCENE_ROSTER_PROMPT, OUTFIT_RULES_PROMPT, ONE_OFF_CLOTHES_ASK, EXPLICIT_RULES_PROMPT, REGISTRATION_OUTFIT_RULES, REGISTRATION_NAME_RULES, castRecordAsks, readerPictureContract, narrateRegistrationContract, readerRegistrationContract } from '../src/features/imagegen/default-template.js';
@@ -510,6 +510,39 @@ describe('bustValueFor — only people who declare [Bust] count', () => {
     it('off ⇒ null, so nothing is sent', () => {
         expect(bustValueFor([{ bust: 2 }], { ...SETTINGS, enabled: false })).toBeNull();
         expect(bustValueFor([], null)).toBeNull();
+    });
+});
+
+describe('bustMacroValue — {{mvuhelperBustStrength}} always hands the workflow a number', () => {
+    const SETTINGS = { enabled: true, defaultValue: 1.2, sharedValue: 1.5 };
+
+    it('a number the chat holds is passed through, as SillyTavern returns it or as text', () => {
+        expect(bustMacroValue(1.7, SETTINGS)).toBe(1.7);
+        expect(bustMacroValue('2.4', SETTINGS)).toBe(2.4);
+        expect(bustMacroValue(' 3 ', SETTINGS)).toBe(3);
+        expect(bustMacroValue(-0.5, SETTINGS)).toBe(-0.5);
+        expect(bustMacroValue(0, SETTINGS)).toBe(0);
+    });
+
+    // The bug it exists for: a chat nobody wrote the variable into reads "" through {{getvar::…}}, and
+    // ComfyUI refuses "" on a FLOAT input. Number('') is 0, so a blank must not be read as a number.
+    it('MUTATION TARGET — a missing or blank variable gives the Default value, never 0 and never empty', () => {
+        expect(bustMacroValue('', SETTINGS)).toBe(1.2);
+        expect(bustMacroValue('   ', SETTINGS)).toBe(1.2);
+        expect(bustMacroValue(undefined, SETTINGS)).toBe(1.2);
+        expect(bustMacroValue(null, SETTINGS)).toBe(1.2);
+    });
+
+    it('a value ComfyUI could not convert gives the Default value', () => {
+        expect(bustMacroValue('big', SETTINGS)).toBe(1.2);
+        expect(bustMacroValue('%bust_strength%', SETTINGS)).toBe(1.2);
+        expect(bustMacroValue('NaN', SETTINGS)).toBe(1.2);
+        expect(bustMacroValue('Infinity', SETTINGS)).toBe(1.2);
+    });
+
+    it('reads the variable whatever the switch says', () => {
+        expect(bustMacroValue('2', { ...SETTINGS, enabled: false })).toBe(2);
+        expect(bustMacroValue('', { ...SETTINGS, enabled: false })).toBe(1.2);
     });
 });
 

@@ -37,7 +37,7 @@ import { expandPromptMacros } from '../../sillytavern/prompt-macros.js';
 import { breakTemplateOpeners } from '../../shared/rendered-region.js';
 import { DEFAULT_PROMPT, MAINCHAR_NOT_IN_PICTURE, castRecordAsks, narratorPictureRules, readerPictureContract, readerPictureInput, pictureCountRules, narrateRegistrationContract, readerRegistrationContract, DEFAULT_REGEX, tagAttr } from './default-template.js';
 import {
-    INSERT_TYPE, HISTORY_PICTURES, NARRATOR_TAG_ACTION, imageDuties, isPictureWriterOffered, isHarvestTargetOffered, placeNarratorPictureParts, picSlots, maincharOf, fitPeopleToCeiling, bustValueFor, composeImagePrompt, sceneRosterText,
+    INSERT_TYPE, HISTORY_PICTURES, NARRATOR_TAG_ACTION, imageDuties, isPictureWriterOffered, isHarvestTargetOffered, placeNarratorPictureParts, picSlots, maincharOf, fitPeopleToCeiling, bustValueFor, bustMacroValue, composeImagePrompt, sceneRosterText,
     validateCharSlots, decideExplicitBlock, classifyDeclaredPathRead, declaredPathWarning, oneOffNamesOf, drawnPeopleOf,
     resolveStatPath, maincharNamedButNotDrawn, cameraOf, withCamera, isLastPictureOf, withoutMacroBraces,
 } from './prompt-assembly-core.js';
@@ -439,6 +439,17 @@ export async function seedBustVariableForChat(reason) {
     } catch (e) {
         log.warn(`could not set the bust-strength variable (${name}=${value}) for this chat — a picture MVU Helper does not draw here will be refused by ComfyUI:`, e);
     }
+}
+
+// What {{mvuhelperBustStrength}} expands to (bustMacroValue): the open chat's bust variable when it holds a number,
+// else the Default value. Registered at startup (src/index.js). SillyTavern expands a macro each time it fills in a
+// text that holds it, and the ComfyUI custom placeholder's replace is filled in at every /sd call — after the /setvar
+// an MVU Helper picture makes first (applyBustStrength), so its own pictures still get their per-picture number.
+export function bustStrengthMacroText() {
+    const settings = bustSettings();
+    const name = String(settings.variableName || '').trim();
+    const stored = name ? getContext().variables.local.get(name) : '';
+    return String(bustMacroValue(stored, settings));
 }
 
 // The card's image type → {width, height} from the configured presets. Every image renders at the
