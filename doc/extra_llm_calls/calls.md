@@ -59,14 +59,16 @@ How the entries are put together, and how to hand the call the story, is on [Wha
 | the switch, left of the name | turns this one call on or off, without deleting it |
 | the play button | **Run this call now**: runs the call against your last message, and shows the answer in a toast |
 | the red bin | **Delete call**. It asks first, and says what's lost |
-| **Connection** | the model the call runs on. Each player picks their own, it never travels with the card |
+| **Connection** | the model the call runs on, with its preset's settings. Each player picks their own, it never travels with the card |
 | **Phase** | **PRE (before reply)** or **POST (after reply)** |
 | **Max tokens** | the most tokens this call may answer with. Blank uses the profile's preset |
 | **Temperature** | the temperature for this call. Blank uses the profile's preset |
 | **Input filter** | narrows what the call reads. With a capture group, the call reads group 1, otherwise the whole match. `<gametxt>([\s\S]*?)</gametxt>` sends only that slice |
 | **Output check** | what a valid answer looks like. Prose that doesn't match is dropped, with a toast, instead of being passed on. Patch blocks are split out first, so they always survive |
 
-**There's no per-call preset, on purpose.** SillyTavern puts the preset inside the connection profile. So a different preset is a different profile: make one in Connection Manager, and pick it. MVU Helper never changes SillyTavern's own profiles. **Max tokens** and **Temperature** only ride along with the request.
+**The profile's preset gives a call its settings, never its prompts.** Its temperature, max tokens and switches like reasoning and web search apply to every call, the same as they do to SillyTavern's own requests on that profile. So a preset with web search on searches the web on every call. The preset's prompts, like its main prompt, are never sent: see [What a call reads](prompts.md).
+
+**There's no per-call preset, on purpose.** SillyTavern puts the preset inside the connection profile. So other settings are a different profile: make one in Connection Manager, and pick it. MVU Helper never changes SillyTavern's own profiles. **Max tokens** and **Temperature** only ride along with the request.
 
 The card's header also says what keeps a call from running: a **No name** pill, or **No connection** while it's on.
 

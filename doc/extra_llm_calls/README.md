@@ -27,7 +27,7 @@ So you pick one connection profile per call:
 
 That's it. A call that's on but has no profile shows a **No connection** pill on its card, and MVU Helper tells you with a toast too.
 
-**Make the profiles in SillyTavern's Connection Manager first**. One profile is one model plus its preset. A different preset is a different profile.
+**Make the profiles in SillyTavern's Connection Manager first**. One profile is one model plus its preset's settings, like temperature, reasoning and web search. Other settings are a different profile. The preset's prompts are never sent: a call's prompt is what the card gives it (see [What a call reads](prompts.md)).
 
 ## Which model for which call
 
