@@ -123,6 +123,14 @@ describe('parseInitmvuhelper + normalizeCardConfig ([Initmvuhelper] card config 
         expect(merged.imagegen).not.toHaveProperty('storyDatePath');
     });
 
+    it("MUTATION TARGET — the main character's noun is card-owned and takes only '', boy or girl", () => {
+        expect(CARD_CONFIG_SECTIONS.find((s) => s.key === 'imagegen').cardOwned).toContain('maincharNoun');
+        expect(normalizeCardConfig({ imagegen: { maincharNoun: 'girl' } }).imagegen).toEqual({ maincharNoun: 'girl' });
+        const wrong = normalizeCardConfig({ imagegen: { maincharNoun: 'man' } });
+        expect(wrong.imagegen).toEqual({});
+        expect(wrong.blocked).toEqual([{ path: 'imagegen.maincharNoun', why: expect.stringContaining('expected one of "", "boy", "girl"') }]);
+    });
+
     it('reports nothing when no retired field is present, and names an unnamed call by index', () => {
         expect(normalizeCardConfig({ extraLlmCalls: { calls: [{ name: 'PRE' }] } }).retired).toEqual([]);
         expect(normalizeCardConfig({ extraLlmCalls: { calls: [{ name: 'PRE', preset: '' }] } }).retired).toEqual([]);   // empty ⇒ author set nothing
@@ -200,7 +208,7 @@ describe('isFreshProfile + install — a profile this card has never imported in
     const shippedDefaults = () => ({
         extraLlmCalls: { enabled: true, parallel: true, timeoutSec: 60, groups: [], calls: [] },
         imagegen: {
-            promptTemplate: '', promptRegex: '', promptPosition: '', promptDepth: '', intimacyLatchPath: '', maincharRegistryKey: '',
+            promptTemplate: '', promptRegex: '', promptPosition: '', promptDepth: '', intimacyLatchPath: '', maincharRegistryKey: '', maincharNoun: '',
             insertType: 'disabled', charimgVia: '', sdPromptPrefixPresetId: 'default', maxCharactersPerImage: 3,
             maxImagesPerReply: 1, defaultImageType: 'landscape', stripPicTag: true, hBlockAlwaysOn: false,
         },
@@ -580,6 +588,20 @@ describe('flatSection (the generic handler for a flat card-config section)', () 
         const out = section().normalize({ maxPerReply: 'two', stripPicTag: 'yes' }, r);
         expect(out).toEqual({});
         expect(r.blocked.map((b) => b.path)).toEqual(['demo.maxPerReply', 'demo.stripPicTag']);
+    });
+
+    it('MUTATION TARGET — a choice-list field takes one of its strings, and BLOCKS anything else naming the choices', () => {
+        const withChoice = flatSection({ key: 'demo', cardOwned: { noun: ['', 'boy', 'girl'] } });
+        const r = report();
+        expect(withChoice.normalize({ noun: 'boy' }, r)).toEqual({ noun: 'boy' });
+        expect(withChoice.normalize({ noun: '' }, r)).toEqual({ noun: '' });
+        expect(r.blocked).toEqual([]);
+        expect(withChoice.normalize({ noun: 'Boy' }, r)).toEqual({});
+        expect(withChoice.normalize({ noun: ['boy'] }, r)).toEqual({});
+        const why = 'expected one of "", "boy", "girl" — the value was ignored';
+        expect(r.blocked).toEqual([{ path: 'demo.noun', why }, { path: 'demo.noun', why }]);
+        expect(withChoice.serialize({ noun: 'man' })).toEqual({});
+        expect(withChoice.serialize({ noun: 'girl' })).toEqual({ noun: 'girl' });
     });
 
     it('serialize emits card-owned + card-seeded and can NEVER emit a never-travels field', () => {

@@ -749,7 +749,8 @@
 }
 
 /* Controls and buttons on one line, a select or input taking the free width (a preset select with New, Rename and
-   Delete). Buttons that do not fit wrap to the next line; the select or input, sized from zero, never forces a wrap. */
+   Delete). Buttons that do not fit wrap to the next line. On a wide shell the select or input, sized from zero, never
+   forces a wrap; on a narrow one it keeps a readable width and wraps (the 720px rules below). */
 .mvuh-ui .mvuh-control-row {
     display: flex;
     flex-wrap: wrap;
@@ -1661,6 +1662,12 @@ dialog.mvuh-ui.mvuh-dialog::backdrop {
 
     .mvuh-ui .mvuh-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Several fields in one control row share a line two or three at a time, rather than each shrinking past reading
+       (a search box beside four filter dropdowns); a field alone on its line still takes all of it. */
+    .mvuh-ui .mvuh-control-row > :is(.mvuh-input, .mvuh-select) {
+        flex-basis: 120px;
     }
 
     .mvuh-ui .mvuh-card-header {

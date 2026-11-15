@@ -268,30 +268,37 @@ export function normalizeMaxTokens(v) {
     return Number(v) > 0 ? Number(v) : undefined;
 }
 
-// temperature → overridePayload, only when a real number was actually provided.
-export function buildOverridePayload(temperature) {
+// The call's own settings that ride the request beside the messages (sendRequest's overridePayload):
+//   · temperature, only when a real number was actually provided;
+//   · on a Text Completion profile (`apiType` 'textgenerationwebui'), the call's max tokens again under the names those
+//     backends read the limit by — `num_predict` (Ollama) and `n_predict` (llama.cpp) — as ST's own main reply sends
+//     them (textgen-settings.js getTextGenGenerationData). ST's request service sends max tokens as `max_tokens`
+//     alone, which its server never passes to Ollama, and a profile's preset that carries a response length (`genamt`,
+//     which ST writes into a preset a user saves) sets `num_predict` from that; this payload overrides the preset. No
+//     max tokens (normalizeMaxTokens gave undefined): neither key, and the preset decides.
+export function buildOverridePayload(temperature, { apiType = null, maxTokens } = {}) {
     const payload = {};
     const t = Number(temperature);
     if (String(temperature).trim() !== '' && !Number.isNaN(t)) payload.temperature = t;
+    if (apiType === 'textgenerationwebui' && maxTokens > 0) {
+        payload.num_predict = maxTokens;
+        payload.n_predict = maxTokens;
+    }
     return payload;
 }
 
-// Normalise a completion response to plain text. Handles BOTH shapes sendRequest can hand back:
-// the extracted `{content}`/`{text}` object (extractData:true) and the provider's RAW json
-// (extractData:false — what runLlmCall requests, so the finish reason survives, see
-// completionCutReason). The raw arms mirror ST's own extractMessageFromData switch without needing
-// to know which API class served the call: chat completions (`choices[0].message.content`), text
-// completions (`choices[0].text`), kobold (`results[0].text`), novel (`output`).
-export function extractCompletionText(data) {
-    if (typeof data === 'string') return data;
-    if (!data) return '';
-    const t = data.content
-        ?? data.choices?.[0]?.message?.content
-        ?? data.choices?.[0]?.text
-        ?? data.results?.[0]?.text
-        ?? data.output
-        ?? data.text;
-    return String(t || '');
+// THE TEXT OF A CALL'S ANSWER. runLlmCall asks sendRequest for the provider's RAW reply (extractData:false), so the
+// finish reason survives (completionCutReason), and reads its text here with SillyTavern's own reader: `readMessage`
+// is ST's extractMessageFromData, the reader ST's request service runs itself when it extracts. It reads every shape
+// ST hands back: OpenAI-style choices, the parts list ST keeps beside them for a direct Claude reply (its text parts
+// alone, so a thinking part stays out), Cohere's message, llama.cpp's content and Ollama's response.
+// `apiType` is the API the CALL'S profile sends to ('openai' = Chat Completion, 'textgenerationwebui' = Text
+// Completion). It is required: without it ST's reader reads by the main connection's API, which can differ from the
+// call's.
+export function extractCompletionText(data, apiType, readMessage) {
+    if (!apiType) throw new Error('no API type for the call\'s connection profile, so its answer cannot be read');
+    const text = readMessage(data, apiType);
+    return text == null ? '' : String(text);
 }
 
 // completionCutReason lives in shared/completion-finish.js (P3: the MAIN-generation finish-reason tap

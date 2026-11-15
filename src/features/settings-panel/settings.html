@@ -267,6 +267,17 @@
                         <p class="mvuh-detail" data-i18n="Main character entry detail">The main character is {{user}}; the card normally names the entry. Blank: the main character is drawn from the scene alone.</p>
                     </div>
                     <div class="mvuh-field">
+                        <div class="mvuh-field-label"><label for="mvuh_img_mainchar_noun" data-i18n="Main character noun">Main character noun</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
+                        <!-- boy and girl are the words the picture prompt uses, shown as written -->
+                        <select id="mvuh_img_mainchar_noun" class="mvuh-select">
+                            <option value="" data-i18n="— none —">— none —</option>
+                            <option value="boy">boy</option>
+                            <option value="girl">girl</option>
+                        </select>
+                        <p class="mvuh-hint" data-i18n="Main character noun hint">Boy or girl: what pictures call the main character. Set only to override the card.</p>
+                        <p class="mvuh-detail" data-i18n="Main character noun detail">When a picture's count tag says who is who, people are called by noun instead of by name: "the girl" and "the boy" for one of each, girl1, girl2, boy1 … for more. Each noun is tied to that person's look, which keeps one person's clothes off another. A picture with the main character needs this noun; — none —: such pictures keep the names.</p>
+                    </div>
+                    <div class="mvuh-field">
                         <div class="mvuh-field-label"><label for="mvuh_img_default_type" data-i18n="Image type">Image type</label><button type="button" class="mvuh-help-toggle" aria-expanded="false" data-i18n-title="More about this" title="More about this"><i class="fa-solid fa-circle-question"></i></button></div>
                         <!-- type names are the words a <pic> tag and the presets use, shown as written -->
                         <select id="mvuh_img_default_type" class="mvuh-select">

@@ -1,5 +1,6 @@
-// sillytavern/connection-profiles.js — reads ST's connection-manager profiles for the per-call API dropdown, and
-// says when that list changes. One level below the extension root, so ST-core imports gain one `../`.
+// sillytavern/connection-profiles.js — reads ST's connection-manager profiles: the list for the per-call API dropdown,
+// when that list changes, and which API a profile sends to. One level below the extension root, so ST-core imports
+// gain one `../`.
 import { getContext } from '../../../../../extensions.js';
 import { eventSource, event_types } from '../../../../../../script.js';
 import { createModuleLog } from './log.js';
@@ -19,6 +20,14 @@ export function getConnectionProfiles() {
         log.warn(`could not read connection profiles:`, e);
         return [];
     }
+}
+
+// The API a connection profile sends to: 'openai' (Chat Completion) or 'textgenerationwebui' (Text Completion). Found
+// the way ConnectionManagerRequestService.sendRequest finds it — the profile by id, then the service's own
+// validateProfile — so a missing or unsupported profile throws ST's own error.
+export function connectionProfileApiType(profileId) {
+    const profile = getConnectionProfiles().find((p) => p && p.id === profileId);
+    return getContext().ConnectionManagerRequestService.validateProfile(profile).selected;
 }
 
 // The connection-manager events that change the list getConnectionProfiles() returns: a profile added, removed, or

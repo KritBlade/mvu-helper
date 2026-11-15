@@ -12,8 +12,21 @@
 // keeps it apart, and the tag marks where it ENDS: measured on Krea2 (2026-10-16, ComfyUI, the staging two-girl
 // bench scene, 12 seeds a variant), the tags with the composition calling him "the main character" (<camera>)
 // drew both girls and him in 11-12 of 12, against 8 of 12 for the named sentences alone. A period inside a card's
-// look text never ends that look early (lookText). The wording names no gender: what each person is comes from
-// the first tag of their own look.
+// look text never ends that look early (lookText).
+//
+// THE NOUN LINK — who is who, by the composition's count tag. A name says no gender, and in matching outfits the image
+// model hands one person's garments to another, so when the count tag can say what everyone is, people are called by
+// their noun, in the composition and in their sentences, and the noun is what ties each look to its person:
+//   exactly one girl and one boy: "the girl" and "the boy"
+//     <prefix>, <composition with "the girl" / "the boy">. The girl in the frame is <name>: [<name>] … [/<name>] The boy in the frame is [main character] … [/main character]
+//   more than one girl or more than one boy: numbered in slot order, the main character after the others
+//     <prefix>, <composition with "girl1" / "girl2" / "the boy1">. The girl1 in the frame is <name>: … The girl2 in the frame is <name>: … The boy1 in the frame is [main character] …
+// It holds when the count tag, once the main character is taken out, says every other person with a look is one noun
+// (all girls, or all boys), and when a main character drawn with a look has the noun the card gives them
+// (imagegen.maincharNoun). Every other picture keeps the names, and what each person is comes from the first tag of
+// their own look. Measured on Krea2 with an NSFW LoRA loaded (2026-11-15, matching uniforms, 12 seeds a variant): one
+// girl and a boy main character, the boy in his own trousers 3 of 12 named, 8 of 12 with the nouns, 4 of 12 numbered;
+// two girls and him, the second girl in her own hair colour 2 of 12 named, 9 of 12 numbered.
 //
 // POSITION IS THE COMPOSITION'S ALONE: these sentences name each person and never say where they stand.
 // The narrator's composition places everyone by name, and a position here would be a second claim that
@@ -30,7 +43,7 @@ import { CAMERA_CHOICES, MAINCHAR_NOT_IN_PICTURE, MAINCHAR_PROMPT_NAME, SCENE_RO
 // load under vitest, and this file is pure. dna-core.js is that feature's pure half and the one place the
 // outfit= vocabulary is defined.
 import { OUTFIT_NEW_CLOTHES } from '../character-roster/dna-core.js';
-import { mentionsName } from '../../shared/name-mention.js';
+import { mentionsName, nameMentionPattern } from '../../shared/name-mention.js';
 import { isPrototypeKey } from '../../shared/object-path.js';
 import { revertRenderedImagesToPicTags, removePastPictures } from './image-splice-core.js';
 
@@ -400,10 +413,71 @@ function sentenceEnd(text) {
     return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
 }
 
-// The opening of one person's sentence: "the person in the frame" when they are alone, else their name
-// alone. Never a position — where each one stands is the composition's to say.
-function personOpening(name, count) {
+// The opening of one person's sentence: their label when the noun link holds, else "the person in the frame" when
+// they are the only person with a look, else their name alone. Never a position — where each one stands is the
+// composition's to say.
+function personOpening(name, count, label) {
+    if (label) return `The ${label} in the frame is ${name}`;
     return count === 1 ? `The person in the frame is ${name}` : `${name} is`;
+}
+
+// The nouns a card may call its main character by (imagegen.maincharNoun). '' names none: a picture with the main
+// character in it keeps the names.
+export const MAINCHAR_NOUNS = Object.freeze(['', 'boy', 'girl']);
+
+// How many girls and how many boys the composition's count tag counts ("1girl, 1boy" → 1 and 1, "2girls" → 2 and 0).
+const COUNT_NOUN_RE = /(?<![\p{L}\p{N}])(\d+)\s*(girl|boy)s?(?![\p{L}\p{N}])/giu;
+function countTagNouns(scene) {
+    const counts = { girl: 0, boy: 0 };
+    for (const m of String(scene || '').matchAll(COUNT_NOUN_RE)) counts[m[2].toLowerCase()] += Number(m[1]);
+    return counts;
+}
+
+// The one noun every other person with a look is, from what the count tag leaves once the main character is taken out:
+// 'girl' when it leaves no boy and a girl for each of them, 'boy' the other way round, '' when it cannot say — a count
+// that never counted the main character leaves -1 of their noun, which says neither.
+function othersNounOf(left, howMany) {
+    if (left.boy === 0 && left.girl >= howMany) return 'girl';
+    if (left.girl === 0 && left.boy >= howMany) return 'boy';
+    return '';
+}
+
+// THE NOUN LINK's verdict (file header): null keeps the names; else { isNumbered, maincharLabel, otherLabels }: the main
+// character's label ('' when they have no look) and one label per other person with a look, in slot order. Numbered when
+// the count tag counts more than one girl or more than one boy; "girl" and "boy" when it counts exactly one of each.
+function peopleLabelsOf({ maincharNoun, scene, cast, maincharHasLook }) {
+    const counts = countTagNouns(scene);
+    const isNumbered = counts.girl > 1 || counts.boy > 1;
+    if (!cast.length || !(isNumbered || (counts.girl === 1 && counts.boy === 1))) return null;
+    const left = { ...counts };
+    const maincharKind = maincharHasLook && MAINCHAR_NOUNS.includes(maincharNoun) ? maincharNoun : '';
+    if (maincharHasLook) {
+        if (!maincharKind) return null;
+        left[maincharKind] -= 1;
+    }
+    const othersKind = othersNounOf(left, cast.length);
+    if (!othersKind) return null;
+    const otherLabels = cast.map((_, i) => (isNumbered ? `${othersKind}${i + 1}` : othersKind));
+    // Numbered after the others who share the main character's noun, so the labels run in the sentences' order.
+    const maincharNumber = maincharKind === othersKind ? cast.length + 1 : 1;
+    const maincharLabel = maincharKind && (isNumbered ? `${maincharKind}${maincharNumber}` : maincharKind);
+    return { isNumbered, maincharLabel, otherLabels };
+}
+
+// The composition with everyone labelled: "the main character" becomes "the <label>", and each other person's name,
+// found by the same whole-word rule as every other name lookup (nameMentionPattern), becomes "the girl" / "the boy",
+// or the bare numbered label ("girl1"), which reads where a name did.
+function withLabels(scene, cast, labels) {
+    let labelled = scene;
+    if (labels.maincharLabel) {
+        const maincharMention = new RegExp(`\\bthe ${MAINCHAR_PROMPT_NAME}\\b`, 'gi');
+        labelled = labelled.replace(maincharMention, (match) => `${match[0] === 'T' ? 'The' : 'the'} ${labels.maincharLabel}`);
+    }
+    cast.forEach((person, i) => {
+        const mention = nameMentionPattern(person.name, 'g');
+        if (mention) labelled = labelled.replace(mention, labels.isNumbered ? labels.otherLabels[i] : `the ${labels.otherLabels[i]}`);
+    });
+    return labelled;
 }
 
 // Shared clothing is stated ONCE: when every person wears the exact same text (a card's shared uniform
@@ -449,6 +523,8 @@ export function withoutMacroBraces(text) {
  *        order; one with neither body nor clothes adds nothing and is drawn from the scene.
  * @param {{body: string, clothes: string}|null} [input.mainchar]  the main character's look, null when
  *        he is not drawn — his sentence closes the prompt, and neither body nor clothes means no sentence.
+ * @param {string} [input.maincharNoun]  the card's noun for the main character (MAINCHAR_NOUNS), which the noun
+ *        link (file header) needs whenever the main character is drawn with a look; '' keeps the names then.
  * @param {boolean} [input.cleanup]   true only when EVERYONE in the shot has a body or a look on file:
  *        otherwise the composition may be someone's only description, and it is left untouched.
  * @param {(removed: Array<{tag: string, why: string}>) => void} [input.onRemoved]  told what the cleanup
@@ -459,7 +535,7 @@ export function withoutMacroBraces(text) {
  * whole prompt it is handed, and the composition and a look this reply's <cast> record wrote are the model's
  * own words. The prefix is the user's and keeps any macro it was written with.
  */
-export function composeImagePrompt({ prefix, composition, people, mainchar = null, cleanup = false, onRemoved }) {
+export function composeImagePrompt({ prefix, composition, people, mainchar = null, maincharNoun = '', cleanup = false, onRemoved }) {
     // The prefix is the user's preset text, followed by ", " here: a closing comma or period of its own would
     // read ",," or "., ".
     const head = String(prefix || '').trim().replace(/[\s,;.]+$/, '');
@@ -474,8 +550,10 @@ export function composeImagePrompt({ prefix, composition, people, mainchar = nul
         if (clean.removed.length && typeof onRemoved === 'function') onRemoved(clean.removed);
         scene = clean.text.trim();
     }
+    const labels = peopleLabelsOf({ maincharNoun, scene, cast, maincharHasLook: Boolean(maincharTraits) });
+    if (labels) scene = withLabels(scene, cast, labels);
     const closing = maincharTraits
-        ? `The ${MAINCHAR_PROMPT_NAME} in the frame is ${ownedLook(MAINCHAR_PROMPT_NAME, maincharTraits)}`
+        ? `The ${labels ? labels.maincharLabel : MAINCHAR_PROMPT_NAME} in the frame is ${ownedLook(MAINCHAR_PROMPT_NAME, maincharTraits)}`
         : '';
     // Pure scenery: the composition alone, byte-for-byte.
     if (!cast.length && !closing) return lead + scene;
@@ -483,10 +561,10 @@ export function composeImagePrompt({ prefix, composition, people, mainchar = nul
     const parts = [sentenceEnd(lead + scene)];
     const shared = cast.length > 1 ? sharedClothesOf(cast) : '';
     if (shared) parts.push(sentenceEnd(`${cast.length === 2 ? 'Both wear' : `All ${cast.length} wear`}: ${lookText(shared)}`));
-    cast.forEach((person) => {
+    cast.forEach((person, i) => {
         // Someone with no body whose clothes the shared sentence states has nothing left of her own to say.
         const traits = traitsOf(person.body, shared ? '' : person.clothes);
-        if (traits) parts.push(`${personOpening(person.name, cast.length)}: ${ownedLook(person.name, traits)}`);
+        if (traits) parts.push(`${personOpening(person.name, cast.length, labels ? labels.otherLabels[i] : '')}: ${ownedLook(person.name, traits)}`);
     });
     parts.push(closing);
     return parts.filter(Boolean).join(' ');

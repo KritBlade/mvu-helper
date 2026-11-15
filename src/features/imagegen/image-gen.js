@@ -7,8 +7,8 @@
 //                                       streaming, the bust LoRA, the /sd prompt-prefix list.
 //   PER-CARD (getImagegenProfile())  — card behavior: the <pic> contract (promptTemplate, promptRegex,
 //                                       promptPosition, promptDepth), insertType, maxImagesPerReply,
-//                                       maxCharactersPerImage, maincharRegistryKey, defaultImageType,
-//                                       stripPicTag, charimgVia, the intimacy latch.
+//                                       maxCharactersPerImage, maincharRegistryKey, maincharNoun,
+//                                       defaultImageType, stripPicTag, charimgVia, the intimacy latch.
 //   The roster settings (route, charCollection, presenceField) belong to the roster feature
 //   (character-roster/roster-settings.js, profile.roster.*).
 // What the settings make the pipeline do is decided in one pure place, imageDuties (prompt-assembly-core).
@@ -342,6 +342,7 @@ async function assemblePrompt(rawTag, composition, replyRecords, worn, shownFor)
         composition,
         people: drawn.people,
         mainchar: drawn.mainchar,
+        maincharNoun: getImagegenProfile().maincharNoun,
         cleanup: drawn.hasEveryoneALook,
         onRemoved,
     });

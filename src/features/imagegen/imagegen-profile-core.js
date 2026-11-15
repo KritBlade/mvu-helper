@@ -2,7 +2,7 @@
 // profile starts from, and the repair its accessor runs (image-gen.js getImagegenProfile reads the live profile
 // and hands it here). Pure, so a test runs the repair against the lobby's frozen copy.
 
-import { INSERT_TYPE } from './prompt-assembly-core.js';
+import { INSERT_TYPE, MAINCHAR_NOUNS } from './prompt-assembly-core.js';
 
 export const IMAGE_TYPES = ['portrait', 'landscape', 'closeup', 'scene', 'square'];
 
@@ -50,6 +50,12 @@ export const imagegenProfileDefaults = {
         // never names or registers him. CARD-DECLARED (imagegen.maincharRegistryKey in [Initmvuhelper]) or
         // typed in the panel; blank ⇒ he is drawn from the scene alone.
         maincharRegistryKey: '',
+        // WHAT the main character is, for the picture prompt: '' | 'boy' | 'girl' (MAINCHAR_NOUNS). A picture whose count
+        // tag says who is who calls its people "the girl" / "the boy", or girl1, girl2, boy1 … when there is more than
+        // one of either, which keeps each one's clothes on their own body (prompt-assembly-core THE NOUN LINK); with the
+        // main character drawn, that needs this noun. CARD-DECLARED (imagegen.maincharNoun in [Initmvuhelper]) or
+        // picked in the panel; '' ⇒ a picture with the main character keeps "the main character" and the names.
+        maincharNoun: '',
         maxImagesPerReply: 1,      // hard cap per reply (plain-ST default 1; galgame play typically 2-3)
         defaultImageType: 'landscape',  // EVERY image renders at this type's resolution preset; the narrator never picks one
         stripPicTag: true,    // <pic> DISPOSITION, independent of drawing: true = take the tag out of the visible reply, leaving its invisible trace (image-splice-core buildTagTraceWrap: clean display, galgame-safe, and the record of who was drawn in what clothes); false = keep it raw for troubleshooting. Applies whether or not we draw.
@@ -84,6 +90,7 @@ export function imagegenProfileOf(p) {
     if (typeof ig.sdPromptPrefixPresetId !== 'string') ig.sdPromptPrefixPresetId = d.sdPromptPrefixPresetId;
     if (!(Number.isInteger(ig.maxCharactersPerImage) && ig.maxCharactersPerImage >= 1)) ig.maxCharactersPerImage = d.maxCharactersPerImage;
     if (typeof ig.maincharRegistryKey !== 'string') ig.maincharRegistryKey = d.maincharRegistryKey;
+    if (!MAINCHAR_NOUNS.includes(ig.maincharNoun)) ig.maincharNoun = d.maincharNoun;
     if (!Number.isFinite(ig.maxImagesPerReply)) ig.maxImagesPerReply = d.maxImagesPerReply;
     if (!IMAGE_TYPES.includes(ig.defaultImageType)) ig.defaultImageType = d.defaultImageType;
     // stripTagAfterGenerate → stripPicTag rename (2026-07-27): carry any old persisted value across, then drop the stale key.

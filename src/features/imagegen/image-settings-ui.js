@@ -87,6 +87,7 @@ export function updateImageUI() {
     $('#mvuh_img_max_per_reply').val(Math.max(1, parseInt(prof.maxImagesPerReply) || 1));
     $('#mvuh_img_max_characters').val(prof.maxCharactersPerImage);
     $('#mvuh_img_mainchar_key').val(prof.maincharRegistryKey || '');
+    $('#mvuh_img_mainchar_noun').val(prof.maincharNoun || '');
     $('#mvuh_img_default_type').val(prof.defaultImageType || 'portrait');
     // The <pic> contract (per-card): blank shows the built-in one, which is what this card sends.
     $('#prompt_injection_text').val(prof.promptTemplate || DEFAULT_PROMPT);
@@ -234,6 +235,10 @@ export function wireImageSettings() {
     });
     $('#mvuh_img_mainchar_key').on('input', function () {
         getImagegenProfile().maincharRegistryKey = String($(this).val() || '').trim();
+        saveSettingsDebounced();
+    });
+    $('#mvuh_img_mainchar_noun').on('change', function () {
+        getImagegenProfile().maincharNoun = String($(this).val() || '');
         saveSettingsDebounced();
     });
     $('#mvuh_img_max_characters').on('input', function () {

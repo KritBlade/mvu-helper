@@ -3,19 +3,38 @@
 // (features/small-llm, its own raw response in hand) and the finish-reason tap on the MAIN
 // generation (sillytavern/finish-reason-tap.js, observing a cloned response). No host imports.
 
-// Finishes that mean "the model was DONE" — everything else means the output was cut or odd enough
-// to surface. Tool-call handoffs end a turn on purpose and are not cuts.
-export const COMPLETION_NORMAL_FINISHES = new Set(['stop', 'end_turn', 'tool_calls', 'function_call']);
+// Finishes that mean "the model was DONE", in each provider's words, compared lower-cased: OpenAI's and Ollama's
+// `stop`, Claude's `end_turn` and `stop_sequence`, Cohere's `COMPLETE` and `STOP_SEQUENCE`. Tool-call handoffs end a
+// turn on purpose and are not cuts: `tool_calls`, `function_call`, Claude's `tool_use`, Cohere's `TOOL_CALL`.
+// Everything else means the output was cut or odd enough to surface.
+export const COMPLETION_NORMAL_FINISHES = new Set([
+    'stop', 'end_turn', 'stop_sequence', 'complete',
+    'tool_calls', 'function_call', 'tool_use', 'tool_call',
+]);
 
-// The raw finish reason from a completion response body, '' when the shape holds none.
-// Arms: OpenAI-style chat/text completions (`choices[0].finish_reason`) and Google's native shape
-// (`candidates[0].finishReason` — the direct makersuite path, where a safety kill says 'SAFETY').
+// The raw finish reason from a completion response body or one streamed chunk of it, '' when the shape holds none.
+// Arms:
+//   · OpenAI-style chat/text completions — `choices[0].finish_reason`;
+//   · Google's native shape — `candidates[0].finishReason` (the direct makersuite path, where a safety kill says
+//     'SAFETY');
+//   · Ollama's own reply, which ST hands back as Ollama sent it (Text Completion, not streamed) — `done_reason`;
+//   · Cohere's own reply, likewise (not streamed) — `finish_reason`;
+//   · the streamed event that ends a Claude or a Cohere message — Claude's `message_delta` (`delta.stop_reason`),
+//     Cohere's `message-end` (`delta.finish_reason`).
+// Two replies carry no reason at all: a direct Claude reply that is not streamed (ST rebuilds it as
+// `{ choices, content }` and leaves Claude's stop_reason out) and a streamed Ollama reply (ST rewrites each chunk as
+// `{ choices: [{ text }] }`).
 export function completionFinishReason(data) {
     if (!data || typeof data !== 'object') return '';
     const choice = data.choices && data.choices[0];
     if (choice && choice.finish_reason != null) return String(choice.finish_reason).trim();
     const candidate = data.candidates && data.candidates[0];
     if (candidate && candidate.finishReason != null) return String(candidate.finishReason).trim();
+    if (data.done_reason != null) return String(data.done_reason).trim();
+    if (data.finish_reason != null) return String(data.finish_reason).trim();
+    const delta = data.delta;
+    if (delta && delta.stop_reason != null) return String(delta.stop_reason).trim();
+    if (delta && delta.finish_reason != null) return String(delta.finish_reason).trim();
     return '';
 }
 

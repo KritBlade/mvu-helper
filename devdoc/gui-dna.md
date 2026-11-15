@@ -309,7 +309,9 @@ rows); its label is then a caption (`<span>`) rather than a `<label for>`.
 an input or a textarea sets the monospace font (prompts, patterns, pasted files). 36px, field background, 1px border,
 radius 8, focus ring. `.is-missing` is a warning border. Native number spinners, no custom steppers.
 `.mvuh-control-row` puts controls and buttons on one line, a select or input taking the free width (a preset select
-with New, Rename, Delete; an editor's Save and Cancel); buttons that do not fit wrap to the next line.
+with New, Rename, Delete; an editor's Save and Cancel); buttons that do not fit wrap to the next line. Under a 720px
+shell each select or input keeps at least 120px and wraps, so a row of several fields (a search box beside filter
+dropdowns) shares a phone's line two at a time instead of cutting every label to a few letters.
 
 **Slider + number** `.mvuh-slider`: `<input type="range" class="mvuh-range" data-mvuh-slider-for="<number id>">`
 beside the number input, which stays the value owner. The DNA draws the track (`--mvuh-control-off`) and the thumb (the

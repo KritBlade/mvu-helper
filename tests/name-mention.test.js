@@ -7,7 +7,7 @@
  * Run:  npm test
  */
 import { describe, it, expect } from 'vitest';
-import { mentionsName } from '../src/shared/name-mention.js';
+import { mentionsName, nameMentionPattern } from '../src/shared/name-mention.js';
 
 describe('mentionsName — is a name written in the text', () => {
     it('MUTATION TARGET — a Latin-script name: no Latin letter or digit may touch either end', () => {
@@ -44,5 +44,22 @@ describe('mentionsName — is a name written in the text', () => {
     it('MUTATION TARGET — a name is read literally, never as a pattern', () => {
         expect(mentionsName('Mr. Smith arrived', 'Mr. Smith')).toBe(true);
         expect(mentionsName('Mrs Smith arrived', 'Mr. Smith')).toBe(false);
+    });
+});
+
+// The image pipeline replaces a name in a composition by the same rule it is found by.
+describe('nameMentionPattern — the same rule as a pattern', () => {
+    it('MUTATION TARGET — with "g" it replaces every whole-word mention and nothing else', () => {
+        expect('Mana smiled at the manager; mana, Mana2, MANA.'.replace(nameMentionPattern('Mana', 'g'), 'the girl'))
+            .toBe('the girl smiled at the manager; the girl, Mana2, the girl.');
+    });
+
+    it('a name in another script is replaced wherever it appears', () => {
+        expect('柚月看着柚月的书'.replace(nameMentionPattern('柚月', 'g'), 'X')).toBe('X看着X的书');
+    });
+
+    it('a name with no letter has no pattern', () => {
+        expect(nameMentionPattern('2026')).toBe(null);
+        expect(nameMentionPattern('')).toBe(null);
     });
 });

@@ -41,13 +41,19 @@ function coerce(value, type) {
         if (typeof value === 'object') return { ok: false, why: 'expected a string' };
         return { ok: true, value: String(value) };
     }
+    // A CHOICE LIST: the field takes one of these strings and nothing else.
+    if (Array.isArray(type)) {
+        const text = typeof value === 'object' ? null : String(value);
+        if (text !== null && type.includes(text)) return { ok: true, value: text };
+        return { ok: false, why: `expected one of ${type.map((choice) => JSON.stringify(choice)).join(', ')}` };
+    }
     return { ok: false, why: `unsupported declared type "${type}"` };
 }
 
 // Build a section descriptor (the shape CARD_CONFIG_SECTIONS holds) from a field declaration.
 //   key           the section name — identical to the per-card PROFILE key, so one vocabulary spans
 //                 card JSON, settings and GUI (§6.1 #4).
-//   cardOwned     { field: 'string'|'number'|'boolean' }
+//   cardOwned     { field: 'string'|'number'|'boolean'|['choice', …] } — a list takes one of its strings only
 //   cardSeeded    { field: type }
 //   neverTravels  ['field', …]  — declared (so it is not reported as unrecognised) but never carried.
 //   retired       { field: 'why it is ignored' } — never imported; a card carrying it lands in report.retired,

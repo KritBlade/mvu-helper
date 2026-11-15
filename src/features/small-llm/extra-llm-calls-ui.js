@@ -138,8 +138,8 @@ function callRecord(call) {
             field([
                 fieldLabel({ text: 'Connection', forId: fieldId('profileId'), hasHelp: true }),
                 select({ id: fieldId('profileId'), options: connectionOptions, isMissing: blocker === 'no-connection', data: forField('profileId') }),
-                hint({ text: 'The connection profile this call runs on: its model and preset.' }),
-                detail({ text: "Connection profiles stay on this machine; the card's config never carries them. For another model or preset, pick or make another profile in SillyTavern's Connection Manager." }),
+                hint({ text: "The connection profile this call runs on: its model and its preset's settings." }),
+                detail({ text: "The preset gives its settings, never its prompts: its temperature, max tokens and switches such as reasoning and web search apply to every call. The call's prompt is the lorebook entries tagged with its name, plus what it reads. Connection profiles stay on this machine; the card's config never carries them. For another model or other settings, pick or make another profile in SillyTavern's Connection Manager." }),
             ]),
             field([
                 grid([

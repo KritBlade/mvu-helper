@@ -477,21 +477,96 @@ describe('buildOverridePayload', () => {
         expect(buildOverridePayload('   ')).toEqual({});
         expect(buildOverridePayload('hot')).toEqual({});
     });
+    // ST's request service sends a call's max tokens as `max_tokens` alone; for Ollama its server passes on only
+    // `num_predict` (live 2026-11-13: a call capped at 5 wrote 395 tokens), and a profile's preset that carries a
+    // response length (`genamt`) sets `num_predict` from that.
+    it('MUTATION TARGET — on a Text Completion profile the call\'s max tokens also rides as num_predict and n_predict', () => {
+        expect(buildOverridePayload('', { apiType: 'textgenerationwebui', maxTokens: 800 })).toEqual({ num_predict: 800, n_predict: 800 });
+        expect(buildOverridePayload('0.7', { apiType: 'textgenerationwebui', maxTokens: 5 })).toEqual({ temperature: 0.7, num_predict: 5, n_predict: 5 });
+    });
+    it('no max tokens leaves the limit to the preset, and a Chat Completion profile reads max_tokens already', () => {
+        expect(buildOverridePayload('', { apiType: 'textgenerationwebui', maxTokens: undefined })).toEqual({});
+        expect(buildOverridePayload('', { apiType: 'openai', maxTokens: 800 })).toEqual({});
+        expect(buildOverridePayload('0.7')).toEqual({ temperature: 0.7 });
+    });
 });
 
-describe('extractCompletionText', () => {
-    it('handles string, {content}, {text}, and empties', () => {
-        expect(extractCompletionText('out')).toBe('out');
-        expect(extractCompletionText({ content: 'c' })).toBe('c');
-        expect(extractCompletionText({ text: 't' })).toBe('t');
-        expect(extractCompletionText(null)).toBe('');
-        expect(extractCompletionText({})).toBe('');
+// SillyTavern's reply reader, copied from 1.19.0 (public/script.js extractMessageFromData; 1.18.0's is the same) for
+// the two APIs a connection profile sends to, so each raw reply below is read as SillyTavern reads it.
+function stExtractMessageFromData(data, activeApi) {
+    const result = (() => {
+        if (typeof data === 'string') return data;
+        switch (activeApi) {
+            case 'textgenerationwebui':
+                return data.choices?.[0]?.text ?? data.choices?.[0]?.message?.content ?? data.content ?? data.response ?? data[0]?.content ?? '';
+            case 'openai':
+                return data?.content?.filter(p => p.type === 'text')?.map(p => p.text)?.join('\n\n') ?? data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? data?.text ?? data?.message?.content?.[0]?.text ?? data?.message?.tool_plan ?? '';
+            default:
+                return '';
+        }
+    })();
+    return Array.isArray(result) ? result.map(x => x.text).filter(x => x).join('') : result;
+}
+
+describe('extractCompletionText — a call\'s raw answer, read by SillyTavern\'s reader for the profile\'s API', () => {
+    const read = (data, apiType) => extractCompletionText(data, apiType, stExtractMessageFromData);
+    it('reads an OpenAI-style reply (Claude through OpenRouter included) and a text completion', () => {
+        expect(read({ choices: [{ message: { content: 'chat' }, finish_reason: 'stop' }] }, 'openai')).toBe('chat');
+        expect(read({ choices: [{ text: 'textcomp' }] }, 'textgenerationwebui')).toBe('textcomp');
     });
-    it('reads the RAW provider shapes (extractData:false)', () => {
-        expect(extractCompletionText({ choices: [{ message: { content: 'chat' } }] })).toBe('chat');
-        expect(extractCompletionText({ choices: [{ text: 'textcomp' }] })).toBe('textcomp');
-        expect(extractCompletionText({ results: [{ text: 'kobold' }] })).toBe('kobold');
-        expect(extractCompletionText({ output: 'novel' })).toBe('novel');
+    // ST hands a direct Claude reply back as { choices, content: <Claude's parts list> }. A reader that takes
+    // `content` first turns that list into "[object Object]" and loses the answer.
+    it('reads a direct Claude reply from its parts list, never as "[object Object]"', () => {
+        const reply = { choices: [{ message: { content: 'The answer.' } }], content: [{ type: 'text', text: 'The answer.' }] };
+        expect(read(reply, 'openai')).toBe('The answer.');
+    });
+    it('leaves a Claude thinking part out — ST copies only the first part into choices, and with thinking on that part is the thinking', () => {
+        const reply = {
+            choices: [{ message: { content: '' } }],
+            content: [{ type: 'thinking', thinking: 'plan the verdict', signature: 'sig' }, { type: 'text', text: '{"initiative":"none"}' }],
+        };
+        expect(read(reply, 'openai')).toBe('{"initiative":"none"}');
+    });
+    it('reads Cohere\'s own reply', () => {
+        const reply = { finish_reason: 'COMPLETE', message: { role: 'assistant', content: [{ type: 'text', text: 'cohere' }] } };
+        expect(read(reply, 'openai')).toBe('cohere');
+    });
+    it('reads Ollama\'s response and llama.cpp\'s content (Text Completion)', () => {
+        expect(read({ model: 'm', response: 'ollama', done: true, done_reason: 'stop' }, 'textgenerationwebui')).toBe('ollama');
+        expect(read({ content: 'llamacpp', stop: true }, 'textgenerationwebui')).toBe('llamacpp');
+    });
+    it('reads by the PROFILE\'s API: an Ollama reply read as Chat Completion holds no text', () => {
+        const ollama = { response: 'ollama', done: true };
+        expect(read(ollama, 'openai')).toBe('');
+        expect(read(ollama, 'textgenerationwebui')).toBe('ollama');
+    });
+    it('refuses to read without the profile\'s API, which would read by the main connection\'s', () => {
+        expect(() => read({ choices: [{ message: { content: 'x' } }] }, '')).toThrow(/API type/);
+        expect(() => read({ choices: [{ message: { content: 'x' } }] }, undefined)).toThrow(/API type/);
+    });
+    it('an answer with no text reads as empty', () => {
+        expect(read({ choices: [{ message: { content: null } }] }, 'openai')).toBe('');
+        expect(read({}, 'textgenerationwebui')).toBe('');
+    });
+});
+
+// runLlmCall and the profile lookup touch the host, so vitest cannot load them; their source is held instead.
+describe('SOURCE GATE — a call\'s answer is read for its own profile\'s API (extra-llm-calls.js, connection-profiles.js)', () => {
+    const callSource = readFileSync('src/features/small-llm/extra-llm-calls.js', 'utf8').replace(/\r\n/g, '\n');
+    const profileSource = readFileSync('src/sillytavern/connection-profiles.js', 'utf8').replace(/\r\n/g, '\n');
+
+    it('MUTATION TARGET — the profile\'s API is found before the request, and the answer is read with ST\'s reader for it', () => {
+        const found = callSource.indexOf('const apiType = connectionProfileApiType(call.profileId);');
+        const sent = callSource.indexOf('const data = await svc.sendRequest(');
+        expect(found).toBeGreaterThan(-1);
+        expect(found).toBeLessThan(sent);
+        expect(callSource).toContain('const text = extractCompletionText(data, apiType, ctx.extractMessageFromData);');
+    });
+    it('MUTATION TARGET — the request carries the call\'s max tokens in the names the profile\'s API reads', () => {
+        expect(callSource).toContain('const overridePayload = buildOverridePayload(call.temperature, { apiType, maxTokens });');
+    });
+    it('MUTATION TARGET — the API comes from the call\'s profile through ST\'s validateProfile, never the main connection', () => {
+        expect(profileSource).toMatch(/const profile = getConnectionProfiles\(\)\.find\(\(p\) => p && p\.id === profileId\);\n\s*return getContext\(\)\.ConnectionManagerRequestService\.validateProfile\(profile\)\.selected;/);
     });
 });
 

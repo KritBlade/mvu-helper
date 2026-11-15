@@ -259,7 +259,12 @@ The picture does not take the story's point of view, first person or third: pov 
 // person's name ("CharName is: …") and never says where anyone stands, so the composition alone places
 // them and the narrator never has to keep a slot order in step with its own description. Naming each
 // person in their own clause is what makes the backend bind each look to its owner — a shared subject
-// ("both smiling") is the shape that bleeds.
+// ("both smiling") is the shape that bleeds. The two-person example aims each action at the other person ("leaning
+// across the table toward Char2Name", "looking up at CharName") and gives each an expression: two clauses that never
+// name each other draw two people staring past each other. Measured on Krea2 (2026-11-13, a two-person scene, 3 seeds
+// a variant): aimed clauses inside this shape drew both reacting to each other 3/3 and kept each pose; the same scene
+// written as labelled per-person sections ([Setting] / [Interaction] / [Name] / [Camera]) sat the standing person
+// down 3/3 and moved one person's legwear onto the other 3/3.
 //
 // A BODY PART BRINGS ITS OWNER: the image model draws a whole body for every body part it is shown, and dresses
 // one whose look is not attached from the looks it was given. So any part of someone in the frame puts them in the
@@ -333,7 +338,7 @@ export function castRules(maxCharacters, { userOutfits = [] } = {}) {
         'a named character with {{user}}: <pic char="CharName" outfit="CharOutfit" camera="Camera" prompt="CompositionText" mainchar="UserOutfit">',
         `${mainchar} {{user}} counts toward the ${ceiling} but never takes a char slot.`,
         scenery,
-        '- KEEP THEM SEPARABLE: each person their own clause, by name, what THEY do — "CharName leaning back on the desk, grinning, Char2Name standing beside CharName, hands clasped". Never one shared subject ("both smiling") unless they genuinely do the same thing.',
+        '- KEEP THEM SEPARABLE: each person their own clause, by name, what THEY do — "CharName leaning across the table toward Char2Name, pointing at a map, grinning, Char2Name sitting opposite, looking up at CharName, frowning". Never one shared subject ("both smiling") unless they genuinely do the same thing.',
         `${bodyPartWhy} So anyone with any part in the frame — the chest she leans on, the hand on her shoulder — takes their slot (an outfit in mainchar= for {{user}}) and their count tag — all but {{user}}'s own hands in a pov shot (POV HANDS).`,
         povHands,
     ].join('\n');
@@ -496,9 +501,10 @@ export function readerPictureInput(numberedReply, maxImages, expandBlock = (bloc
 // clothes= are English danbooru tags whatever the story's language, because they feed the image model: that rule is in
 // CAST_RECORD_FORMAT_RULES, which every record ask carries, the one-off clothes ask included.
 //
-// body= STARTS WITH WHAT THE CHARACTER IS (man, woman, girl, elf woman …). The image prompt names every
-// person neutrally ("<name> is: …", "the person in the frame is <name>: …"), so this first tag is the
-// only word that tells the image model who to draw.
+// body= STARTS WITH WHAT THE CHARACTER IS (man, woman, girl, elf woman …). A picture whose count tag says who is
+// who calls its people "the girl" / "the boy" or girl1, girl2, boy1 … (prompt-assembly-core THE NOUN LINK); every
+// other picture names them ("<name> is: …", "the person in the frame is <name>: …"), and there this first tag is
+// the only word that tells the image model who to draw.
 //
 // NO AGE SLOT, and re-adding one breaks the whole registration call: a literal age beside figure tags is
 // read by Google's filter as a minor described by build, and it kills the RESPONSE, not the record —

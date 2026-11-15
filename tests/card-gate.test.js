@@ -451,11 +451,13 @@ describe('the lobby profile copy (D11)', () => {
         const stored = structuredClone(TEMPLATE);
         stored.imagegen.insertType = 'sideways';
         stored.imagegen.picturesVia = 3;
+        stored.imagegen.maincharNoun = 'man';
         stored.roster.route = 7;
         stored.logicEngine.enabled = 'yes';
         stored.sidePanel.order = null;
         expect(imagegenProfileOf(stored).insertType).toBe(imagegenProfileDefaults.imagegen.insertType);
         expect(imagegenProfileOf(stored).picturesVia).toBe('narrate');
+        expect(imagegenProfileOf(stored).maincharNoun).toBe('');
         expect(rosterProfileOf(stored).route).toBe('harvest');
         expect(logicEngineProfileOf(stored).enabled).toBe(true);
         expect(sidePanelSettingsOf(stored).order).toEqual([]);

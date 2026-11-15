@@ -70,6 +70,7 @@ import { substituteMacrosBlock } from '../../sillytavern/prompt-macros-core.js';
 import { getMvu, parseMvuBlock, saveMessageMvuData, toast } from '../../sillytavern/mvu-bridge.js';
 import { refusedByPhrase, WRITER_POST } from '../../sillytavern/mvu-bridge-core.js';
 import { getProfile, profileKey } from '../../sillytavern/settings-store.js';
+import { connectionProfileApiType } from '../../sillytavern/connection-profiles.js';
 import { POST_DONE_EVENT, PRE_DONE_EVENT, taskTargetOf, resolveRoutedTaskInstructions, shapeRoutedCallInput, isTaskRoutingEntryName } from '../llm-task-router/index.js';
 import { getPrimaryLorebookEntries } from '../../sillytavern/lorebook.js';
 import { findArmedBody, FIRE_INTENT } from '../event-pack/index.js';
@@ -445,15 +446,18 @@ function substituteCallMacros(text, label, snapshotMsgId = null) {
 // Mirrors Multihog's sendStateRequest (llm-client.js:307).
 //
 // READ-ONLY on ST state: we hand `profileId` to ConnectionManagerRequestService and ST does the
-// rest — it reads the profile's model/api-url/preset AND resolves the key server-side from
-// `secret-id` (shared.js:446/472). mvu-helper never holds a key or a URL, and never writes to a
-// profile. Anything we want to differ per call must ride the REQUEST (maxTokens, overridePayload),
-// never a mutation of the shared profile object.
+// rest — it reads the profile's model and api-url, resolves the key server-side from `secret-id`, and
+// (includePreset: true, ST's own default) turns the profile's preset into the request's SETTINGS:
+// temperature, max tokens, top P, penalties, and switches such as reasoning and web search, which so
+// apply to every call, as they do to ST's own requests on that profile. Never the preset's PROMPTS: the
+// messages sent are the ones this call builds (buildMessages). mvu-helper never holds a key or a URL,
+// and never writes to a profile. Anything we want to differ per call must ride the REQUEST (maxTokens,
+// overridePayload), never a mutation of the shared profile object.
 //
-// That rule is why there is no per-call preset override: ST bundles a preset INTO a profile, so "a
-// different preset" is "a different profile", and honouring an override would mean writing `profile.preset`
+// That rule is why there is no per-call preset override: ST bundles a preset INTO a profile, so other
+// preset settings are another profile, and honouring an override would mean writing `profile.preset`
 // on ST's shared object for the length of the request — which a timed-out call could leave mutated
-// for good (ST persists that object). Sampling knobs that CAN ride the request stay: maxTokens, temp.
+// for good (ST persists that object). Knobs that CAN ride the request stay: maxTokens, temperature.
 // `onNoText(detail)`, when given, is told what the provider's answer held when it held no text
 // (describeNoTextAnswer); the pass that ran the call says what that means (reportEmptyResults). Run ad
 // hoc, without it, the call warns it here.
@@ -464,6 +468,9 @@ export async function runLlmCall(call, userText, signal = null, label = callLogL
         throw new Error('ConnectionManagerRequestService unavailable (update ST / enable Connection Manager)');
     }
     if (!call || !call.profileId) throw new Error(`call "${call && call.name}" has no profile selected`);
+    // The API the call's profile sends to, so its answer is read for that API (extractCompletionText). Found before
+    // the request, so a profile ST cannot send to costs no request.
+    const apiType = connectionProfileApiType(call.profileId);
 
     // The pass already collected this to decide whether the call was worth making (partitionCallsByContract),
     // so it is threaded in rather than re-read: one lorebook read per call per turn, and the routing
@@ -491,10 +498,11 @@ export async function runLlmCall(call, userText, signal = null, label = callLogL
     const sys = withOocCommands(rules, userInput, label, macroContext);
     const messages = buildMessages(sys, userInput);
     const maxTokens = normalizeMaxTokens(call.maxTokens);
-    const overridePayload = buildOverridePayload(call.temperature);
+    const overridePayload = buildOverridePayload(call.temperature, { apiType, maxTokens });
 
     // Detailed call I/O — gated by the global `smallllm` domain toggle.
-    // The preset is the PROFILE's (includePreset: true) — mvu-helper never overrides it.
+    // The preset is the PROFILE's (includePreset: true); the call's own max tokens and temperature, when set, override
+    // its values for this request (buildOverridePayload).
     // Every line of this call carries the call's own tag, so its input and its output read as one call.
     const callLog = log.child(label);
     if (log.domainEnabled('smallllm')) {
@@ -506,8 +514,8 @@ export async function runLlmCall(call, userText, signal = null, label = callLogL
     }
 
     // extractData:false — the RAW provider json, because the extracted shape drops `finish_reason`
-    // and a provider CUT then reads exactly like "the model wrote nothing more".
-    // extractCompletionText handles the raw shapes itself.
+    // and a provider CUT then reads exactly like "the model wrote nothing more". extractCompletionText reads
+    // the text out of it with ST's own reader, for the profile's API.
     const data = await svc.sendRequest(
         call.profileId,
         messages,
@@ -515,7 +523,7 @@ export async function runLlmCall(call, userText, signal = null, label = callLogL
         { stream: false, extractData: false, includePreset: true, includeInstruct: true, signal },
         overridePayload,
     );
-    const text = extractCompletionText(data);
+    const text = extractCompletionText(data, apiType, ctx.extractMessageFromData);
     const cut = completionCutReason(data);
     if (cut) {
         callLog.warn(`the provider CUT this output: finish_reason="${cut}" — the text ends where the cut landed, `

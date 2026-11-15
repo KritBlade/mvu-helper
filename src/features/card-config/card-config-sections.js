@@ -36,6 +36,8 @@ import {
     serializeLeadTextSection,
     isLeadTextConfigured,
 } from '../logic-engine/turn-runner-core.js';
+// Same deliberate DEEP IMPORT into imagegen's pure half: the nouns the main character may be called by are imagegen's.
+import { MAINCHAR_NOUNS } from '../imagegen/prompt-assembly-core.js';
 import { flatSection } from './card-config-flat-section.js';
 import { wholeCardOwnedSection } from './card-config-whole-section.js';
 
@@ -75,6 +77,7 @@ export const CARD_CONFIG_SECTIONS = [
         cardOwned: {
             intimacyLatchPath: 'string',     // stat_data dot-path: the bool that is true during an intimate scene
             maincharRegistryKey: 'string',   // registry key of the entry holding the main character's look
+            maincharNoun: [...MAINCHAR_NOUNS], // what the picture prompt calls the main character: '' | 'boy' | 'girl'
             promptTemplate: 'string',        // the <pic> contract text ('' = DEFAULT_PROMPT)
             promptRegex: 'string',           // finds the <pic> tags in a reply ('' = DEFAULT_REGEX)
             promptPosition: 'string',        // the role <scene_roster> is sent as: deep_system | deep_user | deep_assistant

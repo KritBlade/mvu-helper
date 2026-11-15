@@ -84,20 +84,21 @@ describe('composeImagePrompt — one person', () => {
 
     it('someone with no look beside someone with one: the one with a look keeps her sentence', () => {
         const out = composeImagePrompt({ prefix: '', composition: '2girls', people: [{ name: 'A', body: 'tall', clothes: 'habit' }, { name: 'B', body: '', clothes: 'habit' }] });
-        expect(out).toBe('2girls. Both wear: habit. A is: [A] tall [/A]');
+        expect(out).toBe('2girls. Both wear: habit. The girl1 in the frame is A: [A] tall [/A]');
     });
 });
 
+// A composition with no count tag: the noun link cannot say who is who, so the names stay.
 describe('composeImagePrompt — several people, by name', () => {
     it('two: each in their own sentence, opened by the name, in slot order', () => {
-        const out = composeImagePrompt({ prefix: 'p', composition: '2girls, in a classroom', people: [IORI, MITSUKI] });
+        const out = composeImagePrompt({ prefix: 'p', composition: 'in a classroom', people: [IORI, MITSUKI] });
         expect(out).toContain(`Iori is: [Iori] ${IORI.body}`);
         expect(out).toContain(`Mitsuki is: [Mitsuki] ${MITSUKI.body}`);
         expect(out.indexOf('Iori is:')).toBeLessThan(out.indexOf('Mitsuki is:'));
     });
 
     it('keeps each person\'s clothes inside their own sentence', () => {
-        const out = composeImagePrompt({ prefix: '', composition: '2girls', people: [IORI, MITSUKI] });
+        const out = composeImagePrompt({ prefix: '', composition: 'standing together', people: [IORI, MITSUKI] });
         const iori = out.slice(out.indexOf('Iori is:'), out.indexOf('Mitsuki is:'));
         expect(iori).toContain('black athletic leggings');
         expect(iori).not.toContain('brown loafers');
@@ -172,6 +173,89 @@ describe('composeImagePrompt — the main character', () => {
         const out = composeImagePrompt({ prefix: '', composition: 'x', people: [{ ...IORI, clothes: 'gym uniform' }, { ...MITSUKI, clothes: 'gym uniform' }], mainchar: same });
         expect(out).toContain('Both wear: gym uniform.');
         expect(out).toContain('The main character in the frame is [main character] man, gym uniform [/main character]');
+    });
+});
+
+// ── the noun link ────────────────────────────────────────────────────────────────────────────
+// Measured on Krea2 with an NSFW LoRA (2026-11-15, matching uniforms, 12 seeds a variant): one girl and a boy main
+// character, the boy in his own trousers 3 of 12 named, 8 of 12 as "the girl" / "the boy", 4 of 12 numbered; two girls
+// and him, the second girl in her own hair colour 2 of 12 named, 9 of 12 numbered.
+describe('composeImagePrompt — the noun link: who is who, by the count tag', () => {
+    const TAGS = `${MAINCHAR.body}, ${MAINCHAR.clothes}`;
+    const HEROINE = { body: 'woman, long black hair', clothes: 'travel cloak' };
+    const CID = { name: 'Cid', body: 'man, grey stubble', clothes: 'long travel coat' };
+    const compose = (composition, people, mainchar, maincharNoun) => composeImagePrompt({ prefix: '', composition, people, mainchar, maincharNoun });
+
+    it('MUTATION TARGET — one girl and one boy: the composition and both sentences call them "the girl" and "the boy"', () => {
+        const scene = 'eye level, 1girl, 1boy, Iori sitting at desk, leaning toward the main character, looking up at the main character, the main character standing beside desk';
+        const out = composeImagePrompt({ prefix: 'p', composition: scene, people: [IORI], mainchar: MAINCHAR, maincharNoun: 'boy' });
+        expect(out).toBe('p, eye level, 1girl, 1boy, the girl sitting at desk, leaning toward the boy, looking up at the boy, the boy standing beside desk.'
+            + ` The girl in the frame is Iori: [Iori] ${IORI.body}, ${IORI.clothes} [/Iori] The boy in the frame is [main character] ${TAGS} [/main character]`);
+    });
+
+    it('a girl main character makes the other person the boy', () => {
+        expect(compose("1girl, 1boy, Bram handing the main character a cup, Bram's forge", [BRAM], HEROINE, 'girl'))
+            .toBe("1girl, 1boy, the boy handing the girl a cup, the boy's forge."
+                + ` The boy in the frame is Bram: [Bram] ${BRAM.body}, ${BRAM.clothes} [/Bram] The girl in the frame is [main character] woman, long black hair, travel cloak [/main character]`);
+    });
+
+    it('MUTATION TARGET — a capital stays a capital, and a name is replaced only as a whole word', () => {
+        const out = compose('The main character waves, 1girl, 1boy, Iori at the Iorin shrine', [IORI], MAINCHAR, 'boy');
+        expect(out.startsWith('The boy waves, 1girl, 1boy, the girl at the Iorin shrine. The girl in the frame is Iori:')).toBe(true);
+    });
+
+    it('MUTATION TARGET — two girls and the main character: numbered in slot order, the main character after them', () => {
+        const scene = 'eye level, 2girls, 1boy, Iori sitting at desk, Mitsuki sitting on the next desk, both looking up at the main character, the main character standing in front of the desks';
+        expect(compose(scene, [IORI, MITSUKI], MAINCHAR, 'boy'))
+            .toBe('eye level, 2girls, 1boy, girl1 sitting at desk, girl2 sitting on the next desk, both looking up at the boy1, the boy1 standing in front of the desks.'
+                + ` The girl1 in the frame is Iori: [Iori] ${IORI.body}, ${IORI.clothes} [/Iori] The girl2 in the frame is Mitsuki: [Mitsuki] ${MITSUKI.body}, ${MITSUKI.clothes} [/Mitsuki]`
+                + ` The boy1 in the frame is [main character] ${TAGS} [/main character]`);
+    });
+
+    it('two girls with no main character are numbered from the count tag alone, whatever the card sets', () => {
+        expect(compose('2girls, Iori and Mitsuki on a bench', [IORI, MITSUKI], null, ''))
+            .toBe(`2girls, girl1 and girl2 on a bench. The girl1 in the frame is Iori: [Iori] ${IORI.body}, ${IORI.clothes} [/Iori] The girl2 in the frame is Mitsuki: [Mitsuki] ${MITSUKI.body}, ${MITSUKI.clothes} [/Mitsuki]`);
+    });
+
+    it('MUTATION TARGET — the main character takes the next number of their own noun, and a girl is numbered apart from the boys', () => {
+        expect(compose('2boys, Bram lifting a crate, the main character holding the door', [BRAM], MAINCHAR, 'boy'))
+            .toBe('2boys, boy1 lifting a crate, the boy2 holding the door.'
+                + ` The boy1 in the frame is Bram: [Bram] ${BRAM.body}, ${BRAM.clothes} [/Bram] The boy2 in the frame is [main character] ${TAGS} [/main character]`);
+        expect(compose('1girl, 2boys, Bram and Cid flanking the main character', [BRAM, CID], HEROINE, 'girl'))
+            .toBe('1girl, 2boys, boy1 and boy2 flanking the girl1.'
+                + ` The boy1 in the frame is Bram: [Bram] ${BRAM.body}, ${BRAM.clothes} [/Bram] The boy2 in the frame is Cid: [Cid] ${CID.body}, ${CID.clothes} [/Cid]`
+                + ' The girl1 in the frame is [main character] woman, long black hair, travel cloak [/main character]');
+    });
+
+    it('a shared outfit is still stated once, before the numbered sentences', () => {
+        const out = compose('2girls, 1boy, Iori and Mitsuki', [{ ...IORI, clothes: 'school uniform' }, { ...MITSUKI, clothes: 'school uniform' }], MAINCHAR, 'boy');
+        expect(out).toContain(`Both wear: school uniform. The girl1 in the frame is Iori: [Iori] ${IORI.body} [/Iori] The girl2 in the frame is Mitsuki: [Mitsuki] ${MITSUKI.body} [/Mitsuki] The boy1 in the frame is`);
+    });
+
+    it('MUTATION TARGET — a picture the count tag cannot sort keeps the names', () => {
+        const keepsNames = (out, opening) => {
+            expect(out).toContain(opening);
+            expect(out).not.toMatch(/\b(girl|boy)\d|the (girl|boy)\b/);
+        };
+        const his = 'The main character in the frame is [main character]';
+        keepsNames(compose('1girl, 1boy, Iori and Bram', [IORI, BRAM], MAINCHAR, 'boy'), his);                       // one girl for two people
+        keepsNames(compose('1girl, 2boys, Iori', [IORI], MAINCHAR, 'boy'), his);                                     // the girl or the other boy?
+        keepsNames(compose('2girls, 2boys, Iori, Mitsuki and Bram', [IORI, MITSUKI, BRAM], MAINCHAR, 'boy'), his);   // a mix
+        keepsNames(compose('2girls, Iori', [IORI], MAINCHAR, 'boy'), his);                                           // no boy left for him
+        keepsNames(compose('1boy, Iori', [IORI], MAINCHAR, 'boy'), his);                                             // neither shape
+        keepsNames(compose('Iori sitting, the main character waving', [IORI], MAINCHAR, 'boy'), his);                // no count tag
+        keepsNames(compose('2girls, 1boy, Iori and Mitsuki', [IORI, MITSUKI], MAINCHAR, ''), his);                   // the card names no noun
+        keepsNames(compose('3girls, Iori and Mitsuki with the main character', [IORI, MITSUKI], HEROINE, ''), his);  // no noun, even where the count could say
+        keepsNames(compose('3girls, Iori and Mitsuki with the main character', [IORI, MITSUKI], HEROINE, 'man'), his); // a noun no card may use
+        keepsNames(compose('1girl, 1boy, a stranger waving at the main character', [], MAINCHAR, 'boy'), his);       // nobody else with a look
+        keepsNames(compose('1girl, 1boy, Iori', [IORI], null, 'boy'), 'The person in the frame is Iori:');           // a boy with no look: who is Iori?
+        keepsNames(compose('2girls, 1boy, Iori and Mitsuki', [IORI, MITSUKI], null, 'boy'), 'Iori is: [Iori]');
+        keepsNames(compose('1girl, Iori sitting', [IORI], null, ''), 'The person in the frame is Iori:');             // one person alone
+    });
+
+    it('a main character who is not drawn keeps "the main character" in the composition', () => {
+        const out = compose('pov, 2girls, Iori and Mitsuki looking up at the main character', [IORI, MITSUKI], null, 'boy');
+        expect(out.startsWith('pov, 2girls, girl1 and girl2 looking up at the main character. The girl1 in the frame is Iori:')).toBe(true);
     });
 });
 
@@ -435,6 +519,7 @@ describe('SOURCE GATE — everyone drawn reaches composeImagePrompt', () => {
         const body = src.slice(at, at + src.slice(at).search(/\r?\n\}\r?\n/));
         expect(body).toContain('people: drawn.people,');
         expect(body).toContain('mainchar: drawn.mainchar,');
+        expect(body).toContain('maincharNoun: getImagegenProfile().maincharNoun,');
         expect(body).toContain('cleanup: drawn.hasEveryoneALook,');
     });
 });
