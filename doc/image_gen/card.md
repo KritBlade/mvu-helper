@@ -10,22 +10,23 @@ Set it up on the Image Generation tab, then Main tab > Card config > **Export to
 
 | Kind | Fields | First load | A card upgrade |
 | --- | --- | --- | --- |
-| the card's | `intimacyLatchPath`, `maincharRegistryKey`, `promptTemplate`, `promptRegex`, `promptPosition`, `promptDepth` | from the card | refreshed from the card |
+| the card's | `intimacyLatchPath`, `maincharRegistryKey`, `maincharNoun`, `promptTemplate`, `promptRegex`, `promptPosition`, `promptDepth` | from the card | refreshed from the card |
 | the player's | `insertType`, `defaultImageType`, `maxImagesPerReply`, `maxCharactersPerImage`, `stripPicTag`, `hBlockAlwaysOn` | from the card | kept as the player set them |
 | never travels | `sdPromptPrefixPresetId` | never | never |
 
-The card's fields are facts about your card: where its latch lives, which entry holds the main character, and the contract it teaches. The player's fields are preferences, so your values are only where a new player starts.
+The card's fields are facts about your card: where its latch lives, which entry holds the main character, what a picture calls them, and the contract it teaches. The player's fields are preferences, so your values are only where a new player starts.
 
 The prefix pick never travels, because it points into the player's own preset list. And your PC's settings, streaming, queue, prefix presets, bust and resolution, have no place in the config at all. A card that shipped them would resize pictures to fit a stranger's GPU.
 
 ## The 2 fields every card should set
 
-ArtificKoi's whole `imagegen` section is these 2 lines:
+ArtificKoi's `imagegen` section sets both, and the main character's noun:
 
 ```json
 "imagegen": {
   "intimacyLatchPath": "PendingState.IntimacyActive",
-  "maincharRegistryKey": "Mainchar"
+  "maincharRegistryKey": "Mainchar",
+  "maincharNoun": "boy"
 }
 ```
 
@@ -37,6 +38,8 @@ So a card that leaves them out gets:
 - **no main character entry:** the main character drawn from the scene words alone, a different person in every picture.
 
 A path you name has to exist in your game state. Rename a root and keep the old path, and the latch quietly stops working. MVU Helper warns with the path in the message, see [What the AI is sent](prompt.md#explicit_rules-and-the-gate).
+
+`maincharNoun` is optional: `boy` or `girl`, when your main character is always one of them. A picture with the main character in it then calls everyone by noun when its count tag says who is who, "the girl" and "the boy", or girl1, girl2, boy1 for more, which keeps each one's clothes on their own body, see [Main character noun](README.md#main-character-noun). Anything else is ignored on import, and the console names it.
 
 ## Your own contract
 

@@ -155,7 +155,7 @@ Each named person takes a slot in the tag: `char=`, then `char2=`, `char3=` and 
 
 So why a limit at all? Because every look is copied into the prompt in full. A look like Mitsuki's is around 300 tokens. 3 people is 900 tokens of looks before the scene even starts, and every image model has a point where it loses track of who wears what.
 
-MVU Helper does its part to keep them apart. Each person gets their own sentence, opened with their name and wrapped in their name: `Mitsuki is: [Mitsuki] … [/Mitsuki]`. Clothes everyone shares, like the same school uniform, are said once for all of them.
+MVU Helper does its part to keep them apart. Each person gets their own sentence, wrapped in their name and opened with it, `Mitsuki is: [Mitsuki] … [/Mitsuki]`, or with a noun when the count tag says who is who, `The girl1 in the frame is Mitsuki: [Mitsuki] … [/Mitsuki]` (see [Main character noun](#main-character-noun)). Clothes everyone shares, like the same school uniform, are said once for all of them.
 
 When the AI puts more people in a tag than this number, the main character is left out first, then the last slots. The console names everyone left out. They're still in the picture if the scene describes them, just without their look.
 
@@ -191,6 +191,18 @@ The card normally sets this in its own config, so most of the time it's already 
 Blank, on the card and here, means there's no look to attach. You're still drawn when the AI puts you in a shot, just from the scene words alone.
 
 How a look is written is on [How the character registry works](../roster/registry.md#the-entry).
+
+### Main character noun
+
+**What pictures call you: boy or girl.** Per card, none by default.
+
+When a tag's count says who is who, the prompt calls everyone by noun instead of by name. You and one girl, counted `1girl, 1boy`, are "the boy" and "the girl": `The girl in the frame is Mitsuki: …`, `The boy in the frame is [main character] …`. More than one girl or boy are numbered: two girls and you, counted `2girls, 1boy`, are girl1, girl2 and boy1.
+
+Here's why. In matching outfits, like the same school uniform, a name doesn't tell the image model whose skirt is whose, and you come out wearing hers. With two girls, they trade hair and legwear. The nouns tie each look to the right body. ArtificKoi's is `boy`.
+
+A picture with you in it needs this noun, so none keeps the names there. A picture without you is numbered from its count alone. A count that doesn't say who is who, like two girls and two boys besides you, keeps the names.
+
+The card normally sets this in its own config. Pick one here only to override.
 
 ### Image type
 

@@ -87,7 +87,7 @@ Create these 3 before any engine logic. The blank pack ships none of them. The l
 | `extraLlmCalls` | `enabled`, `parallel`, `timeoutSec`, `groups[{ tag, members }]`, `calls[{ name, phase: "pre"\|"post", enabled, maxTokens?, temperature?, inputRegex?, outputRegex? }]` ([Set up the calls](../extra_llm_calls/calls.md)) |
 | `statBox` | the per-reply "stats that moved" box ([The statBox section](../stat_box/technical.md#the-statbox-section)) |
 | `leadText` | `storyEnvelope`: the story block's opening tags, every spelling a reply can have; the engine's `leadText` goes at the top of that block, and a card without this section gets none |
-| `imagegen` | `intimacyLatchPath`, `maincharRegistryKey` and the `<pic>` contract fields |
+| `imagegen` | `intimacyLatchPath`, `maincharRegistryKey`, `maincharNoun` and the `<pic>` contract fields |
 | `roster` | `route`, `charCollection`, `presenceField` |
 | `logicEngine` | `{ "enabled": true }` |
 

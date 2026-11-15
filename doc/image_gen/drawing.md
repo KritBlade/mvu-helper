@@ -79,6 +79,8 @@ More than one:
 Mitsuki is: [Mitsuki] <body>, <clothes> [/Mitsuki] Mana is: [Mana] <body>, <clothes> [/Mana]
 ```
 
+When the count tag says who is who, the names give way to nouns, see [Who is who](#6-who-is-who).
+
 Clothes everyone wears word for word, like a card's shared school uniform, are said once: `Both wear: …` for 2, `All 3 wear: …` for 3. Then each look follows without them.
 
 Each look comes from that person's saved look, in the outfit the slot names. Someone with no look anywhere has no body here, only the clothes their slot names, so `undressed` still draws them bare. With no clothes either, they're left out and drawn from the composition alone. The console names them, because that's the one way a named character comes out as a stranger.
@@ -93,7 +95,23 @@ The main character in the frame is [main character] <body>, <clothes> [/main cha
 
 Only when their `mainchar=` names an outfit, and the card names a main character entry with a look in it.
 
-### 6. Scenery
+### 6. Who is who
+
+When the count tag says what everyone is, people are called by noun instead of by name, in the composition and in their sentences. Exactly one girl and one boy are "the girl" and "the boy":
+
+```
+The girl in the frame is Mitsuki: [Mitsuki] <body>, <clothes> [/Mitsuki] The boy in the frame is [main character] <body>, <clothes> [/main character]
+```
+
+More than one girl or more than one boy are numbered, in slot order, with the main character after the others. `2girls, 1boy, Mitsuki sitting at desk, Mana sitting on the next desk, the main character standing in front of the desks` becomes `2girls, 1boy, girl1 sitting at desk, girl2 sitting on the next desk, the boy1 standing in front of the desks`, then:
+
+```
+The girl1 in the frame is Mitsuki: [Mitsuki] … [/Mitsuki] The girl2 in the frame is Mana: [Mana] … [/Mana] The boy1 in the frame is [main character] … [/main character]
+```
+
+The count says who is who when, once the main character is taken out, everyone else with a look is one noun: all girls, or all boys. The main character is taken out by the card's [main character noun](README.md#main-character-noun), so a picture with them in it needs one. A picture without them is labelled from the count alone, on any card. Anything else, like a girl and a boy besides the main character, or no count tag at all, keeps the names.
+
+### 7. Scenery
 
 A tag with nobody named and no main character sends the prefix, the camera words and the composition, nothing else. No cleanup runs, because there's no look for anything to fight.
 
@@ -105,7 +123,15 @@ Naming each look's owner is what keeps it apart, and the closing tag marks where
 
 Where anyone stands is never said here. Only the composition says that. A position here would be a second claim, and it would contradict the composition whenever the slot order differs.
 
-A period inside a look's text becomes a comma, so a look never ends early. A decimal like `(golden eyes:1.1)` is kept. And nothing here names a gender: what each person is comes from the first tag of their own look.
+A period inside a look's text becomes a comma, so a look never ends early. A decimal like `(golden eyes:1.1)` is kept. Names say no gender, so on a picture that keeps them, what each person is comes from the first tag of their own look.
+
+### Why the nouns
+
+Names keep looks apart until people wear the same outfit. I measured it on Krea 2 with an NSFW LoRA loaded, 12 seeds a version.
+
+A girl and the main character in one school uniform came out with him in her skirt, thigh-highs and underclothes. Called by name, he kept his own trousers in 3 of 12. Called "the girl" and "the boy", each noun opening its own look, he kept them in 8 of 12. Numbered labels, `girl1` and `boy1`, got only 4 of 12, so one of each keeps the plain nouns.
+
+Two girls and him: nothing of theirs ended up on him in any wording, but under their names the two girls traded looks. The second girl kept her own hair colour in 2 of 12. Numbered `girl1`, `girl2`, `boy1`, she kept it in 9 of 12.
 
 ### Over the ceiling
 

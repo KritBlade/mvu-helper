@@ -122,7 +122,7 @@ A body part brings its owner. The image model draws a whole body for every body 
 
 The one exception is pov hands. In a pov shot, the main character's own hands reaching into the frame are written "pov hands" with what they do. The image model draws them coming from the camera with no body behind them, so they need no look.
 
-In the composition, the main character is always "the main character". Never the persona's name, never "user". That's the same name their look is wrapped in, `[main character] … [/main character]`, so the image model can match the two. I measured it on Krea 2, with 2 girls and him on a bench and 12 seeds a variant. All 3 came out in 11 or 12 of 12, against 8 of 12 before.
+In the composition, the main character is always "the main character". Never the persona's name, never "user". That's the same name their look is wrapped in, `[main character] … [/main character]`, so the image model can match the two. I measured it on Krea 2, with 2 girls and him on a bench and 12 seeds a variant. All 3 came out in 11 or 12 of 12, against 8 of 12 before. When the count tag says who is who, MVU Helper then swaps the names and "the main character" for nouns, see [Who is who](drawing.md#6-who-is-who).
 
 What's warned:
 

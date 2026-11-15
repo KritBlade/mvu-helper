@@ -64,10 +64,10 @@ Streaming pre-generation sees the complete tag while the AI is still writing. Mi
 When the job runs, the prompt is put together:
 
 ```
-masterpiece, best quality, …, very aesthetic, eye level, 1girl, 1boy, sitting side by side on a bench, Mitsuki leaning toward the main character, laughing, school rooftop, noon, bright sunlight. The person in the frame is Mitsuki: [Mitsuki] slim, adult hourglass figure, …, (plum-purple hair:1.3), …, brown academy uniform, cream short-sleeve sailor blouse, … [/Mitsuki] The main character in the frame is [main character] adult male, short dark hair, lean athletic build, brown academy uniform, cream short-sleeve sailor shirt, … [/main character]
+masterpiece, best quality, …, very aesthetic, eye level, 1girl, 1boy, sitting side by side on a bench, the girl leaning toward the boy, laughing, school rooftop, noon, bright sunlight. The girl in the frame is Mitsuki: [Mitsuki] slim, adult hourglass figure, …, (plum-purple hair:1.3), …, brown academy uniform, cream short-sleeve sailor blouse, … [/Mitsuki] The boy in the frame is [main character] adult male, short dark hair, lean athletic build, brown academy uniform, cream short-sleeve sailor shirt, … [/main character]
 ```
 
-The prefix comes first, then the camera's words, then the composition, then each look wrapped in its owner's name. The main character always closes it.
+The prefix comes first, then the camera's words, then the composition, then each look wrapped in its owner's name. The main character always closes it. It's one girl and one boy, and ArtificKoi sets the main character's noun to `boy`, so the composition and both sentences call them "the girl" and "the boy", see [Who is who](drawing.md#6-who-is-who).
 
 ### 5. `/sd` draws it
 
