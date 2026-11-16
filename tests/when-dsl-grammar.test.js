@@ -1,11 +1,10 @@
 // when-dsl-grammar.test.js — the grammar's own tests PLUS the drift guard that makes vendoring safe.
 //
-// P6 (event-pack-plan.md §6.5.1) collapsed three hand-written copies of the WHEN-DSL token grammar
-// into one, living in the engine (`_engine/eventpack.cjs` → `parseToken`). `src/features/event-pack/
-// when-dsl-grammar.js` is a COPY of it, because mvu-helper ships to users and may not read the game
-// repo at runtime. A copy with nothing enforcing it is just the drift we removed, re-introduced with
-// extra steps — so the second describe block below loads the REAL engine file and asserts the two
-// agree token for token. If the engine's grammar changes and the copy doesn't, this fails BY NAME.
+// The WHEN-DSL token grammar has one source, the engine library (`eventpack_lib/eventpack.cjs` →
+// `parseToken`). `src/features/event-pack/when-dsl-grammar.js` is a COPY of it, because the extension's
+// own code never loads that library. A copy with nothing enforcing it drifts, so the drift guard below
+// loads the REAL engine file and asserts the two agree token for token. If the engine's grammar changes
+// and the copy doesn't, this fails BY NAME.
 
 import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
@@ -13,7 +12,8 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { parseToken, isTokenShapeOk, formatToken, formatTokenChain, formatWhenAny } from '../src/features/event-pack/when-dsl-grammar.js';
 import { fileURLToPath } from 'node:url';
-import { schoolv4Dir, haveSchoolv4 } from './schoolv4-artifact.mjs';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 // The corpus is shared by BOTH blocks on purpose: every case that documents a rule below is also a
 // case the engine must agree on. Real shapes, the three P6 precedence decisions, and junk.
@@ -323,14 +323,11 @@ describe('formatTokenChain — descriptors → one &-joined predicate', () => {
 });
 
 // ── THE DRIFT GUARD ─────────────────────────────────────────────────────────
-// Skips ONLY when no sibling game repo is checked out (a contributor without it still gets a green
-// suite). A checkout whose engine is not where the three-file sync header says FAILS here: a guard that
-// skips on a moved file is a green suite not running the test it claims. schoolv4Dir() carries the
-// MVU_GAME_MAKER_DIR override for a differently-named checkout.
-const haveRepo = haveSchoolv4();
-const ENGINE = path.join(schoolv4Dir(), '..', '_engine', 'eventpack.cjs');
+// The engine library's master lives in this repo, so this guard always runs. A master that is not where
+// the three-file sync header says FAILS here by name.
+const ENGINE = path.resolve(HERE, '..', 'eventpack_lib', 'eventpack.cjs');
 
-describe.skipIf(!haveRepo)('DRIFT GUARD — the vendored copy vs the REAL engine parseToken', () => {
+describe('DRIFT GUARD — the vendored copy vs the REAL engine parseToken', () => {
     it('the engine source is where the three-file sync header says (a moved file must FAIL, not skip)', () => {
         expect(existsSync(ENGINE), `missing: ${ENGINE}`).toBe(true);
     });
@@ -443,9 +440,8 @@ describe.skipIf(!haveRepo)('DRIFT GUARD — the vendored copy vs the REAL engine
 // ── THE TWIN GUARD — copy 2 (this repo) vs copy 3 (MvuStatMenuBuilder) ─────────────────────
 // The two vendored grammar files are byte-identical by contract (the sync header in each). The
 // builder's tools/check-grammar-drift.mjs proves the pair from its side; this proves it from ours on
-// every `npm test`. Same skip rule as above: no builder checkout ⇒ skip; a checkout without the file
-// ⇒ FAIL. MVU_STATUSMENU_BUILDER_DIR overrides the sibling lookup for a differently-named checkout.
-const HERE = path.dirname(fileURLToPath(import.meta.url));
+// every `npm test`. No builder checkout beside this repo ⇒ skip; a checkout without the file ⇒ FAIL.
+// MVU_STATUSMENU_BUILDER_DIR overrides the sibling lookup for a differently-named checkout.
 const MINE = path.resolve(HERE, '..', 'src', 'features', 'event-pack', 'when-dsl-grammar.js');
 const BUILDER_NAMES = ['MVU_Zod_StatusMenuBuilder-dev', 'MVU_Zod_StatusMenuBuilder', 'MvuStatMenuBuilder'];
 function builderRepoRoot() {

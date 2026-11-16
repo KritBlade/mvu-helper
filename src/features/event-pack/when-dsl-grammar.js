@@ -3,7 +3,7 @@
 // ⚠⚠⚠ THREE-FILE GRAMMAR SYNC — MANDATORY ⚠⚠⚠
 // This grammar exists in THREE hand-synced files. ANY change to one MUST land in all three in the
 // same pass, and all three carry the SAME grammar version — now v1.7.0:
-//   1. MvuGameMaker        maker-app/GameLogic/_engine/eventpack.cjs        ← SOURCE OF TRUTH (the engine)
+//   1. mvu-helper          eventpack_lib/eventpack.cjs                      ← SOURCE OF TRUTH (the engine)
 //   2. mvu-helper          src/features/event-pack/when-dsl-grammar.js      (install-side validator/lint)
 //   3. MvuStatMenuBuilder  landing-app/src/utils/when-dsl-grammar.js        (event-builder GUI, parse + emit)
 // Files 2 and 3 are BYTE-IDENTICAL twins — a plain byte-compare is their drift guard. File 1
@@ -11,8 +11,8 @@
 // engine against this copy over a token corpus, so a grammar move that skips a copy fails a test by
 // name. Do NOT "improve" this file alone: a change not mirrored in the engine puts the
 // validator/builder and the runtime into disagreement — the silent-dead-event class this vendoring
-// exists to prevent. (Each consumer repo ships standalone and has no runtime access to the others,
-// which is why this is a COPY and not an import.)
+// exists to prevent. (The engine runs only inside a card's engine text: mvu-helper's own code never
+// loads eventpack_lib/, and the builder ships without it, which is why this is a COPY and not an import.)
 //
 // ⚠ A GRAMMAR CHANGE IS THE EXPENSIVE KIND — the only change to the event library that reaches an
 // already-SHIPPED card. A new token kind or LHS form bumps the pack FORMAT, so every card in the wild

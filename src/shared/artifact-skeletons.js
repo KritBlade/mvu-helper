@@ -177,9 +177,9 @@ const SAMPLE_SCHEMA = [
 // states the looseness instead of relying on the bridge to add it.
 const PLUGIN_ROOT_SCHEMA = "import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/util/mvu_zod.js';\n// zod and lodash are available globally as `z` and `_`\n\n/**\n * Your MVU variable name is `stat_data`, so this describes the VALUE of that variable directly.\n *\n * The platform roots are declared, and nothing else: GameLogicPlugin, the namespace every installed\n * plugin keeps its state in, and $mvuhelper, mvu-helper's own. Both are OPEN because the keys inside\n * them are chosen by someone else (one drawer per plugin, named at INSTALL time; mvu-helper's parts)\n * — a closed shape here strips them on the next write.\n *\n * THE ROOT ITSELF IS `looseObject`, and must stay that way: a plain `z.object` root drops every key\n * it was never told about, and this file names only the platform roots — so on a card where it is the\n * only schema, a strict root throws away every write into the game's own roots. Never wrap it in `.prefault({})`\n * either: mvu_zod re-wraps a root as looseObject only when it is `instanceof z.ZodObject`, and a\n * prefault is not one, so the rewrap silently does not fire.\n *\n * DO NOT add a GAME root here. A plugin that describes a game it was not written for is a plugin\n * that breaks the next card it is installed on.\n */\nconst StatDataSchema = z\n  .looseObject({\n    GameLogicPlugin: z.record(z.string(), z.any()).prefault({}),\n    $mvuhelper: z.record(z.string(), z.any()).prefault({}),\n  });\n\n// -------------------------\n// Register — WITHOUT this call nothing above is ever used.\n// -------------------------\n$(() => {\n  registerMvuSchema(StatDataSchema);\n});\n";
 
-// Where a developer downloads eventpack.cjs. The public repository that will carry it is not published
-// yet, so the guide says so rather than naming a link that does not exist.
-const EVENTPACK_DOWNLOAD = '(link to come: the public repository that will carry it is not published yet)';
+// Where a developer downloads eventpack.cjs: the public repository's eventpack_lib/ folder, which a release
+// copies from this repo's master (mytools/promote-to-prod.mjs), its CHANGELOG.md beside it.
+const EVENTPACK_DOWNLOAD = 'https://github.com/KritBlade/mvu-helper/tree/main/eventpack_lib';
 
 // The markers around the guide's gameLogic.cjs. The suite runs the code between them against the real
 // eventpack.cjs, so a sample that stops working fails CI instead of a developer's first event.
@@ -187,8 +187,8 @@ export const EVENT_GUIDE_CODE_START = '----- gameLogic.cjs, with event packs wir
 export const EVENT_GUIDE_CODE_END = '----- end of gameLogic.cjs -----';
 
 // engine/README.txt of the gamelogic skeleton: how to add event packs. The skeleton does not ship
-// eventpack.cjs itself — mvu-helper does not carry another repo's file — so this names where it comes
-// from and shows the whole wiring. A README, because the assembler reads nothing else in engine/
+// eventpack.cjs itself — the extension's runtime holds no copy of eventpack_lib/ — so this names where to
+// download it and shows the whole wiring. A README, because the assembler reads nothing else in engine/
 // except what engineOrder names.
 function eventPackGuide({ id, name }) {
     const code = `// ${name} GameLogic Engine, with event packs wired in.
@@ -263,7 +263,7 @@ conditions, arms the next event, and applies a fired event's writes. Your engine
 this game keeps event state, and calls it.
 
 1. GET THE FILE
-   eventpack.cjs is MvuGameMaker's maker-app/GameLogic/_engine/eventpack.cjs.
+   eventpack.cjs lives in mvu-helper's eventpack_lib/ folder, beside its CHANGELOG.md.
    Download: ${EVENTPACK_DOWNLOAD}
    Save it as engine/eventpack.cjs and never edit it. To update it, replace the whole file.
 

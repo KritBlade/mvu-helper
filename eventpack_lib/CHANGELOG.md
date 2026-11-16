@@ -10,7 +10,7 @@ The file carries 3 numbers, and each one tells you something different.
 
 | Number | Now | Where you see it | What it covers |
 | --- | --- | --- | --- |
-| Library version | 1.0.4 | the file's first comment line | this file's own release |
+| Library version | 1.0.5 | the file's first comment line | this file's own release |
 | WHEN-DSL grammar | 1.7.0 | the same line, `(WHEN-DSL grammar v1.7.0)` | the condition language a pack's `prereq`, `when` and `whenAny` are written in |
 | Pack format | 1.2 | `FORMAT` inside the file. Your engine re-exports it as `EVENT_PACK_FORMAT` | what a pack may hold and still run |
 
@@ -25,6 +25,12 @@ The library version tells you how much work an update is.
 - **Patch** (like 1.0.5): nothing to do. It's a fix, or a new OPTIONAL feature.
 
 It's like a game console update. A patch you install and forget. A minor one means some new cartridges need it. A major one means read the notes before you play.
+
+## 1.0.5 (2026-11-16)
+
+WHEN-DSL grammar 1.7.0 · pack format 1.2
+
+Only the comments at the top of the file changed. They now say where the master copy lives, this folder, and how a game's own copy keeps up with it. The code is the same as 1.0.4, so there's nothing to do.
 
 ## 1.0.4 (2026-10-25)
 

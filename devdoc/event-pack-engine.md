@@ -5,7 +5,7 @@ DO / DON'T contract — you should never need to read `eventpack.cjs` to stay co
 docs live in `devdoc/event-pack-format.md`; the design that produced this contract is
 `MvuStatMenuBuilder/plans/executed/eventpack_revisit.md`.
 
-Engine format level: **1.2** — the library's own `FORMAT`, in `GameLogic/_engine/eventpack.cjs`; its
+Engine format level: **1.2** — the library's own `FORMAT`, in `eventpack_lib/eventpack.cjs`; its
 banner beside it carries the file version and the WHEN-DSL grammar version. Read them there rather
 than from a number copied to here. A grammar, rule or format change updates this doc and mvu-helper's
 validator in the same change.
@@ -22,13 +22,19 @@ clock is, how its sugar spells paths — and every pack thereafter is data.
 | Piece | Home | Per-genre cost |
 |---|---|---|
 | Pack format + validator + scanner + install tab | mvu-helper (one extension, all cards) | zero |
-| `eventpack.cjs` — WHEN-DSL grammar, LHS resolution, scan tie-break, verify-at-fire, `applyWrites` (§Write rules), `applyRewards` (the reward ceilings), the done-marker | `GameLogic/_engine/eventpack.cjs` (game repo, shared; each genre ships a byte-identical copy in its `engine/` folder) | zero (consume it) |
+| `eventpack.cjs` — WHEN-DSL grammar, LHS resolution, scan tie-break, verify-at-fire, `applyWrites` (§Write rules), `applyRewards` (the reward ceilings), the done-marker | `eventpack_lib/eventpack.cjs` in this repo, the master; each genre ships a copy in its `engine/` folder, the master's text under a one-line COPY banner | zero (consume it) |
 | The grammar's two vendored twins — parse + emit only, no evaluation | `mvu-helper/src/features/event-pack/when-dsl-grammar.js` (install-side lint) · `MvuStatMenuBuilder/landing-app/src/utils/when-dsl-grammar.js` (builder GUI); byte-identical to each other | zero |
 | The `adapter` — paths, writable paths + rules, reward kinds, clock, aliases, presence | your genre's `globalLogic.cjs` | one object of declarations |
 | Event bodies (prose) | your card's `<Event_Schedule>` + community `[MVU_Event_Pack]` entries | authored content |
 
-Reference implementation: `Schoolv4/workspace/gamelogic/engine/globalLogic.cjs` (`EVENT_PACK_ADAPTER` +
-thin wrappers), assembled by `Schoolv4/Tools/build_workspace.cjs`.
+Reference implementation: School's `workspace/gamelogic/engine/globalLogic.cjs` (`EVENT_PACK_ADAPTER` +
+thin wrappers), in the `Genre/School` repo beside this one.
+
+Keeping a genre's copy current: the genre's own `npm test` rewrites its `engine/eventpack.cjs` from the
+master whenever the master changed, and refuses to overwrite a copy edited by hand (School's
+`Tools/sync_engine_copies.cjs`; a new genre copies that tool). This repo's
+`tests/eventpack-genre-copies.test.js` fails while any copy in the `Genre/` folder beside it differs from
+the master, naming the genre whose `npm test` to run.
 
 Starting from nothing: a blank GameLogic pack from mvu-helper's **Add New Blank Packs** carries
 `engine/README.txt` — where to get `eventpack.cjs`, the `engineOrder` that loads it first, the schema
@@ -147,7 +153,7 @@ contract exists to prevent.
     instruction, and hands the key back to `resolveTurn`. A non-string return plays nothing and is
     warned with what it was.
   - **Your engine still verifies at fire,** so a pick is only ever a proposal.
-  - **Reference:** MvuGameMaker's `GameLogic/Schoolv4/doc/GameLogicEngine_Guide.md`.
+  - **Reference:** School's `doc/GameLogicEngine_Guide.md`, in the `Genre/School` repo beside this one.
 - **Judge your own same-round misses.** When mvu-helper's PRE seam plays the event you picked in THIS
   reply, it hands `resolveTurn` that event's key in `ctx.sameRoundEventKey` (`''` when none). If your engine
   then ARMS that key instead of firing it, the narrator played the beat without reporting the fire, and
@@ -214,15 +220,16 @@ filling a blank.
 - New **write rule / optional field** (an old engine ignores it → fires minus the extra) ⇒ **MINOR**.
 - A grammar change lands in ALL of these in ONE pass, and every grammar file carries the same grammar
   version:
-  1. `GameLogic/_engine/eventpack.cjs` — `FORMAT`, the grammar, the version header; then rebuild every
-     genre workspace (`Tools/build_workspace.cjs`) so the copies refresh.
+  1. `eventpack_lib/eventpack.cjs` — `FORMAT`, the grammar, the version header, and an entry in
+     `eventpack_lib/CHANGELOG.md`; then run every genre's `npm test` so the copies refresh.
   2. `mvu-helper/src/features/event-pack/when-dsl-grammar.js` — the vendored parse+emit twin;
      `SUPPORTED_FORMAT` and `FEATURE_FORMAT` in `event-pack-core.js`; the corpus in
      `tests/when-dsl-grammar.test.js`.
   3. `MvuStatMenuBuilder/landing-app/src/utils/when-dsl-grammar.js` — byte-identical to 2; the
      builder's condition-kind list in `EventPackTab.vue`.
   4. This doc + `devdoc/event-pack-format.md`.
-- Drift guards: `tests/when-dsl-grammar.test.js` executes the REAL `eventpack.cjs` against the vendored
-  copy over a token corpus and byte-compares the two twins. Each guard skips ONLY when that sibling repo
-  is not checked out at all; a checkout whose file is not where this list says FAILS by name. The
-  builder's `tools/check-grammar-drift.mjs` proves the twin pair from its side.
+- Drift guards: `tests/when-dsl-grammar.test.js` executes the master `eventpack_lib/eventpack.cjs` against
+  the vendored copy over a token corpus, on every run, and byte-compares the two twins. The twin guard
+  skips ONLY when the builder repo is not checked out beside this one; a checkout whose twin is not where
+  this list says FAILS by name. The builder's `tools/check-grammar-drift.mjs` proves the twin pair from its
+  side. `tests/eventpack-genre-copies.test.js` fails while a genre's copy lags the master.

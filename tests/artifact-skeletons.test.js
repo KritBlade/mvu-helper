@@ -23,9 +23,9 @@ import { buildStoredZip, crc32 } from '../src/shared/stored-zip.js';
 import { EVENT_GUIDE_CODE_START, EVENT_GUIDE_CODE_END } from '../src/shared/artifact-skeletons.js';
 import { executeEngineText, declaredIdentity, readEventContract } from '../src/features/logic-engine/logic-engine-core.js';
 import { unallowedWritePaths, undeclaredScopeRows } from '../src/features/event-pack/event-pack-core.js';
-import { schoolv4Dir, haveSchoolv4 } from './schoolv4-artifact.mjs';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const IDENTITY = { name: 'My Game', description: 'A blank artifact', builtWith: 'mvu-helper 0.0.0-test' };
 const build = (packType, over = {}) =>
@@ -348,8 +348,8 @@ describe('the gamelogic skeleton demonstrates every section §3 lets it carry', 
     });
 });
 
-// The gamelogic skeleton does not ship eventpack.cjs (mvu-helper carries no other repo's file); its
-// engine/README.txt says where the library comes from and shows the whole wiring.
+// The gamelogic skeleton does not ship eventpack.cjs (the extension's runtime holds no copy of
+// eventpack_lib/); its engine/README.txt says where to download the library and shows the whole wiring.
 describe('the gamelogic skeleton\'s event guide (engine/README.txt)', () => {
     const built = build('gamelogic');
     const guide = memberText(built, 'engine/README.txt');
@@ -360,7 +360,8 @@ describe('the gamelogic skeleton\'s event guide (engine/README.txt)', () => {
         expect(JSON.parse(memberText(built, 'pack.json')).engineOrder).toEqual(['gameLogic.cjs']);
     });
     it('names where eventpack.cjs comes from and the engineOrder that loads it first', () => {
-        expect(guide).toContain('maker-app/GameLogic/_engine/eventpack.cjs');
+        expect(guide).toContain('mvu-helper\'s eventpack_lib/ folder');
+        expect(guide).toMatch(/Download: https:\/\/github\.com\/\S+\/eventpack_lib\n/);
         expect(guide).toContain('"engineOrder": ["eventpack.cjs", "gameLogic.cjs"]');
     });
     it('its schema lines use only atoms the sample schema defines', () => {
@@ -371,9 +372,9 @@ describe('the gamelogic skeleton\'s event guide (engine/README.txt)', () => {
 });
 
 // The guide's gameLogic.cjs, RUN against the real library through the evaluator mvu-helper's Worker
-// uses. Skips only when the game repo is not checked out; a checkout without the library FAILS.
-describe.skipIf(!haveSchoolv4())('the guide\'s gameLogic.cjs runs events against the real eventpack.cjs', () => {
-    const LIBRARY = path.join(schoolv4Dir(), '..', '_engine', 'eventpack.cjs');
+// uses. The library's master lives in this repo, so this always runs; a master that moved FAILS.
+describe('the guide\'s gameLogic.cjs runs events against the real eventpack.cjs', () => {
+    const LIBRARY = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'eventpack_lib', 'eventpack.cjs');
     it('the library is where the guide says', () => {
         expect(existsSync(LIBRARY), 'missing: ' + LIBRARY).toBe(true);
     });

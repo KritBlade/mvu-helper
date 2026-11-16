@@ -1,12 +1,14 @@
 /* ============================================================================
- * eventpack.cjs — the GENRE-NEUTRAL event engine (Cluster 6C).  v1.0.4  (WHEN-DSL grammar v1.7.0)
+ * eventpack.cjs — the GENRE-NEUTRAL event engine (Cluster 6C).  v1.0.5  (WHEN-DSL grammar v1.7.0)
  *
  * ⚠ GENRE WORKSPACES HOLD COPIES OF THIS WHOLE FILE. It is a LIBRARY member of an artifact's
  * `engine/` folder (mvu-helper/plans/executed/artifact-development-workflow.md §2.3): a creator drops it in,
  * names it in `engineOrder`, and ships — so the artifact folder stays self-contained and no genre
- * can break another by editing it. THIS file is the source of truth. After changing it, re-run each
- * genre's workspace build (School: `node Tools/build_workspace.cjs`) or that genre keeps shipping
- * the old engine while its sources say otherwise. Its verifier fails on a stale copy.
+ * can break another by editing it. THIS file, mvu-helper's eventpack_lib/eventpack.cjs, is the master;
+ * a creator updates by replacing their whole copy with it. A genre in the Dev tree's Genre/ folder takes
+ * it through its own `npm test`, which rewrites the copy under a one-line COPY banner (School:
+ * Tools/sync_engine_copies.cjs); until then that genre keeps shipping the old engine. mvu-helper's
+ * tests/eventpack-genre-copies.test.js fails while any such copy differs from this file.
  *
  * ⚠ THE COMPATIBILITY PROMISE — what a creator on an OLDER copy may rely on. This file is meant to be
  * taken AS-IS to build a new genre, so three rules bind every change to it (GENRE_FILE_CONVENTION §12):
@@ -37,9 +39,9 @@
  * ⚠⚠⚠ THREE-FILE GRAMMAR SYNC — MANDATORY ⚠⚠⚠
  * The WHEN-DSL grammar in this file (parseToken · formatToken · formatTokenChain · formatWhenAny,
  * plus their helper predicates, regexes and the quoted-argument codec) is hand-vendored into TWO
- * other repos. ANY grammar change here MUST land in all three files in the same pass, and all
+ * other files. ANY grammar change here MUST land in all three files in the same pass, and all
  * three carry the SAME grammar version — now v1.7.0:
- *   1. MvuGameMaker        maker-app/GameLogic/_engine/eventpack.cjs        ← SOURCE OF TRUTH (this file)
+ *   1. mvu-helper          eventpack_lib/eventpack.cjs                      ← SOURCE OF TRUTH (this file)
  *   2. mvu-helper          src/features/event-pack/when-dsl-grammar.js      (install-side validator/lint)
  *   3. MvuStatMenuBuilder  landing-app/src/utils/when-dsl-grammar.js        (event-builder GUI, parse+emit)
  * Copies 2 and 3 are BYTE-IDENTICAL twins (byte-compare is their drift guard); mvu-helper's drift
@@ -47,7 +49,7 @@
  *
  * WHAT THIS IS: the ONE implementation of everything an event pack needs to run. A pack exported by
  * MvuStatMenuBuilder runs on any card whose engine loads this file and declares an adapter — no
- * per-pack code anywhere. See mvu-helper doc/event-pack-engine.md and
+ * per-pack code anywhere. See mvu-helper devdoc/event-pack-engine.md and
  * MvuStatMenuBuilder plans/executed/eventpack_revisit.md.
  *
  * WHAT LIVES HERE (write-once, all genres): materialize the trigger table · the WHEN/PREREQ
