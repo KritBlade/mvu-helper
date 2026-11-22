@@ -1,13 +1,14 @@
-// COPY — do not edit here. Source: GameLogic/_engine/eventpack.cjs; refresh with Tools/build_workspace.cjs.
 /* ============================================================================
- * eventpack.cjs — the GENRE-NEUTRAL event engine (Cluster 6C).  v1.0.4  (WHEN-DSL grammar v1.7.0)
+ * eventpack.cjs — the GENRE-NEUTRAL event engine (Cluster 6C).  v1.0.6  (WHEN-DSL grammar v1.7.0)
  *
  * ⚠ GENRE WORKSPACES HOLD COPIES OF THIS WHOLE FILE. It is a LIBRARY member of an artifact's
  * `engine/` folder (mvu-helper/plans/executed/artifact-development-workflow.md §2.3): a creator drops it in,
  * names it in `engineOrder`, and ships — so the artifact folder stays self-contained and no genre
- * can break another by editing it. THIS file is the source of truth. After changing it, re-run each
- * genre's workspace build (School: `node Tools/build_workspace.cjs`) or that genre keeps shipping
- * the old engine while its sources say otherwise. Its verifier fails on a stale copy.
+ * can break another by editing it. THIS file, mvu-helper's eventpack_lib/eventpack.cjs, is the master;
+ * a creator updates by replacing their whole copy with it. A genre in the Dev tree's Genre/ folder takes
+ * it through its own `npm test`, which rewrites the copy under a one-line COPY banner (School:
+ * Tools/sync_engine_copies.cjs); until then that genre keeps shipping the old engine. mvu-helper's
+ * tests/eventpack-genre-copies.test.js fails while any such copy differs from this file.
  *
  * ⚠ THE COMPATIBILITY PROMISE — what a creator on an OLDER copy may rely on. This file is meant to be
  * taken AS-IS to build a new genre, so three rules bind every change to it (GENRE_FILE_CONVENTION §12):
@@ -38,9 +39,9 @@
  * ⚠⚠⚠ THREE-FILE GRAMMAR SYNC — MANDATORY ⚠⚠⚠
  * The WHEN-DSL grammar in this file (parseToken · formatToken · formatTokenChain · formatWhenAny,
  * plus their helper predicates, regexes and the quoted-argument codec) is hand-vendored into TWO
- * other repos. ANY grammar change here MUST land in all three files in the same pass, and all
+ * other files. ANY grammar change here MUST land in all three files in the same pass, and all
  * three carry the SAME grammar version — now v1.7.0:
- *   1. MvuGameMaker        maker-app/GameLogic/_engine/eventpack.cjs        ← SOURCE OF TRUTH (this file)
+ *   1. mvu-helper          eventpack_lib/eventpack.cjs                      ← SOURCE OF TRUTH (this file)
  *   2. mvu-helper          src/features/event-pack/when-dsl-grammar.js      (install-side validator/lint)
  *   3. MvuStatMenuBuilder  landing-app/src/utils/when-dsl-grammar.js        (event-builder GUI, parse+emit)
  * Copies 2 and 3 are BYTE-IDENTICAL twins (byte-compare is their drift guard); mvu-helper's drift
@@ -48,7 +49,7 @@
  *
  * WHAT THIS IS: the ONE implementation of everything an event pack needs to run. A pack exported by
  * MvuStatMenuBuilder runs on any card whose engine loads this file and declares an adapter — no
- * per-pack code anywhere. See mvu-helper doc/event-pack-engine.md and
+ * per-pack code anywhere. See mvu-helper devdoc/event-pack-engine.md and
  * MvuStatMenuBuilder plans/executed/eventpack_revisit.md.
  *
  * WHAT LIVES HERE (write-once, all genres): materialize the trigger table · the WHEN/PREREQ
@@ -188,8 +189,9 @@
   // (READ-ONLY, no side effects). Returns true iff EVERY token holds; '' / '-' = no constraint = true.
   // Tokens: LHS in {a,b} · Present(Name) · flag:key[=state] · LHS OP RHS (OP >= <= == = > <) ·
   // `!TOKEN` · contains(LHS, "s") · has(LHS, "e") · `*` path segments — all pack format 1.0.
-  // RHS numeric ⇒ numeric compare, else string. Unparseable token ⇒ false (fail-safe). LHS vocabulary +
-  // the raw-path fallback resolve via resolveLHS (adapter.resolveScalar + the generic dotted-path read).
+  // RHS numeric ⇒ numeric compare, else string. Unparseable token ⇒ false (fail-safe). Every token kind
+  // reads its LHS through readLHS (the resolution order below), so a shortcut, a computed form and a `*`
+  // path mean the same thing in a compare, an `in`, a contains() and a has().
   //
   // RAW_PATH: a raw dotted path, RELATIVE to stat_data (never `stat_data.`-prefixed) — matching every
   // shipped token and MvuStatMenuBuilder's own `collectionPaths`. Lowercase roots and a SINGLE segment
@@ -202,23 +204,49 @@
   var RAW_PATH = /^[A-Za-z_$][\w$]*((\.(\w+|\*))+)?$/;
   var DAYS_SINCE = /^DaysSince\((.+)\)$/i;
 
-  // LHS RESOLUTION ORDER — load-bearing, so it is written once, here:
+  // LHS RESOLUTION ORDER — load-bearing, so it is written once, here, in readLHS:
   //   1. DaysSince(<path>)          a LIBRARY form (LIBRARY_SUGAR); needs adapter.daysSince
-  //   2. an alias the adapter declares   expanded to a raw path, then read like 3
+  //   2. an alias the adapter declares   expanded to a raw path, then read like 4
   //   3. adapter.resolveScalar      OPTIONAL: a computed form; returns lhs unchanged when unclaimed
   //   4. a raw dotted path          read straight from stat_data through adapter.get
   //   5. anything else              the literal itself
-  function resolveLHS(sd, lhs, adapter) {
+  // readLHS says which of the five an LHS is, without reading a value:
+  //   { kind: 'days', path }   1 — the stamp's path
+  //   { kind: 'path', path }   2 and 4 — the stat_data path, an alias already expanded
+  //   { kind: 'value', value } 3 — what resolveScalar computed
+  //   { kind: 'literal', value } 5
+  function readLHS(sd, lhs, adapter) {
     var m = String(lhs).match(DAYS_SINCE);
-    if (m) return daysSinceAtPath(sd, m[1].trim(), lhs, adapter);
+    if (m) return { kind: 'days', path: m[1].trim() };
     var expanded = expandAlias(lhs, adapter);
-    if (expanded !== null) return adapter.get(getByPath(sd, expanded), expanded);
+    if (expanded !== null) return { kind: 'path', path: expanded };
     if (typeof adapter.resolveScalar === 'function') {
       var v = adapter.resolveScalar(sd, lhs);
-      if (v !== lhs) return v;
+      if (v !== lhs) return { kind: 'value', value: v };
     }
-    if (RAW_PATH.test(lhs)) return adapter.get(getByPath(sd, lhs), lhs);
-    return lhs;
+    if (RAW_PATH.test(lhs)) return { kind: 'path', path: lhs };
+    return { kind: 'literal', value: lhs };
+  }
+  // ONE value for what readLHS found. A path that holds nothing reads as its own spelling (see RAW_PATH).
+  function valueOfRead(sd, read, lhs, adapter) {
+    if (read.kind === 'days') return daysSinceAtPath(sd, read.path, lhs, adapter);
+    if (read.kind === 'path') return adapter.get(getByPath(sd, read.path), read.path);
+    return read.value;
+  }
+  function resolveLHS(sd, lhs, adapter) { return valueOfRead(sd, readLHS(sd, lhs, adapter), lhs, adapter); }
+
+  function hasWildcard(path) { return String(path).split('.').indexOf('*') >= 0; }
+  function isWildcardRead(read) { return (read.kind === 'path' || read.kind === 'days') && hasWildcard(read.path); }
+  // EVERY value an LHS reads, as a list — what a compare and an `in` test, true when ANY one passes. A plain
+  // name reads one value (resolveLHS). A `*` path reads one per entry it names: the field, unwrapped, or for
+  // DaysSince() the day count of each entry's stamp. Zero entries ⇒ [], so a `*` token never holds in an
+  // empty collection.
+  function lhsValues(sd, lhs, adapter) {
+    var read = readLHS(sd, lhs, adapter);
+    if (!isWildcardRead(read)) return [valueOfRead(sd, read, lhs, adapter)];
+    return nodesAtPath(sd, read.path).map(function (node) {
+      return read.kind === 'days' ? daysSinceOfStamp(sd, node, lhs, adapter) : adapter.get(node, '');
+    });
   }
 
   // ALIASES AS DATA. An alias key is a template: every `*` captures one segment or one paren
@@ -257,9 +285,15 @@
   //   empty stamp                ⇒ Infinity ("never"): a cooldown `>=N` opens, a recency `<=N` stays shut
   //   adapter.daysSince returns null ⇒ WARNED (not a datetime stamp), Infinity
   //   no adapter.daysSince at all    ⇒ WARNED once per adapter, Infinity — never a silent civil-day default
+  // A `*` path reads every entry's stamp through daysSinceOfStamp (lhsValues); an empty collection is no
+  // entry at all, so it reads nothing rather than "never".
   function daysSinceAtPath(sd, dotted, token, adapter) {
     var raw = getByPath(sd, dotted);
     if (raw === undefined) { warn(adapter, 'WHEN-DSL ' + token + ': the path resolves to nothing — reads as never (Infinity); check the spelling'); return Infinity; }
+    return daysSinceOfStamp(sd, raw, token, adapter);
+  }
+  // One stored stamp (a tuple or a bare string) → whole days, by the table above.
+  function daysSinceOfStamp(sd, raw, token, adapter) {
     var stamp = String(adapter.get(raw, '')).trim();
     if (!stamp) return Infinity;
     if (typeof adapter.daysSince !== 'function') {
@@ -595,32 +629,36 @@
     // token must stay false whether or not it carried a '!', so a typo can only ever fail CLOSED.
     return p.neg ? !v : v;
   }
+  // A `*` path in ANY token kind is an ANY-match: true when AT LEAST ONE value it names satisfies the
+  // token. Zero matching values ⇒ false, never vacuously true — an event must not fire in an empty room.
   function evalParsed(sd, p, adapter) {
     switch (p.kind) {
       case 'none': return true;
-      case 'in': return p.set.indexOf(String(resolveLHS(sd, p.lhs, adapter))) >= 0;
+      case 'in':
+        return lhsValues(sd, p.lhs, adapter).some(function (value) { return p.set.indexOf(String(value)) >= 0; });
       case 'present': return isPresentAt(sd, p.name, adapter);
       case 'flag': return firedState(sd, p.flag, adapter) === p.state;
       case 'cmp': {
-        var L = resolveLHS(sd, p.lhs, adapter);
-        return /^-?\d+(\.\d+)?$/.test(p.rhs) ? cmpNum(p.op, L, p.rhs) : cmpStr(p.op, L, p.rhs);
+        var isNumeric = /^-?\d+(\.\d+)?$/.test(p.rhs);
+        return lhsValues(sd, p.lhs, adapter).some(function (value) {
+          return isNumeric ? cmpNum(p.op, value, p.rhs) : cmpStr(p.op, value, p.rhs);
+        });
       }
-      // ANY-match over a wildcard path: true when AT LEAST ONE named node satisfies it. Zero
-      // matching nodes ⇒ false, never vacuously true — an event must not fire in an empty room.
+      // contains() tests TEXT, case-sensitive. A path's text is what it HOLDS, so a path holding nothing is
+      // false here, never its own spelling; a DaysSince(), a computed form or a literal is tested as it reads.
       case 'contains': {
-        if (RAW_PATH.test(p.lhs)) {
-          var nodes = nodesAtPath(sd, p.lhs);
-          for (var i = 0; i < nodes.length; i++) {
-            if (String(adapter.get(nodes[i], p.lhs)).indexOf(p.arg) >= 0) return true;   // case-SENSITIVE
-          }
-          return false;
-        }
-        return String(resolveLHS(sd, p.lhs, adapter)).indexOf(p.arg) >= 0;          // a genre scalar (Aff(X), Loc, …)
+        var read = readLHS(sd, p.lhs, adapter);
+        var texts = read.kind === 'path'
+          ? nodesAtPath(sd, read.path).map(function (node) { return adapter.get(node, ''); })
+          : lhsValues(sd, p.lhs, adapter);
+        return texts.some(function (text) { return String(text).indexOf(p.arg) >= 0; });
       }
+      // has() tests a COLLECTION: every node a path names, or what a computed form returns. A DaysSince()
+      // or a literal is no collection, so it has no entries.
       case 'has': {
-        var hs = RAW_PATH.test(p.lhs) ? nodesAtPath(sd, p.lhs) : [];
-        for (var h = 0; h < hs.length; h++) if (nodeHas(hs[h], p.arg, adapter, p.lhs)) return true;
-        return false;                                                            // non-path LHS ⇒ no collection to test
+        var held = readLHS(sd, p.lhs, adapter);
+        var collections = held.kind === 'path' ? nodesAtPath(sd, held.path) : held.kind === 'value' ? [held.value] : [];
+        return collections.some(function (node) { return nodeHas(node, p.arg, adapter, p.lhs); });
       }
       default: return false;
     }
@@ -685,6 +723,7 @@
   }
 
   // Extract a token's scalar LHS (for the "now <value>" hint). Present()/flag: are self-describing → ''.
+  // A `*` LHS reads one value per entry, so it has no single "now" and the sweep shows none.
   // Reads the ONE grammar (parseToken) rather than re-matching.
   function tokenLhs(tok) {
     var p = parseToken(tok);
@@ -708,7 +747,9 @@
       var unmet = split.fail.map(function (tok) {
         var lhs = tokenLhs(tok);
         if (!lhs) return { token: tok };
-        return { token: tok, lhs: lhs, now: resolveLHS(sd, lhs, adapter) };
+        var read = readLHS(sd, lhs, adapter);
+        if (isWildcardRead(read)) return { token: tok, lhs: lhs };
+        return { token: tok, lhs: lhs, now: valueOfRead(sd, read, lhs, adapter) };
       });
       out.push({ key: t.key, series: t.series || '', cat: t.cat || 'TRG', unmet: unmet });
     });
@@ -1367,4 +1408,3 @@
     applyStepDone: applyStepDone,               // the numbered-beat cursor inside one event body (narrator-reported, monotonic)
   };
 });
-
