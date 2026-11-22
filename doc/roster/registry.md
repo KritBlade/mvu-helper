@@ -122,7 +122,7 @@ The picture is drawn in those clothes. They're not saved to her entry, because h
 Instead, MVU Helper remembers the last clothes each character's pictures drew them in, in the game state:
 
 ```json
-"mvuhelper": {
+"$mvuhelper": {
   "worn_outfit": {
     "Mitsuki": { "outfit": "newclothes", "clothes": "white frilled blouse, light blue denim skirt, …", "last_picture_message": 58 }
   }
@@ -133,7 +133,7 @@ A picture that shows her undressed keeps those clothes and adds `"was_undressed_
 
 Someone no picture has drawn in more than 100 replies is dropped, so the record doesn't keep everyone ever drawn in a long chat.
 
-A card whose Zod schema strips what it doesn't list has to list `mvuhelper` with its `worn_outfit`. Otherwise nothing anyone wore is remembered, and the console says so once per chat.
+A card whose Zod schema strips what it doesn't list has to declare `$mvuhelper` open, as `$mvuhelper: z.record(z.string(), z.any()).prefault({})`. Listing only some of its parts strips the rest. Otherwise nothing anyone wore is remembered, and the console says so once per chat.
 
 ## What the AI is offered: `<reply_cast>`
 

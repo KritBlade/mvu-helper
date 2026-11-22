@@ -116,7 +116,7 @@ $(() => { registerMvuSchema(StatDataSchema); });
 ```
 
 - It runs on the page, so it is cut to an allowlist before install: the one `mvu_zod` import, `const`/`let`/`var` built only from `z.<member>(...)` and literals (members: `string number boolean null any object looseObject tuple union array record coerce passthrough catchall prefault`), one `registerMvuSchema(...)` call, comments. Anything else is removed with a toast naming the lines.
-- The root is `z.looseObject({...})` with NO `.prefault` on it. A closed root strips every root it does not name (`GameLogicPlugin`, `EventPack`, `mvuhelper`). Keep `GameLogicPlugin` declared open as shipped.
+- The root is `z.looseObject({...})` with NO `.prefault` on it. A closed root strips every root it does not name (`GameLogicPlugin`, `EventPack`, `$mvuhelper`). Keep `GameLogicPlugin` declared open as shipped.
 - Inside, a `z.object` level strips any key it does not declare. `z.looseObject` / `.passthrough()` keeps extras, but a key the engine reads still belongs in the schema.
 - `z.coerce.boolean()` turns the string `"false"` into `true`. Teach models to write JSON `true` / `false`.
 - ArtificKoi's root is a closed `z.object(...).prefault({})` with `GameLogicPlugin` declared open. That installs with a warning. Do not copy it.

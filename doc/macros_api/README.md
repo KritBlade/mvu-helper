@@ -44,6 +44,7 @@ The 3 you'll meet first:
 | roll dice the narrator sees | `MvuHelper.rollPool()` |
 | ask my engine something from an entry | `LogicEngine.<your function>()` |
 | read what a POST call answered | the `mvuhelper:post-done` event, then `mvuHelper.lastPost` |
+| change a finished reply from my extension | hand the edit to MVU Helper, see [Extensions that change a reply](#extensions-that-change-a-reply) |
 | check what's installed on this card | `MvuHelper.packInfo()` |
 | log the same way MVU Helper does | `MvuHelper.log` |
 | read MVU Helper's settings, or flip a debug switch | `MvuHelper.settings` |
@@ -60,7 +61,7 @@ That's why the engine's name comes both ways. When your EJS has to decide someth
 
 ## Nothing here writes your game
 
-Macros and the API never change your game. Not one of them changes a variable. The one thing your code can set is a debug switch, with `MvuHelper.settings.set`, and that's MVU Helper's own setting.
+Macros and the API never change your game. Not one of them changes a variable. Your code can set a debug switch, with `MvuHelper.settings.set`, and that's MVU Helper's own setting. And an extension can hand MVU Helper a change to a finished reply's text, see [Extensions that change a reply](#extensions-that-change-a-reply).
 
 To change the game state, your code hands MVU Helper a list of changes, and MVU Helper writes them through MVU, at the right moment, checked by your schema. A PRE call writes with `<JSONPatch>`, a POST call with `<UpdateVariable>`, your engine through its hooks, and a status menu button through an action.
 
@@ -71,6 +72,16 @@ I built it this way on purpose. When a saved value turns out wrong, you want exa
 A button in a builder menu calls an action in your menu engine. The action returns the changes, like "Energy back to full", and MVU Helper applies them. You write what the button means, never how it gets saved.
 
 So there's no API call to write yourself. Your action is a function that returns a list. See [Actions: what a button does](../statusmenu_engine/engine.md#actions-what-a-button-does).
+
+## Extensions that change a reply
+
+MVU Helper touches every reply a few times after the AI finishes it. It adds the pictures, the stat box, the engine's text. And it saves the reply only ONCE, when the turn is done.
+
+So if you write an extension that also changes a finished reply, don't save it on your own. Hand your change to MVU Helper, and it goes out in that same one save.
+
+Saving on your own costs 2 things. The reply flashes one more time. And a copy you read before your extension got busy doesn't have the picture that landed meanwhile, so saving it wipes the picture out.
+
+How to hand it over is on [Editing a finished reply](technical.md#editing-a-finished-reply-from-your-extension).
 
 ## Every macro and every call
 

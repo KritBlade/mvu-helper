@@ -49,10 +49,10 @@ Your game names its roots however it wants. What matters is that each root has o
 | Root | What it holds |
 | --- | --- |
 | `GameLogicPlugin` | one drawer per installed plugin. 0 here means no plugin is installed. Declare it open, or leave it out. See [Keep the root open](#keep-the-root-open). |
-| `mvuhelper` | MVU Helper's own data, like what each character is wearing, so the next picture draws the same clothes. See [Auto Image Generation](../image_gen/README.md). |
+| `$mvuhelper` | MVU Helper's own data, like what each character is wearing, so the next picture draws the same clothes. Declare it open, as `z.record(z.string(), z.any()).prefault({})`. See [The state MVU Helper keeps](../image_gen/card.md#the-state-mvu-helper-keeps). |
 | `EventPack` | the events from installed Event Packs, and which ones have fired. See [What is EventPack Engine](../eventpack_engine/README.md). |
 
-Watch out for this one. With a closed root, any root you don't declare is stripped on the next save, these 3 included. A closed root has to declare `mvuhelper` and `EventPack` itself, or MVU Helper's outfit memory and every Event Pack lose their data. With an open root, they just survive. Another reason to keep it open.
+Watch out for this one. With a closed root, any root you don't declare is stripped on the next save, these 3 included. A closed root has to declare `$mvuhelper` and `EventPack` itself, or MVU Helper's outfit memory and every Event Pack lose their data. With an open root, they just survive. Another reason to keep it open.
 
 ## Where to find it
 

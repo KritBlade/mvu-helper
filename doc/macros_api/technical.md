@@ -12,11 +12,12 @@ This is the full list: every macro MVU Helper fills in, every function and setti
 4. [`LogicEngine`](#logicengine-your-engine-from-the-page) > your own engine's functions, called from EJS.
 5. [`mvuHelper`](#mvuhelper-the-calls-answers) > this turn's PRE and POST answers, and the debug handles.
 6. [Events](#events) > what MVU Helper fires on SillyTavern's `eventSource`.
-7. [Flags](#flags-is-this-a-real-turn) > 2 globals that tell a real turn from a page-load render.
-8. [Inside the engine sandbox](#inside-the-engine-sandbox) > what your GameLogic Engine, a plugin and an event pack can ask for.
-9. [Inside the status menu frame](#inside-the-status-menu-frame) > what a builder menu can call.
-10. [Entry names MVU Helper reads](#entry-names-mvu-helper-reads) > the lorebook comment tags.
-11. [Writing](#writing) > how a change actually gets saved.
+7. [Editing a finished reply](#editing-a-finished-reply-from-your-extension) > your extension's edit in MVU Helper's one write of the reply.
+8. [Flags](#flags-is-this-a-real-turn) > 2 globals that tell a real turn from a page-load render.
+9. [Inside the engine sandbox](#inside-the-engine-sandbox) > what your GameLogic Engine, a plugin and an event pack can ask for.
+10. [Inside the status menu frame](#inside-the-status-menu-frame) > what a builder menu can call.
+11. [Entry names MVU Helper reads](#entry-names-mvu-helper-reads) > the lorebook comment tags.
+12. [Writing](#writing) > how a change actually gets saved.
 
 ## Where each one works
 
@@ -330,6 +331,7 @@ eventSource.on('mvuhelper:post-done', (messageId, postBlockComing, anyPostRan) =
 | `mvu_helper_turn_phase` | when the first PRE or POST call starts, and when the last one ends | `{ busy, phase, open }`. `phase` is `pre` or `post`, `open` is how many are still running |
 | `mvu_helper_state_saved` | every time MVU Helper saves a message's state itself | `{ mid, writer }`. `writer` names who saved it, like `pre-sim` or `event-pack` |
 | `mvu_helper_res_staged` | when the engine has resolved a turn and staged the result | `{ mid, swipe, epoch, willSave }` |
+| `mvu_helper_reply_last_call` | right before every write of a reply's text | `{ chat_id, message_id, swipe_id, edit }`, see [Editing a finished reply](#editing-a-finished-reply-from-your-extension) |
 
 **`mvu_helper_turn_phase` is how you know a turn is still working.** PRE and POST calls don't go through SillyTavern's normal generation, so SillyTavern's own events say nothing about them. Without this event, a busy indicator would show the tab as idle while POST is still running. My galgame-companion extension uses it for exactly that.
 
@@ -338,6 +340,21 @@ eventSource.on('mvuhelper:post-done', (messageId, postBlockComing, anyPostRan) =
 **`mvu_helper_state_saved` exists because MVU's own save says nothing.** When MVU Helper writes a message's state through `Mvu.replaceMvuData`, no MVU event fires. This one does.
 
 **`mvu_helper_res_staged` is a "look again now" signal.** MVU Helper's own POST waits on it. Re-read what you need when it fires, don't take it from the payload. Most cards never need it.
+
+## Editing a finished reply from your extension
+
+MVU Helper edits every reply several times after the AI finishes it, and writes it to the chat once, at the end of the turn. Your extension's edit can go out in that same write. Writing `.mes` on your own redraws the reply one more time, and it can erase a picture that landed while your extension was busy.
+
+There are 2 ways in, and both take the same edit object, `{ by, stage, prepare, apply }`:
+
+| Way in | How | Use it when |
+| --- | --- | --- |
+| the hand-in | emit `mvu_helper_reply_edit` with `{ chat_id, message_id, swipe_id }`, then call `request.handIn(edit)` | you add something once your own work for the reply is done |
+| the last call | listen on `mvu_helper_reply_last_call`, and call `edit(...)` before your listener returns | you change every write of a reply, like a layout |
+
+`apply` is synchronous: the latest text in, your edited text out. `content` edits run before `presentation` edits, and the whole queue gets 5 seconds.
+
+The rules, the order, every refusal and 2 worked examples are on [Editing a finished reply from your extension](reply_edit.md).
 
 ## Flags: is this a real turn?
 
@@ -413,7 +430,7 @@ The entries the installers write, like `[MVU_LogicEngine]` and `[GameLogicPack:<
 
 ## Writing
 
-Nothing on this page writes your game. The one thing your code can set is a debug switch, with `MvuHelper.settings.set`, and that's MVU Helper's own setting. Every change to the game goes back to MVU Helper as a list, and MVU Helper writes it through MVU, at the right moment, checked by your schema:
+Nothing on this page writes your game. Your code can set a debug switch, with `MvuHelper.settings.set`, and that's MVU Helper's own setting. An extension can hand MVU Helper an edit to a finished reply's text, and MVU Helper writes that too, see [Editing a finished reply](#editing-a-finished-reply-from-your-extension). Every change to the game goes back to MVU Helper as a list, and MVU Helper writes it through MVU, at the right moment, checked by your schema:
 
 | From | Writes with | Page |
 | --- | --- | --- |

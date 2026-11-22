@@ -60,6 +60,16 @@ The schema is installed as your card's `Scheme` script. MVU Status Menu Builder 
 
 Watch out for one thing. A field that isn't in the schema gets stripped. If you add a new value to `stat_data`, add it to the schema first, or it vanishes the moment MVU saves.
 
+## A card that brings its own MVU
+
+MVU Helper installs MVU once, for every card. But a lot of MVU cards carry their own copy of MVU inside the card, as a Tavern Helper script.
+
+2 copies of MVU running side by side is bad news. It's like 2 people steering the same car. They trip over each other, and the game state quietly stops updating until you reload the page. No error, the numbers just freeze.
+
+So when you open a card like that, MVU Helper switches the card's copy OFF and restarts its own. A toast tells you it did. The card's copy isn't deleted, only switched off. If you never let MVU Helper install MVU, the card's copy is the only MVU there is, so it's left alone.
+
+That switch is saved into the card. So a card you export afterwards goes out with its MVU script off. Someone who plays it without MVU Helper has to turn that script back on in Tavern Helper's script list.
+
 ## Where MVU Helper fits in
 
 MVU Helper always needs MVU. It never assumes your card has a game engine, but it always assumes MVU is there.
