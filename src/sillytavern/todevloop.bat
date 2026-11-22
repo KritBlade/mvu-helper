@@ -1,0 +1,1 @@
+npm run dev -- H:\Github\Dev\Genre\School\workspace

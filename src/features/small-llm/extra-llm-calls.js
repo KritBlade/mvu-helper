@@ -53,6 +53,7 @@ import {
     callDispatchDisposition,
     SIM_UNDO_EXTRA_KEY,
     stepSimUndo,
+    resetSimUndoForAttempt,
     readSimUndoRecord,
     writeSimUndoRecord,
     postOpsRefused,
@@ -644,6 +645,49 @@ function logSimPreDrop(verdict, simLog, uReal) {
 const PAGE_LOAD_ID = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const simAttemptId = (epoch) => PAGE_LOAD_ID + ':' + epoch;
 
+// THE CACHE FLOOR a PRE write also lands on, beside the user floor: the latest AI floor when it comes after the user
+// floor (a swipe), or -1 (on a normal generate the latest floor IS the user floor). On a swipe, narrate's prompt
+// renders from that floor's variables clone, taken before PRE ran and never refreshed; without the write the
+// injected lines and the Window-A EJS contradict each other on that one path.
+function preCacheFloor(chat, uReal) {
+    const latest = chat.length - 1;
+    return (latest !== uReal && chat[latest] && !chat[latest].is_user) ? latest : -1;
+}
+
+// THE ATTEMPT'S START (core: THE FLOOR UNDO RECORD). Before the engine's PRE-rail patch and the PRE calls, each
+// floor this attempt's PRE writes land on — the user floor, and the cache floor — gets back the paths another
+// attempt's PRE wrote there, so a retry whose PRE writes nothing does not run on the last attempt's roll. NOT
+// fatal: a floor whose reset does not save is named, keeps its stored record, and the turn goes on.
+async function resetLastAttemptPreWrites(uReal, entryEpoch) {
+    const ctx = SillyTavern.getContext();
+    const chat = (ctx && Array.isArray(ctx.chat)) ? ctx.chat : [];
+    if (uReal < 0 || !chat[uReal]) return;
+    const simLog = log.child('PRE').child('SIM');
+    const attempt = simAttemptId(entryEpoch);
+    const cacheFloor = preCacheFloor(chat, uReal);
+    for (const floorId of (cacheFloor >= 0 ? [uReal, cacheFloor] : [uReal])) {
+        const msg = chat[floorId];
+        const swipe = (msg.swipe_id != null) ? msg.swipe_id : 0;
+        const vars = msg.variables && msg.variables[swipe];
+        const stored = readSimUndoRecord(msg, swipe);
+        if (!vars || !vars.stat_data || stored.isMalformed) continue;   // a malformed record is named by the apply
+        const clone = structuredClone(vars);
+        const step = resetSimUndoForAttempt(stored.record, attempt, clone.stat_data);
+        if (!step) continue;
+        // The record rides the state's own save, exactly as an apply's does; a save that does not land puts the
+        // stored one back, so the next step still sees what is left to reset.
+        writeSimUndoRecord(msg, swipe, step.record);
+        let isSaved = false;
+        try {
+            isSaved = await saveMessageMvuData(clone, floorId, { writer: 'pre-sim' });
+        } catch (e) {
+            simLog.warn(`msg #${floorId}: could not put back what the last attempt's PRE wrote (${step.reset.join(', ')}) — this attempt runs with it:`, e);
+        }
+        if (!isSaved) { writeSimUndoRecord(msg, swipe, stored.record); continue; }
+        simLog.domain('pipeline', 'lifecycle', `put back ${step.reset.length} path(s) the last attempt's PRE wrote on msg #${floorId} (${step.reset.join(', ')}) — this retry starts without them`);
+    }
+}
+
 // THE PRE-TIME APPLY — exactly ONCE, at PRE time. The patch lands on the LAST USER floor:
 // narrate reads it from state (MVU's Fe seeds the reply floor from chat[u]), an Intent-rooted
 // write reaches RES1 through the same inheritance, and there is NO second apply — Fe carries the
@@ -678,10 +722,10 @@ async function applySimBlockAtPre({ label, block, ops, entryEpoch, uReal }) {
             simLog.error(`msg ${floorId} has no variables[${swipe}] — NOT applied to it (is MVU active on this card?)`);
             return false;
         }
-        // Attempt-residue guard: a NEW generation re-applying on this floor (regen/swipe — the previous
-        // attempt's writes persist on it) first puts back the paths PRE wrote there, and nothing else; then
-        // this apply's own paths join the record, which the message carries (core: stepSimUndo). A second
-        // PRE write in the SAME generation stacks without a reset.
+        // Attempt-residue guard: the attempt's start already put back what another attempt wrote on this
+        // floor (resetLastAttemptPreWrites), so this apply stacks onto this attempt's record; its own paths
+        // join it, and the message carries it (core: stepSimUndo). A second PRE write in the SAME generation
+        // stacks the same way.
         const stored = readSimUndoRecord(msg, swipe);
         if (stored.isMalformed) {
             simLog.warn(`msg ${floorId} holds a ${SIM_UNDO_EXTRA_KEY} entry for swipe ${swipe} that is not an undo record — ignored: this attempt records afresh, so a retry puts back only what it writes from here`);
@@ -709,19 +753,16 @@ async function applySimBlockAtPre({ label, block, ops, entryEpoch, uReal }) {
         return { applied, before: clone.stat_data, reset };
     };
 
-    const latest = chat.length - 1;
     const userRun = await applyToFloor(uReal);
     if (!userRun) return false;
     const appliedUser = userRun.applied;
-    // The second write — the CACHE floor. On a swipe, narrate's prompt renders from the latest AI
-    // floor's variables clone, taken before PRE ran and never refreshed; without this write the
-    // injected lines and the Window-A EJS contradict each other on that one path. On a normal
-    // generate the latest floor IS the user floor and this is skipped.
+    // The second write — the CACHE floor (preCacheFloor).
     let cacheNote = '';
-    if (latest !== uReal && chat[latest] && !chat[latest].is_user) {
-        cacheNote = (await applyToFloor(latest))
-            ? ` + cache floor #${latest}`
-            : ` (cache floor #${latest} write FAILED — this swipe's EJS view may lag the injected lines)`;
+    const cacheFloor = preCacheFloor(chat, uReal);
+    if (cacheFloor >= 0) {
+        cacheNote = (await applyToFloor(cacheFloor))
+            ? ` + cache floor #${cacheFloor}`
+            : ` (cache floor #${cacheFloor} write FAILED — this swipe's EJS view may lag the injected lines)`;
     }
     const paths = [...new Set(ops.map((o) => o.path))];
     // A retry names what it put back, so a value that moved on a regenerate is traceable to PRE's own
@@ -1047,6 +1088,11 @@ export async function mvuHelperInterceptor(chat, _contextSize, _abort, type) {
         const uReal = findLastUserIndex(realChat);
         const entryEpoch = generationEpoch;
         log.child('PRE').verbose(`base floor = #${baseFloor}, user floor = #${uReal} (real chat ${realChat.length} msg)`);
+
+        // A RETRY STARTS CLEAN, before anything on the PRE rail writes and above every gate below: what the last
+        // attempt's PRE wrote on these floors is put back, so an attempt that writes nothing (its PRE rolled
+        // nothing, or its calls are off) never runs on the last attempt's roll.
+        await resetLastAttemptPreWrites(uReal, entryEpoch);
 
         // THE ENGINE'S OWN PRE-RAIL PATCH — deliberately ABOVE every gate
         // below, for the same reason ensureLogicEngineLoaded() is: this is the card's LOGIC ENGINE

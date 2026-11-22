@@ -253,9 +253,10 @@ renders it.
 with a named reason if the user stopped the generation, if a newer generation started (stale epoch), if the user
 floor is gone, or if the turn advanced. On each (floor, swipe) it records every path a PRE write touched and the
 value that path held before PRE's first write there, and keeps that record on the message itself
-(`extra.mvuhelper_pre_undo`), so a page reload or a chat switch does not lose it. A new generation re-applying puts
-back exactly those paths, so a regenerate never evolves from its own previous attempt, while an edit the player made
-anywhere else on the floor survives. After the write, each op is probed by VALUE against the persisted result — a card Zod schema that silently
+(`extra.mvuhelper_pre_undo`), so a page reload or a chat switch does not lose it. A regenerate or swipe puts back
+exactly those paths as its PRE pass starts, before anything writes, so a retry never runs on its previous attempt's
+writes, even one whose PRE writes nothing (a check the last attempt rolled is gone when this one rolls none), while
+an edit the player made anywhere else on the floor survives. After the write, each op is probed by VALUE against the persisted result — a card Zod schema that silently
 strips an unenumerated path is announced (`op(s) did NOT take`) instead of failing quietly. All of this is
 `[SIM]`-tagged in the console.
 

@@ -944,7 +944,9 @@ export function simPreApplyDisposition({ entryEpoch, currentEpoch, generationSto
 // THE FLOOR UNDO RECORD (the attempt-residue guard). A regenerate or swipe re-fires PRE onto the same
 // user floor, which still holds the previous attempt's writes (they persist via replaceMvuData). So each
 // floor carries, per swipe, an UNDO RECORD: every path a PRE write touched, with the value it held
-// before PRE's FIRST write there. A retry puts those paths back, then applies.
+// before PRE's FIRST write there. A new attempt puts those paths back as its PRE pass STARTS, before
+// anything writes (resetSimUndoForAttempt): the last attempt's writes are gone whether or not this attempt
+// writes anything. A retry whose PRE rolls nothing must not inherit the roll the last attempt made.
 //
 // ONLY those paths. The floor is not PRE's alone between attempts: the player edits stat_data in
 // TavernHelper's variable manager — which emits no event — and deletes a turn to re-send at the same
@@ -959,11 +961,12 @@ export function simPreApplyDisposition({ entryEpoch, currentEpoch, generationSto
 // "resets" to them. `attempt` names the generation that wrote it: a page-load id plus that load's
 // generation counter, so two attempts never share one across a reload.
 //
-// simSnapshotDisposition decides, per apply:
+// simSnapshotDisposition decides, per step (the attempt's start, then each apply):
 //   'capture' — no record on this floor's swipe: start an empty one, then apply.
-//   'restore' — a record from ANOTHER attempt: put every recorded path back, then apply.
-//   'stack'   — a record from THIS attempt: a SECOND PRE write in one generation. No reset — it would
-//               erase the first write; two writes in one turn compose, they don't race.
+//   'restore' — a record from ANOTHER attempt: put every recorded path back, then apply. The start
+//               step does this; an apply meets it only for a record whose undo list was empty.
+//   'stack'   — a record from THIS attempt: the start step's, or a SECOND PRE write in one generation.
+//               No reset — it would erase the first write; two writes in one turn compose, they don't race.
 // Every apply adds its own ops' paths to the record (recordSimUndo — the first write wins). Pure, so the
 // branch table is testable (L6); the host reads and saves the record (readSimUndoRecord / writeSimUndoRecord).
 export const SIM_UNDO_EXTRA_KEY = 'mvuhelper_pre_undo';
@@ -983,6 +986,16 @@ export function stepSimUndo(stored, attempt, stat, ops) {
     const undo = disposition === 'capture' ? [] : stored.undo.map((u) => ({ ...u }));
     recordSimUndo(undo, stat, ops);
     return { record: { attempt, undo }, reset };
+}
+
+// The start of an attempt's PRE pass, before anything writes: a record from ANOTHER attempt has its paths put
+// back onto `stat` (the floor clone, mutated) and gives way to an empty record for this attempt. The paths are
+// the floor's own again, so they leave the record: a value the player edits there afterwards is not PRE's to
+// reset. Returns { record, reset } to save, or null when there is nothing to put back (no record, this
+// attempt's own, or one whose undo list is empty).
+export function resetSimUndoForAttempt(stored, attempt, stat) {
+    if (simSnapshotDisposition(stored, attempt) !== 'restore' || stored.undo.length === 0) return null;
+    return { record: { attempt, undo: [] }, reset: restoreSimUndo(stat, stored.undo) };
 }
 
 // The undo record a message carries for `swipe`: { record } (undefined when it carries none), or

@@ -74,6 +74,7 @@ import {
     recordSimUndo,
     restoreSimUndo,
     stepSimUndo,
+    resetSimUndoForAttempt,
     readSimUndoRecord,
     writeSimUndoRecord,
     SIM_UNDO_EXTRA_KEY,
@@ -1410,6 +1411,74 @@ describe('SOURCE GATE — the PRE writer keeps the undo record on the message it
     });
     it('no in-memory record is kept beside it', () => {
         expect(source).not.toMatch(/simFloorSnapshots|pruneSimFloorSnapshots/);
+    });
+});
+
+describe('a retry starts clean: the last attempt\'s PRE writes are put back before anything writes (resetSimUndoForAttempt)', () => {
+    const floor = () => ({ Intent: { check: ['', 'Social Check'] }, World: { Note: ['quiet', 'Note'] } });
+    const checkOp = [{ op: 'replace', path: '/Intent/check/0', value: 'target:Sui;type:Confess;rawdie:6' }];
+
+    it('MUTATION TARGET — live staging msg 817/818: an attempt whose PRE writes nothing does not keep the last attempt\'s check', () => {
+        const msg = { is_user: true, mes: 'his line', swipe_id: 0, extra: {} };
+        const residue = floor();
+        const first = stepSimUndo(readSimUndoRecord(msg, 0).record, 'loadA:1', residue, checkOp);
+        writeSimUndoRecord(msg, 0, first.record);
+        residue.Intent.check[0] = 'target:Sui;type:Confess;rawdie:6';     // attempt 1's write landed on the floor
+        const step = resetSimUndoForAttempt(readSimUndoRecord(msg, 0).record, 'loadA:2', residue);
+        expect(step.reset).toEqual(['/Intent/check/0']);
+        expect(residue.Intent.check[0]).toBe('');
+        expect(step.record).toEqual({ attempt: 'loadA:2', undo: [] });
+    });
+    it('MUTATION TARGET — a write later in the same attempt stacks onto the fresh record and records the clean value', () => {
+        const stat = floor();
+        stat.Intent.check[0] = 'stale';
+        const step = resetSimUndoForAttempt({ attempt: 'loadA:1', undo: [{ path: '/Intent/check/0', had: true, value: '' }] }, 'loadA:2', stat);
+        const write = stepSimUndo(step.record, 'loadA:2', stat, checkOp);
+        expect(write.reset).toEqual([]);
+        expect(write.record.undo).toEqual([{ path: '/Intent/check/0', had: true, value: '' }]);
+    });
+    it('MUTATION TARGET — a path put back leaves the record: a player edit there afterwards survives the next retry', () => {
+        const stat = floor();
+        stat.Intent.check[0] = 'stale';
+        const step = resetSimUndoForAttempt({ attempt: 'loadA:1', undo: [{ path: '/Intent/check/0', had: true, value: '' }] }, 'loadA:2', stat);
+        stat.Intent.check[0] = 'edited by the player';
+        expect(resetSimUndoForAttempt(step.record, 'loadA:3', stat)).toBeNull();
+        expect(stat.Intent.check[0]).toBe('edited by the player');
+    });
+    it('only the recorded paths move', () => {
+        const stat = floor();
+        stat.Intent.check[0] = 'stale';
+        stat.World.Note[0] = 'the player changed this';
+        resetSimUndoForAttempt({ attempt: 'loadA:1', undo: [{ path: '/Intent/check/0', had: true, value: '' }] }, 'loadA:2', stat);
+        expect(stat.World.Note[0]).toBe('the player changed this');
+    });
+    it('MUTATION TARGET — nothing to put back saves nothing: no record, this attempt\'s own, or an empty undo list', () => {
+        const stat = floor();
+        expect(resetSimUndoForAttempt(undefined, 'loadA:2', stat)).toBeNull();
+        expect(resetSimUndoForAttempt({ attempt: 'loadA:2', undo: [{ path: '/Intent/check/0', had: true, value: 'x' }] }, 'loadA:2', stat)).toBeNull();
+        expect(resetSimUndoForAttempt({ attempt: 'loadA:1', undo: [] }, 'loadA:2', stat)).toBeNull();
+        expect(stat).toEqual(floor());
+    });
+});
+
+describe('SOURCE GATE — the reset runs at the attempt\'s start, on the floors PRE writes (extra-llm-calls.js)', () => {
+    const source = readFileSync('src/features/small-llm/extra-llm-calls.js', 'utf8').replace(/\r\n/g, '\n');
+    const interceptor = source.slice(source.indexOf('export async function mvuHelperInterceptor('));
+
+    it('MUTATION TARGET — after the story-turn guard, before the engine\'s pre-assembly patch and every gate on the calls', () => {
+        const at = (needle) => { const i = interceptor.indexOf(needle); expect(i, needle).toBeGreaterThan(-1); return i; };
+        const reset = at('await resetLastAttemptPreWrites(uReal, entryEpoch);');
+        expect(at('if (!isStoryTurnGenerationType(type)) {')).toBeLessThan(reset);
+        expect(reset).toBeLessThan(at("await applyEngineRailPatch('preAssemblyPatch', baseFloor, uReal, entryEpoch, turnContext);"));
+        expect(reset).toBeLessThan(at('const elc = getExtraLlmCallsProfile();'));
+    });
+    it('MUTATION TARGET — the reset and the apply pick the same floors', () => {
+        expect(source).toContain('const cacheFloor = preCacheFloor(chat, uReal);\n    for (const floorId of (cacheFloor >= 0 ? [uReal, cacheFloor] : [uReal])) {');
+        expect(source).toContain('const cacheFloor = preCacheFloor(chat, uReal);\n    if (cacheFloor >= 0) {\n        cacheNote = (await applyToFloor(cacheFloor))');
+    });
+    it('MUTATION TARGET — the record rides the reset\'s save, and a save that does not land puts the stored one back', () => {
+        expect(source).toMatch(/writeSimUndoRecord\(msg, swipe, step\.record\);\n[\s\S]{0,200}isSaved = await saveMessageMvuData\(clone, floorId, \{ writer: 'pre-sim' \}\);/);
+        expect(source).toContain('if (!isSaved) { writeSimUndoRecord(msg, swipe, stored.record); continue; }');
     });
 });
 
