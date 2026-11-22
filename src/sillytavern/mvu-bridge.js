@@ -1,8 +1,8 @@
 // sillytavern/mvu-bridge.js — mvu-helper's doors into MVU (MagVarUpdate): reach it (getMvu), apply a block
-// through it (parseMvuBlock), and save a message's state (saveMessageMvuData) — or one part of mvu-helper's own root
-// in it (rewriteOwnStatPart, through the save door). Every host-initiated write goes through one of the two doors;
-// tools/check-mvu-writes.mjs refuses a direct call anywhere else. The details every caller would otherwise have to
-// rediscover:
+// through it (parseMvuBlock), and save a message's state (saveMessageMvuData) — or mvu-helper's own root in it
+// (rewriteOwnState, and rewriteOwnStatPart for one part of it, through the save door). Every host-initiated write goes
+// through one of the two doors; tools/check-mvu-writes.mjs refuses a direct call anywhere else. The details every
+// caller would otherwise have to rediscover:
 //   • Mvu lives on globalThis/window (JS-Slash-Runner exposes it on the MAIN page).
 //   • ALWAYS target an EXPLICIT message id — the Mvu.getCurrent* variants call getCurrentMessageId(),
 //     which THROWS in the global extension context ("Don't call getMessageId on a global script iframe!").
@@ -10,7 +10,7 @@
 
 import { eventSource } from '../../../../../../script.js';
 import { createModuleLog } from './log.js';
-import { withWriter, WRITER_UNLABELED, MVU_STATE_SAVED_EVENT, ownStatPart, setOwnStatPart, toastOptions } from './mvu-bridge-core.js';
+import { withWriter, WRITER_UNLABELED, MVU_STATE_SAVED_EVENT, MVUHELPER_STAT_ROOT, ownStatPart, setOwnStatPart, toastOptions } from './mvu-bridge-core.js';
 
 const log = createModuleLog('mvu-bridge');
 
@@ -98,22 +98,38 @@ export async function saveMessageMvuData(data, messageId, { writer } = {}) {
     return true;
 }
 
-// One part of mvu-helper's own root (stat_data.$mvuhelper.<part>) rewritten in message `messageId`'s saved state and
-// saved through the save door: `nextValue(current)` is handed the part as stored (undefined when absent) and returns
-// its new value. A value equal to the stored one saves nothing. Returns true when the state holds the new value, false
-// when the message holds no state or MVU is unavailable (logged); a read or save that throws throws to its caller.
-export async function rewriteOwnStatPart(messageId, part, nextValue, { writer } = {}) {
+// mvu-helper's own root (stat_data.$mvuhelper) rewritten in message `messageId`'s saved state and saved through the
+// save door: `edit(statData)` is handed the stored state, changes that root alone, may be async, and returns false to
+// save nothing. A root left as stored saves nothing. Returns true when the state holds the edit's result, false when
+// the message holds no state, MVU is unavailable (logged) or the edit returned false; a read, an edit or a save that
+// throws throws to its caller.
+export function rewriteOwnState(messageId, edit, { writer } = {}) {
+    return rewriteStoredOwnRoot(messageId, edit, writer, 'rewriteOwnState');
+}
+
+// One part of mvu-helper's own root (stat_data.$mvuhelper.<part>) rewritten the same way (rewriteOwnState):
+// `nextValue(current)` is handed the part as stored (undefined when absent) and returns its new value. A value equal
+// to the stored one saves nothing.
+export function rewriteOwnStatPart(messageId, part, nextValue, { writer } = {}) {
+    return rewriteStoredOwnRoot(messageId, (statData) => {
+        const current = ownStatPart(statData, part);
+        const next = nextValue(current);
+        if (JSON.stringify(next) !== JSON.stringify(current)) setOwnStatPart(statData, part, next);
+    }, writer, 'rewriteOwnStatPart');
+}
+
+// The body both rewrites share; `door` names the caller's door in its log line.
+async function rewriteStoredOwnRoot(messageId, edit, writer, door) {
     const Mvu = getMvu();
     if (!Mvu || typeof Mvu.getMvuData !== 'function') {
-        log.child('rewriteOwnStatPart').error(`MVU is not available — msg ${messageId}'s state was not written (is MVU installed?)`);
+        log.child(door).error(`MVU is not available — msg ${messageId}'s state was not written (is MVU installed?)`);
         return false;
     }
     const data = await Mvu.getMvuData({ type: 'message', message_id: messageId });
     if (!data || !data.stat_data || typeof data.stat_data !== 'object') return false;
-    const current = ownStatPart(data.stat_data, part);
-    const next = nextValue(current);
-    if (JSON.stringify(next) === JSON.stringify(current)) return true;
-    setOwnStatPart(data.stat_data, part, next);
+    const stored = JSON.stringify(data.stat_data[MVUHELPER_STAT_ROOT]);
+    if ((await edit(data.stat_data)) === false) return false;
+    if (JSON.stringify(data.stat_data[MVUHELPER_STAT_ROOT]) === stored) return true;
     return saveMessageMvuData(data, messageId, { writer });
 }
 

@@ -231,6 +231,7 @@ const PAIRS = [
     { ink: 'accent', minimum: GRAPHIC, on: ['card', 'row or tile'], use: 'a switch on' },
     { ink: 'control-off', minimum: GRAPHIC, on: ['card', 'row or tile'], use: 'a switch off, a slider track, an unchecked box' },
     { ink: 'danger-ink', minimum: TEXT, on: ['danger zone', 'danger notice'] },
+    ...['danger', 'success'].map((status) => ({ ink: `${status}-ink`, minimum: TEXT, on: ['dialog'], use: 'a dialog line' })),
     { ink: 'on-accent', minimum: TEXT, on: ['accent fill', 'accent gradient'] },
     { ink: 'nav-text', minimum: TEXT, on: NAVS.flatMap((nav) => [nav, `hovered item on the ${nav}`]) },
     { ink: 'nav-text-muted', minimum: TEXT, on: [...NAVS, ...NAVS.map((nav) => `theme switch on the ${nav}`)] },

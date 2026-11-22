@@ -15,18 +15,26 @@
 // The engine's copy is MVU's parse of the reply, captured here as it fires: the engine resolves on that same object
 // and saves it. A resolve of a parse this pass did not capture (POST's, when narrate's went unresolved) started from
 // the stored state, which MVU's save already passed through.
+//
+// A STAGE THAT CHANGES THE REPLY AFTER BOTH COPIES ARE SAVED runs the pass again on the reply's saved state
+// (runOwnStateOnSavedReply): a POST call that writes the reply's pictures places them after MVU's save and the
+// engine's staged copy were passed through, so the worn-outfit store in them knows nothing of those pictures. It runs
+// inside the post-reply phase, before POST's own block is applied, so POST's parse and the relay it fires start from
+// the state it saved.
 
 import { eventSource, event_types } from '../../../../../../../script.js';
 import { getContext } from '../../../../../../extensions.js';
 import { createModuleLog } from '../../sillytavern/log.js';
+import { rewriteOwnState } from '../../sillytavern/mvu-bridge.js';
 import { MVU_VARIABLE_UPDATE_ENDED, MVU_BEFORE_MESSAGE_UPDATE, MVUHELPER_STAT_ROOT, currentWriter, WRITER_MESSAGE, stateBefore } from '../../sillytavern/mvu-bridge-core.js';
 import { endedEventDisposition } from '../../shared/mvu-parse-disposition.js';
 import { latestAiMessageId, swipeOf } from '../../shared/latest-reply.js';
-import { RES_STAGED_EVENT } from '../logic-engine/index.js';
+import { RES_STAGED_EVENT, awaitTurnWork } from '../logic-engine/index.js';
 import { runOwnStateTasks, stagedCopyToRun, droppedOwnParts } from './own-state-core.js';
 
 const log = createModuleLog('own-state');
 const tasks = [];
+const SAVED_REPLY_WRITER = 'end-of-reply pass';
 
 /**
  * Add a task to the end-of-reply pass: `{ name, run(statData, reply) }`, where `reply` is `{ mid, isEngineCopy,
@@ -103,6 +111,34 @@ eventSource.on(MVU_BEFORE_MESSAGE_UPDATE, async (context) => {
         log.warn("the end-of-reply pass could not run on MVU's save — this reply's state keeps mvu-helper's root as it started:", e);
     }
 });
+
+/**
+ * Run the end-of-reply pass again on reply `mid`'s saved state and save it, for a stage that changed the reply after
+ * both copies of its state were saved; `reason` names that stage in the log. It waits for the turn's own work first
+ * (RES1's run, its save included), so this save is the newer one. Nothing is saved when the reply was swiped,
+ * regenerated or deleted meanwhile. Returns true when the saved state holds the pass's result; never throws.
+ */
+export async function runOwnStateOnSavedReply(mid, reason) {
+    const chat = getContext().chat;
+    const message = Array.isArray(chat) ? chat[mid] : null;
+    if (!message) return false;
+    const swipe = swipeOf(chat, mid);
+    const isStillThisReply = () => getContext().chat === chat && chat[mid] === message && swipeOf(chat, mid) === swipe;
+    try {
+        await awaitTurnWork(mid, swipe);
+        let isReplyGone = false;
+        const isWritten = await rewriteOwnState(mid, async (statData) => {
+            if (isStillThisReply()) await runTasksOn(statData, { mid, isEngineCopy: false, copyLabel: `its saved state, ${reason}` });
+            isReplyGone = !isStillThisReply();
+            return !isReplyGone;
+        }, { writer: SAVED_REPLY_WRITER });
+        if (isReplyGone) log.lifecycle(`msg ${mid}: swiped, regenerated or deleted before the end-of-reply pass ran again on its saved state (${reason}) — nothing written`);
+        return isWritten;
+    } catch (e) {
+        log.warn(`msg ${mid}: the end-of-reply pass could not run again on its saved state (${reason}) — that state keeps mvu-helper's root as it was saved:`, e);
+        return false;
+    }
+}
 
 eventSource.on(RES_STAGED_EVENT, async (staged) => {
     try {

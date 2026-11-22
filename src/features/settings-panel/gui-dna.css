@@ -1278,6 +1278,31 @@
     overflow-wrap: anywhere;
 }
 
+/* A flag after a row's name, in its status's ink, and the words it opens under the name. */
+.mvuh-ui .mvuh-row-flag {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin: 0 0 0 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    vertical-align: -0.15em;
+    font: inherit;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.mvuh-ui :is(.mvuh-row-flag, .mvuh-row-flag-words).is-warning {
+    color: var(--mvuh-warning-ink);
+}
+
+.mvuh-ui :is(.mvuh-row-flag, .mvuh-row-flag-words).is-danger {
+    color: var(--mvuh-danger-ink);
+}
+
 .mvuh-ui .mvuh-row-pills,
 .mvuh-ui .mvuh-row-actions {
     display: flex;
@@ -1289,6 +1314,13 @@
 /* A row with no pills or no actions keeps no gap or empty line for them. */
 .mvuh-ui :is(.mvuh-row-pills, .mvuh-row-actions):empty {
     display: none;
+}
+
+/* A select leading a row's actions, which of a group the row's thing uses, is as wide as its longest choice up to a
+   limit, so it sits beside the buttons and never takes their line. */
+.mvuh-ui .mvuh-row-actions > .mvuh-select {
+    width: auto;
+    max-width: 16em;
 }
 
 /* A record holds fields, so it is drawn like a card: its fields stand out on its surface, its header sits on the tinted
@@ -1535,6 +1567,15 @@ dialog.mvuh-ui.mvuh-dialog::backdrop {
 .mvuh-ui .mvuh-dialog-text > p:first-child {
     font-size: 1.05em;
     font-weight: 600;
+}
+
+/* A line in a status's ink: danger for words that say a whole thing goes, success for the way to a smaller step. */
+.mvuh-ui .mvuh-dialog-text > p.is-danger {
+    color: var(--mvuh-danger-ink);
+}
+
+.mvuh-ui .mvuh-dialog-text > p.is-success {
+    color: var(--mvuh-success-ink);
 }
 
 .mvuh-ui .mvuh-dialog-value {

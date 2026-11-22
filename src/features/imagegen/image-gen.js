@@ -45,6 +45,7 @@ import { imagegenProfileOf } from './imagegen-profile-core.js';
 import { spliceTagIntoMessage, buildRenderedImageWrap, revertRenderedImagesToPicTags, removeTagsPinpoint, replaceTagsWithTraces, disposeLeftoverPicTags, partitionDetectedTags, partitionByReasoning, planImageSrcSwap, auditRenderedImages, recordsAfterImageSwap } from './image-splice-core.js';
 import { numberReplyLines, placePictures, oneOffClothesRecords } from './picture-placement-core.js';
 import { redrawReply, saveRedrawnReply, announceReplyEdit } from '../reply-redraw/index.js';
+import { runOwnStateOnSavedReply } from '../own-state/index.js';
 import {
     getRosterProfile, onRouteChange, readSceneRoster, requestReplyCast, informedNamesOfLastPrompt, uncastNamesFor, onFileListForPictureCall,
     readCharLook, listCharEntries, listOutfitVariants, listAliases, resolveCharEntry,
@@ -204,11 +205,12 @@ function replyCastRecordsOf(mesId) {
 // read back as a record. A picture that names "same-as-last-picture", or slips, is drawn in what the store says she
 // wears.
 //
-// WORKED OUT ONCE PER REPLY, AND WRITTEN INTO EVERY COPY OF ITS STATE THAT IS SAVED. The value is the state before
-// the reply, carried through the reply's own pictures (wornOutfitAfterReply). wornOutfitWriteTask writes it, as a task
-// of mvu-helper's end-of-reply pass (own-state): on MVU's save and on a turn engine's staged copy, before the
-// streetcleaner sweeps the store. It writes only while pictures are drawn; a reply written with pictures off keeps the
-// store it started from.
+// WORKED OUT ONCE PER REPLY TEXT, AND WRITTEN INTO EVERY COPY OF ITS STATE THAT IS SAVED. The value is the state
+// before the reply, carried through the reply's own pictures (wornOutfitAfterReply). wornOutfitWriteTask writes it, as
+// a task of mvu-helper's end-of-reply pass (own-state): on MVU's save and on a turn engine's staged copy, before the
+// streetcleaner sweeps the store. A POST call that writes the pictures answers after both copies are saved, so once
+// its pictures are in the reply the pass runs again on the reply's saved state (onPictureOutput). It writes only while
+// pictures are drawn; a reply written with pictures off keeps the store it started from.
 const wornOutfitAfterReplies = new WeakMap();   // reply message → { swipe, mes, value }: the store it leaves
 
 // What each person `tags` — <pic> tags of reply `mesId`, in text order — draw is drawn in, by the reply's own records
@@ -1568,10 +1570,11 @@ const PLACEMENT_MISS_WORDS = {
     'line-gone': (written) => `line ${written} is no longer in the reply: its text changed after the call read it`,
 };
 
-// The picture call's output (the router's POST capture, D6): its tags placed under the lines they name and its
-// one-off clothes records beside the narrator's — read and written in one step, handed to the reply redraw — then the
-// placed tags go through the one draw flow, which announces the drawing so the turn's write waits for it (D9). The
-// drawing runs on: this returns once it is scheduled, or its tags parked for registration, whose capture comes next.
+// The picture call's output (the router's POST capture, D6), for a reply still on the swipe the call read: its
+// pictures placed and drawn (placePictureOutput). The reply's state was saved before the call answered — MVU's save and
+// the engine's staged copy hold the worn-outfit store worked out without these pictures — so the end-of-reply pass then
+// runs again on the reply's saved state, whatever the answer held. The router awaits this before POST's own block is
+// applied, so POST's parse starts from that state.
 async function onPictureOutput(rawText, meta) {
     const mesId = Number(meta.messageId);
     const callName = meta.target;
@@ -1586,6 +1589,18 @@ async function onPictureOutput(rawText, meta) {
         log.domain('imagegen', 'lifecycle', `msg ${mesId}: swiped, regenerated or deleted while POST call "${callName}" ran — its pictures are dropped`);
         return;
     }
+    try {
+        await placePictureOutput(rawText, mesId, callName, copy);
+    } finally {
+        await runOwnStateOnSavedReply(mesId, `after POST call "${callName}" answered for the pictures`);
+    }
+}
+
+// The picture call's tags placed under the lines they name and its one-off clothes records beside the narrator's — read
+// and written in one step, handed to the reply redraw — then the placed tags go through the one draw flow, which
+// announces the drawing so the turn's write waits for it (D9). The drawing runs on: this returns once it is scheduled,
+// or its tags parked for registration, whose capture comes next.
+async function placePictureOutput(rawText, mesId, callName, copy) {
     const tags = allTags(String(rawText || ''));
     if (!tags.length) {
         // ZERO TAGS IS A CONTRACT BREACH, as on the narrator route (drawReplyTags): every reply is asked for one. Said by

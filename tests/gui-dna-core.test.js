@@ -130,6 +130,19 @@ describe('listRow', () => {
         expect(listRow({ icon: 'fa-user', name: 'Mia', sub: { name: 'v1.2' } })).toContain('<div class="mvuh-row-sub">v1.2</div>');
     });
 
+    it('a flag sits after the name, its title saying why, and opens its words as the first line under the name', () => {
+        const closed = listRow({ icon: 'fa-book', name: 'Atlas', sub: { name: 'v1' }, flag: { title: 'No entries selected', data: { flag: 'Atlas' } } });
+        expect(closed).toContain('<div class="mvuh-row-name">Atlas<button type="button" class="mvuh-row-flag is-warning" aria-expanded="false"'
+            + ' data-i18n-title="No entries selected" title="No entries selected" data-flag="Atlas"><i class="fa-solid fa-triangle-exclamation"></i></button></div>');
+        expect(closed).not.toContain('mvuh-row-flag-words');
+        const open = listRow({ icon: 'fa-book', name: 'Atlas', sub: { name: 'v1' }, flag: { title: 'No entries selected', status: 'danger', isOpen: true } });
+        expect(open).toContain('aria-expanded="true"');
+        expect(open).toContain('</div><div class="mvuh-row-sub mvuh-row-flag-words is-danger"><span data-i18n="No entries selected">No entries selected</span></div>'
+            + '<div class="mvuh-row-sub">v1</div>');
+        expect(listRow({ icon: 'fa-book', name: 'Atlas', flag: { title: 'x', status: 'loud' } })).toContain('mvuh-row-flag is-warning');
+        expect(listRow({ icon: 'fa-book', name: 'Atlas' })).not.toContain('mvuh-row-flag');
+    });
+
     it('a fixed word as the name is keyed', () => {
         expect(listRow({ icon: 'fa-gears', text: 'Unnamed engine' }))
             .toContain('<div class="mvuh-row-name"><span data-i18n="Unnamed engine">Unnamed engine</span></div>');

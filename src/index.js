@@ -16,6 +16,7 @@ import { getContext } from '../../../../extensions.js';
 import { SETTINGS_PANEL_HTML_URL, panelDefaults, applyPanelTheme, wireSettingsPanel, showPanelTab, paintCardScope, openSettingsPanel } from './features/settings-panel/index.js';
 import { loadSettings } from './sillytavern/settings-store.js';
 import { createModuleLog } from './sillytavern/log.js';
+import { addWandMenuRow } from './sillytavern/wand-menu.js';
 import { checkLorebookApiAvailable } from './sillytavern/lorebook.js';
 
 // Main tab: general, extension-wide options (debug-log verbosity, …).
@@ -447,6 +448,9 @@ export async function onUpdate() {
     location.reload();
 }
 
+// MVU Helper's place among the ranked rows that end the wand menu: VectFox's row, ranked 91, follows it.
+const WAND_MENU_RANK = 90;
+
 // Initialize the extension.
 //
 // NOTHING HERE MAY BE FETCH-GATED. Everything below this line runs in ONE async function, so the first
@@ -459,12 +463,11 @@ $(function () {
     (async function () {
         // The wand entry first: it needs nothing fetched. Its click path reports its own missing panel
         // (openSettingsPanel), so it stays honest even if the settings markup never arrives.
-        $('#extensionsMenu')
-            .append(`<div id="mvuh_wand_button" class="list-group-item flex-container flexGap5">
-            <div class="fa-solid fa-robot"></div>
+        const wandRow = $(`<div id="mvuh_wand_button" class="list-group-item flex-container flexGap5">
+            <div class="fa-solid fa-robot extensionsMenuExtensionButton"></div>
             <span data-i18n="MVU Helper">MVU Helper</span>
-        </div>`);
-        $('#mvuh_wand_button').off('click').on('click', () => void openSettingsPanel());
+        </div>`).on('click', () => void openSettingsPanel());
+        addWandMenuRow(wandRow[0], WAND_MENU_RANK);
 
         loadSettings({ ...panelDefaults, ...mainDefaults, ...imageDefaults, ...devLoopDefaults }, { ...extraLlmCallsDefaults, ...imagegenProfileDefaults, ...rosterProfileDefaults, ...logicEngineProfileDefaults, ...leadTextProfileDefaults, ...statBoxProfileDefaults, ...sidePanelProfileDefaults });
         applyPanelTheme();   // themes any dialog shown before the panel is built; the switch is marked once it exists

@@ -190,6 +190,18 @@ describe('SOURCE GATE — the picture call\'s pictures are placed, then drawn by
         expect(capture.slice(read, capture.indexOf('message.mes = plan.text;'))).not.toMatch(/\bawait\b/);
     });
 
+    // The reply's state was saved twice before the call answered (MVU's save, the engine's staged copy), so the call's
+    // pictures reach the worn-outfit store only through the pass run again on the saved state — on every answer for a
+    // live reply, one with no picture included.
+    it('MUTATION TARGET — once the call answered, the end-of-reply pass runs again on the reply\'s saved state', () => {
+        const live = capture.indexOf('if (!Array.isArray(chat) || chat[mesId] !== copy.message || swipeOf(chat, mesId) !== copy.swipe) {');
+        const place = capture.indexOf('await placePictureOutput(rawText, mesId, callName, copy);');
+        const rerun = capture.indexOf('} finally {\n        await runOwnStateOnSavedReply(mesId, ');
+        expect(live).toBeGreaterThan(-1);
+        expect(place).toBeGreaterThan(live);
+        expect(rerun).toBeGreaterThan(place);
+    });
+
     // The router hands a POST call's output to its tasks in registration order; registration reads the drawn names from
     // the message, so the pictures are placed first (plans/executed/picture-writer-route.md D7).
     it('MUTATION TARGET — the picture task is registered before the look task', () => {

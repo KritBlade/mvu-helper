@@ -105,6 +105,35 @@ describe('SOURCE GATE — mvu-helper writes its root on MVU\'s save in one place
     });
 });
 
+// A stage that changes the reply after both copies are saved (a POST call that writes the pictures) runs the pass again
+// on the saved state. The engine saves its own copy, taken earlier, so that save must come after RES1's; and POST's own
+// block, whose parse and relay save copies of the stored state, is applied only after the calls' tasks have run.
+describe('SOURCE GATE — the pass run again on a reply\'s saved state', () => {
+    const read = (relative) => readFileSync(path.join(process.cwd(), relative), 'utf8').replace(/\r\n/g, '\n');
+
+    it('MUTATION TARGET — it waits for the turn\'s own work, then writes only the reply it was asked for', () => {
+        const source = read('src/features/own-state/own-state.js');
+        const fn = source.slice(source.indexOf('export async function runOwnStateOnSavedReply('), source.indexOf('eventSource.on(RES_STAGED_EVENT'));
+        const wait = fn.indexOf('await awaitTurnWork(mid, swipe);');
+        const write = fn.indexOf('await rewriteOwnState(mid, ');
+        expect(wait).toBeGreaterThan(-1);
+        expect(write).toBeGreaterThan(wait);
+        expect(fn).toContain('isReplyGone = !isStillThisReply();\n            return !isReplyGone;');
+    });
+
+    it('MUTATION TARGET — the post-reply phase hands each call\'s answer to its tasks, awaited, before it applies POST\'s block', () => {
+        const pass = read('src/features/small-llm/extra-llm-calls.js');
+        const done = pass.indexOf('await eventSource.emit(POST_DONE_EVENT, mesId, postParseComing, true);');
+        const apply = pass.indexOf('if (isTurnLive && willWrite) await applyPostBlocks(');
+        expect(done).toBeGreaterThan(-1);
+        expect(apply).toBeGreaterThan(done);
+        const router = read('src/features/llm-task-router/llm-task-router.js');
+        const capture = router.slice(router.indexOf('async function onPostDone('), router.indexOf('async function onPreDone('));
+        expect(capture).toContain("await deliver(task, rec.output, { phase: 'post', target, messageId });");
+        expect(router).toContain('try { await Promise.resolve(task.onOutput(String(rawText || \'\'), meta)); }');
+    });
+});
+
 // One warning covers every part of mvu-helper's root: a part an earlier state held and the state a reply starts from
 // lacks was dropped — by the card's Zod schema, or by MVU rebuilding the state from the card's initial variables.
 describe('droppedOwnParts — what the state a reply starts from lost', () => {

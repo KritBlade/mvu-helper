@@ -364,11 +364,14 @@ clamps to two lines and the button stretches over the whole tile (CSS only) with
 full width.
 
 **List row** `.mvuh-row`: leading icon, a name (or a fixed word) over sub-lines (version, id, source, description; a
-line may mix fixed words and values), status pills, trailing actions (icon buttons, danger last). It lays itself out by
+line may mix fixed words and values), status pills, trailing actions (icon buttons, danger last; a select may lead
+them, choosing which of a group the row's thing uses, as wide as its longest choice up to 16em). It lays itself out by
 its own width, not at the 720px switch: beside the rail a panel wider than 720px still leaves a row too little room for
 its pills and actions. The name keeps at least 160px, so the pills wrap under it first (the name and pills share
 `.mvuh-row-info`), and the actions take a line of their own across the row once they no longer fit beside it. A row
-with no pills or no actions keeps no empty line for them.
+with no pills or no actions keeps no empty line for them. A flag after the name (`.mvuh-row-flag`, a warning or danger
+icon button) marks a row that needs the user's eye: its title says why on hover, and a click opens the same words as the
+first line under the name (`.mvuh-row-flag-words`), the adopter drawing the row again open or closed (§7).
 
 **Record card** `.mvuh-record`: a card for a user-made record with many fields, collapsible, drawn like a card (its
 fields stand out on the card surface, its header sits on the tinted band). Header: enable switch, icon, name, pills,
@@ -403,9 +406,10 @@ and the buttons go below it, side by side, once they no longer fit beside it.
 and styles it in its own stylesheet (mvu-helper: `settings-panel.css`); a standalone app opens a
 `<dialog class="mvuh-ui mvuh-dialog">` holding `.mvuh-dialog-body` and `.mvuh-dialog-buttons`. Text, in
 `.mvuh-dialog-text`: the question first (bold), the things it touches one per line (values bold,
-`.mvuh-dialog-value`), then one line per answer, each naming its button. Buttons on a bar of their own,
-right-aligned: the action as a verb, primary, or danger for a safety question (§7), then Cancel, secondary. A form is
-a stack of field genes. Fixed sentences are keyed; values stay outside them.
+`.mvuh-dialog-value`), then one line per answer, each naming its button. A line may take a status's ink:
+`.is-danger` for words that say a whole thing goes, `.is-success` for the way to a smaller step. Buttons on a bar of
+their own, right-aligned: the action as a verb, primary, or danger for a safety question (§7), then Cancel, secondary.
+A form is a stack of field genes. Fixed sentences are keyed; values stay outside them.
 
 ## 6. Copy genes
 
@@ -443,7 +447,7 @@ a stack of field genes. Fixed sentences are keyed; values stay outside them.
   still reaches it). `inert`, never `disabled`, so each control's own disabled state stays underneath. A need the
   build does not know always waits. A button a renderer builds outside a declared region declares its own, and a
   delegated handler that acts on the card selects only declared controls (`[data-mvuh-needs]`).
-- (?) opens the detail inline, which works on touch; never a hover tooltip.
+- (?) opens the detail inline, and a list row's flag its words, which works on touch; never a hover tooltip alone.
 - Cards and advanced rows collapse, and a split's divider moves; neither state is saved.
 - After any repaint, sliders re-sync, and in an adopter that translates the locale is re-applied.
 - A file picker's input is created for each pick and never joins the page: a dismissed picker fires a `cancel` that

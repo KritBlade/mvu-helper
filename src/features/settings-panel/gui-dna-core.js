@@ -139,15 +139,32 @@ export function statusPill({ text, name, status = 'neutral', icon = '', isHidden
  * List row: leading icon, a name (data) or a fixed word (`text`), sub-lines, pills, trailing actions. `sub` is one line
  * or a list of them (see LINE above: "Also known as: …"); a line with nothing to show is left out. `pills` and
  * `actions` are markup from the builders above. The name and its pills share `.mvuh-row-info`, so the pills can wrap
- * under the name while the actions stay beside it.
+ * under the name while the actions stay beside it. `flag` marks the name with an icon button after it, in its
+ * `status` (warning or danger), whose `title` says why: hover gives the words, and the adopter's click handler, on the
+ * flag's `data`, opens them as the first line under the name by drawing the row again with `isOpen`, so a touch
+ * screen reads them too.
  */
-export function listRow({ icon, text, name, sub = null, pills = [], actions = [], data } = {}) {
+export function listRow({ icon, text, name, sub = null, pills = [], actions = [], flag = null, data } = {}) {
     const subLines = (Array.isArray(sub) ? sub : [sub]).map(lineContent).filter(Boolean)
         .map((content) => `<div class="mvuh-row-sub">${content}</div>`).join('');
     return `<div class="mvuh-row"${dataAttributes(data)}>${iconTag(icon, ' mvuh-row-icon')}`
-        + `<div class="mvuh-row-info"><div class="mvuh-row-main"><div class="mvuh-row-name">${label({ text, name })}</div>${subLines}</div>`
+        + `<div class="mvuh-row-info"><div class="mvuh-row-main"><div class="mvuh-row-name">${label({ text, name })}${rowFlag(flag)}</div>`
+        + `${rowFlagWords(flag)}${subLines}</div>`
         + `<div class="mvuh-row-pills">${pills.join('')}</div></div>`
         + `<div class="mvuh-row-actions">${actions.join('')}</div></div>`;
+}
+
+const FLAG_STATUSES = ['warning', 'danger'];
+const flagStatus = (flag) => (FLAG_STATUSES.includes(flag.status) ? flag.status : 'warning');
+
+function rowFlag(flag) {
+    if (!flag) return '';
+    return `<button type="button" class="mvuh-row-flag is-${flagStatus(flag)}" aria-expanded="${Boolean(flag.isOpen)}"`
+        + `${titleAttributes(flag.title)}${dataAttributes(flag.data)}>${iconTag(flag.icon || 'fa-triangle-exclamation')}</button>`;
+}
+
+function rowFlagWords(flag) {
+    return flag?.isOpen ? `<div class="mvuh-row-sub mvuh-row-flag-words is-${flagStatus(flag)}">${keyedText(flag.title)}</div>` : '';
 }
 
 /**
