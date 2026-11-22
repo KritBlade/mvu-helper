@@ -58,10 +58,13 @@ The main character's values come from their entry's outfits. `default` is offere
 
 Built from Max images per reply.
 
-At 1: "ONE `<pic>` this reply. With more than one scene, it goes to the scene you choose."
+At 1: "ONE `<pic>` this reply. It shows what its scene is about — what the people in it are doing — never a line of talk or a reaction in the middle of something else. With more than one scene, it goes to the scene you choose."
+
+A picture shows only the line it's put on, so a line of talk picked in the middle of an act draws a face and leaves the act out. When talking is all a scene does, the talk is its action.
 
 At 2 or more, it's an instruction, not a judgment call:
 
+- each `<pic>` shows its scene's action, the same way,
 - a scene change gets another `<pic>`: another place, a jump in time, someone new arriving,
 - the last scene always gets one, because it's where the story stands now,
 - no scene change, no extra tag. A new pose or more talk adds nothing.
@@ -84,7 +87,7 @@ The 7 camera choices, the rule that only pov keeps the main character out, and `
 
 ## `<explicit_rules>` and the gate
 
-The explicit rules are the floor every adult scene needs, whatever the story:
+The explicit rules are the floor every adult scene needs, whatever the story. They apply to every picture of a sexual or nude moment, a line of talk or a reaction during sex included:
 
 - the `nsfw` tag, or `explicit` for penetration, because the safety tag is a real signal to the image model,
 - exposure named exactly, because the image model can't guess nudity. `outfit="undressed"` means the composition must say the state of undress,
