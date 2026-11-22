@@ -1732,7 +1732,7 @@ function postTurnFenceHolds(ctx, mesId, fenceEpoch, fenceSwipe) {
 //     its own, and MVU applies a <JSONPatch> wherever it sits — a forged block can carry a POST-owned channel
 //     into narrate's reply.
 // So the text write is a product choice with three payoffs, not a mechanical requirement — worth knowing before
-// anyone tries to make this lane stop touching msg.mes (see devdoc/editing-a-finished-reply.md §MVU1).
+// anyone tries to make this lane stop touching msg.mes (see devdoc/reply-redraw.md §MVU1).
 async function applyPostBlocks(blocks, msg, mesId, ctx, resBlock = '', fenceSwipe = 0) {
     try {
         const base = String(msg.mes || '');

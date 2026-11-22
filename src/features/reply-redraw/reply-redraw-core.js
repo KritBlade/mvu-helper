@@ -1,6 +1,6 @@
 // reply-redraw/reply-redraw-core.js — PURE half of the reply redraw (no ST imports): which running turn an
 // edit of a reply belongs to, what that turn's one write has to do, and the queue of other extensions'
-// edits that join every write (devdoc/reply-redraw-api.md). Tested in tests/reply-redraw-core.test.js; the
+// edits that join every write (devdoc/reply-redraw.md Part B). Tested in tests/reply-redraw-core.test.js; the
 // host half is reply-redraw.js.
 
 // One record per reply whose post-reply phase is running: the message object, its index, the swipe the
@@ -73,7 +73,7 @@ export function isRedrawWriteDue(record, { isWriting = false } = {}) {
     return isWriting === true || (record.isEnding === true && announcedEditsRunning(record).length === 0);
 }
 
-// ── other extensions' edits (devdoc/reply-redraw-api.md) ────────────────────────
+// ── other extensions' edits (devdoc/reply-redraw.md Part B) ─────────────────────
 // content runs first (it changes what the reply says), presentation last (it reshapes the text for one display
 // and has to see every word).
 const STAGE_RANK = { content: 0, presentation: 1 };

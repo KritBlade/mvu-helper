@@ -3,7 +3,7 @@
 // The four steps of the write live here, and their only caller is the reply redraw
 // (features/reply-redraw), which every stage that edits a finished reply goes through: no writer can
 // skip the swipe mirror or the announcement, or lose a step to another step throwing.
-// See devdoc/editing-a-finished-reply.md.
+// See devdoc/reply-redraw.md Part A.
 //
 // THE STEPS ARE INDEPENDENT AND ALL FOUR ARE ATTEMPTED. `updateMessageBlock` throwing must not cost
 // the save, and MESSAGE_UPDATED runs OTHER extensions' listeners — one of them throwing is not a

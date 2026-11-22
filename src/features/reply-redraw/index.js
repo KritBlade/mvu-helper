@@ -4,8 +4,8 @@
 // opens the reply's record when the reply arrives, marks it when the phase reaches its end
 // (noteReplyRedrawEnding) and closes it when it ends, and the close writes once. A reader that would redraw
 // something inside a reply whose write is due waits for that write (isReplyWriteDue, dueReplyWriteEnded).
-// Other extensions' edits join the same write (devdoc/reply-redraw-api.md).
-// See reply-redraw.js and devdoc/editing-a-finished-reply.md.
+// Other extensions' edits join the same write (devdoc/reply-redraw.md Part B).
+// See reply-redraw.js and devdoc/reply-redraw.md.
 export {
     openReplyRedraw, redrawReply, saveRedrawnReply, announceReplyEdit, isReplyRedrawLive, noteReplyRedrawEnding, closeReplyRedraw,
     isReplyWriteDue, dueReplyWriteEnded,

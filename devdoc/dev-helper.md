@@ -16,8 +16,8 @@
 > MvuGameMaker `Schoolv4/doc/GameLogicEngine_Guide.md`); event packs — `event-pack-format.md` and
 > `event-pack-engine.md`; the status menu — `statusmenu-pack-format.md`; plugins — `gamelogic-plugin-guide.md`; the
 > side panel — `side-panel-format.md`; the stat box — `statbox-guide.md`; call-input macros —
-> `call-input-macros.md`; what pack code can reach — `security-hardening.md`; editing a finished reply —
-> `editing-a-finished-reply.md`.
+> `call-input-macros.md`; what pack code can reach — `security-hardening.md`; the reply redraw and editing a finished reply —
+> `reply-redraw.md`.
 
 ---
 
@@ -127,7 +127,7 @@ post-reply phase writes RES1's `<RES_Variable>` into the reply, sets `lastPost` 
 | narrate → RES1 | `/Intent/*` in the reply: MVU applies it and fires its update event, and mvu-helper calls the engine's `resolveTurn` | same reply |
 | POST → RES2 | POST's patch blocks: applying them fires the update event again, and mvu-helper calls `resolvePostRelay` | same reply |
 | RES1 → POST | on a card whose engine resolves turns, POST waits for RES1's signal (`mvu_helper_res_staged`, with a 4-second backstop) before it renders | same reply |
-| every reply edit → the chat | the reply redraw writes the reply once, when the post-reply phase ends and the edits still being made have landed: the stat box built when MVU reads the reply's state, RES1's text and box, the image pass, POST's receipt, RES2's text, the box refreshed from the final state (`editing-a-finished-reply.md`), and other extensions' edits through its last call (`reply-redraw-api.md`); a picture still drawing at the deadline writes on its own | end of the same reply |
+| every reply edit → the chat | the reply redraw writes the reply once, when the post-reply phase ends and the edits still being made have landed: the stat box built when MVU reads the reply's state, RES1's text and box, the image pass, POST's receipt, RES2's text, the box refreshed from the final state (`reply-redraw.md` Part A), and other extensions' edits through its last call (`reply-redraw.md` Part B); a picture still drawing at the deadline writes on its own | end of the same reply |
 | RES1 · RES2 → EJS (next reply) | `stat_data` — the resolved state | next reply |
 
 Non-obvious points behind these:
@@ -156,7 +156,7 @@ variables, where MVU keeps its state under `stat_data` — so write the full pat
 
 > Writing your **own** code that edits a finished reply — `msg.mes`, `msg.swipes`, `msg.extra` or the
 > `.mes_text` DOM — instead of letting mvu-helper write for you? Read
-> [`devdoc/editing-a-finished-reply.md`](editing-a-finished-reply.md) first. A DOM rebuild that skips
+> [`devdoc/reply-redraw.md`](reply-redraw.md) first. A DOM rebuild that skips
 > `MESSAGE_UPDATED` silently destroys the status-menu iframe until the chat is reloaded.
 
 There is **no GUI switch** for this. A POST call writes state when its **output carries an `<UpdateVariable>` block
@@ -555,7 +555,7 @@ tokens.
 
 | Field | Key | Default | Meaning |
 | --- | --- | --- | --- |
-| **Intimacy latch path** | `intimacyLatchPath` | *(blank)* | Dot-path (under `stat_data`) of a boolean that flips on during an explicit/H scene. The explicit-scene composition guidance (`<explicit_rules>`) is injected **unless** this reads an explicit `false` — so a SFW turn drops it. Tuple auto-unwrapped. See the states below. |
+| **Intimacy latch path** | `intimacyLatchPath` | *(blank)* | Dot-path (under `stat_data`) of a boolean that flips on during an explicit/H scene. The explicit-scene composition guidance (`<explicit_rules>`) is injected **unless** this reads an explicit `false` — so a SFW turn drops it. The narrator's prompt reads it before the reply; a POST call that writes a reply's pictures reads it in the state the reply started from and in the one it ended in, and injects when either opens it (`decideReplyExplicitBlock`), so the reply that starts or ends the scene gets the block. Tuple auto-unwrapped. See the states below. |
 | **Always inject H guidance** | `hBlockAlwaysOn` | off | Escape hatch: always inject `<explicit_rules>`, ignore the latch entirely. |
 
 **The path has no built-in default.** mvu-helper does not know any card's state tree, so the shipped default is blank

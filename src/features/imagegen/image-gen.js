@@ -38,7 +38,7 @@ import { breakTemplateOpeners } from '../../shared/rendered-region.js';
 import { DEFAULT_PROMPT, MAINCHAR_NOT_IN_PICTURE, castRecordAsks, narratorPictureRules, readerPictureContract, readerPictureInput, pictureCountRules, narrateRegistrationContract, readerRegistrationContract, DEFAULT_REGEX, tagAttr } from './default-template.js';
 import {
     INSERT_TYPE, HISTORY_PICTURES, NARRATOR_TAG_ACTION, imageDuties, isPictureWriterOffered, isHarvestTargetOffered, placeNarratorPictureParts, picSlots, maincharOf, fitPeopleToCeiling, bustValueFor, bustMacroValue, composeImagePrompt, sceneRosterText,
-    validateCharSlots, decideExplicitBlock, classifyDeclaredPathRead, declaredPathWarning, oneOffNamesOf, drawnPeopleOf,
+    validateCharSlots, decideExplicitBlock, decideReplyExplicitBlock, classifyDeclaredPathRead, declaredPathWarning, oneOffNamesOf, drawnPeopleOf,
     resolveStatPath, maincharNamedButNotDrawn, cameraOf, withCamera, isLastPictureOf, withoutMacroBraces,
 } from './prompt-assembly-core.js';
 import { imagegenProfileOf } from './imagegen-profile-core.js';
@@ -805,27 +805,37 @@ async function maincharOutfitsOrNone() {
     }
 }
 
-// <explicit_rules> gate: the EXPLICIT/H composition floor, read from the state as it stands. The DECISION is pure and
-// lives in decideExplicitBlock (prompt-assembly-core.js). readDeclaredFlag carries the ungated breakage warn (deduped);
-// decideExplicitBlock carries the decision. Skipped when the checkbox forces always-on — there is no gate to read.
-function readExplicitGate(prof, { dryRun = false } = {}) {
+// <explicit_rules> gate: the EXPLICIT/H composition floor, read from the state as it stands — before the reply for the
+// narrator's prompt, after it for a POST call that writes the pictures of reply `replyId`. That call also reads the
+// state the reply started from, because the reply's text runs from one to the other (decideReplyExplicitBlock); the
+// narrator's prompt reads one state (decideExplicitBlock). Both decisions are pure (prompt-assembly-core.js).
+// readDeclaredFlag carries the ungated breakage warn (deduped). Skipped when the checkbox forces always-on — there is
+// no gate to read.
+function readExplicitGate(prof, { dryRun = false, replyId = null } = {}) {
     const latchRead = prof.hBlockAlwaysOn ? { value: undefined, hasState: true } : readDeclaredFlag(prof.intimacyLatchPath,
         'intimacy latch', 'the EXPLICIT/H block is being WITHHELD (fail-closed)', { dryRun });
     const latch = latchRead.value;
-    const gate = decideExplicitBlock({
-        alwaysOn: prof.hBlockAlwaysOn, latchPath: prof.intimacyLatchPath, latchValue: latch, hasState: latchRead.hasState,
-    });
-    log.domain('imagegen', 'verbose', `<explicit_rules> ${gate.inject ? 'ON' : 'OFF'} (${gate.reason}, alwaysOn=${prof.hBlockAlwaysOn}, latch=${prof.hBlockAlwaysOn ? 'n/a' : JSON.stringify(latch)})`);
+    if (!Number.isInteger(replyId) || prof.hBlockAlwaysOn) {
+        const gate = decideExplicitBlock({
+            alwaysOn: prof.hBlockAlwaysOn, latchPath: prof.intimacyLatchPath, latchValue: latch, hasState: latchRead.hasState,
+        });
+        log.domain('imagegen', 'verbose', `<explicit_rules> ${gate.inject ? 'ON' : 'OFF'} (${gate.reason}, alwaysOn=${prof.hBlockAlwaysOn}, latch=${prof.hBlockAlwaysOn ? 'n/a' : JSON.stringify(latch)})`);
+        return gate;
+    }
+    const start = stateBefore(getContext().chat, replyId);
+    const atStart = { value: start ? resolveStatPath(start.statData, prof.intimacyLatchPath) : undefined, hasState: !!start };
+    const gate = decideReplyExplicitBlock({ latchPath: prof.intimacyLatchPath, atStart, atEnd: latchRead });
+    log.domain('imagegen', 'verbose', `<explicit_rules> for msg ${replyId}'s pictures ${gate.inject ? 'ON' : 'OFF'} (${gate.reason}, latch at the reply's start=${JSON.stringify(atStart.value)}, at its end=${JSON.stringify(latch)})`);
     return gate;
 }
 
 // The reader contract for reply `messageId` (default-template readerPictureContract): what a POST call that writes the
-// pictures is asked, built when that call runs, so the latch, <scene_roster> and the ON FILE list read the state after
-// the reply.
+// pictures is asked, built when that call runs, so <scene_roster> and the ON FILE list read the state after the reply,
+// and the latch is read both after the reply and in the state it started from (readExplicitGate).
 async function readerPictureContractFor(messageId) {
     const prof = getImagegenProfile();
     const userOutfits = await maincharOutfitsOrNone();
-    const gate = readExplicitGate(prof);
+    const gate = readExplicitGate(prof, { replyId: messageId });
     let onFile = '';
     try { onFile = await onFileListForPictureCall(); }
     catch (e) { log.warn(`msg ${messageId}: could not build the ON FILE list for the picture call — it is sent without one, so every slot reads as "newclothes" or "undressed":`, e); }

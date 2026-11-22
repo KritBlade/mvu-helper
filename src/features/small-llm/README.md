@@ -54,5 +54,5 @@ Continue, a quiet or an impersonate generation runs none of it.
    narrator's prompt with a prompt-only regex: a narrator shown them copies them, and MVU applies a
    `<JSONPatch>` wherever it sits.
 
-The reason behind each step is in the code comment at that step. `devdoc/editing-a-finished-reply.md`
+The reason behind each step is in the code comment at that step. `devdoc/reply-redraw.md`
 covers writing into a finished reply.

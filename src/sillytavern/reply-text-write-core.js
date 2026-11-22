@@ -3,7 +3,7 @@
 // Writing an edit into a reply that is already on screen is four steps, and they are INDEPENDENT:
 // each one failing costs something different, and none of them being skipped is any of the others'
 // business. This file owns what each failure MEANS, so the host half only has to run the steps and
-// hand the outcomes back. Rules for the write itself: devdoc/editing-a-finished-reply.md.
+// hand the outcomes back. Rules for the write itself: devdoc/reply-redraw.md Part A.
 
 export const REPLY_WRITE_STEPS = ['swipe', 'render', 'announce', 'save'];
 

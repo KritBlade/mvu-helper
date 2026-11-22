@@ -57,7 +57,7 @@ member (§9).
 ## 2. What it needs
 
 MVU and a `statBox` section (§3), nothing else. The box goes out with the reply's one write at the end of the
-turn (`devdoc/editing-a-finished-reply.md`), so it costs no render of its own. It is built at up to three moments
+turn (`devdoc/reply-redraw.md`), so it costs no render of its own. It is built at up to three moments
 per reply, each refreshing the box already there:
 
 - **when MVU has read the reply's state** (its parse of the reply's `<UpdateVariable>`, or of POST's record):

@@ -632,13 +632,16 @@ describe("SOURCE GATE — the narrator's picture prompt is assembled by the pure
 
     // The reader contract is built when the picture call runs, so the latch, <scene_roster> and the ON FILE list read
     // the state after the reply (plans/executed/picture-writer-route.md D5).
-    it('MUTATION TARGET — the picture call is asked the reader contract, built from the state after the reply', () => {
+    it('MUTATION TARGET — the picture call is asked the reader contract, built from the state after the reply, the latch read at both ends of it', () => {
         expect(src).toContain('    instruction: ({ messageId }) => readerPictureContractFor(messageId),');
         const fn = src.slice(src.indexOf('async function readerPictureContractFor('), src.indexOf('// Pictures read each person'));
         expect(fn).toContain('try { onFile = await onFileListForPictureCall(); }');
         expect(fn).toContain('return readerPictureContract({');
         expect(fn).toContain('isExplicit: gate.inject, scene: sceneRosterText(readSceneRoster().present), onFile,');
-        expect(fn).toContain('const gate = readExplicitGate(prof);');
+        expect(fn).toContain('const gate = readExplicitGate(prof, { replyId: messageId });');
+        const gateFn = src.slice(src.indexOf('function readExplicitGate('), src.indexOf('// The reader contract for reply'));
+        expect(gateFn).toContain('const start = stateBefore(getContext().chat, replyId);');
+        expect(gateFn).toContain('const gate = decideReplyExplicitBlock({ latchPath: prof.intimacyLatchPath, atStart, atEnd: latchRead });');
     });
 
     it('MUTATION TARGET — every part, and the history, go through placeNarratorPictureParts', () => {

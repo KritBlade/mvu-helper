@@ -23,11 +23,11 @@
 // galgame-companion, harvest) reads the edit at once; only the render, the announcement and the save wait
 // for the turn's end.
 //
-// Other extensions edit a finished reply through the same write (devdoc/reply-redraw-api.md): they hand an edit
+// Other extensions edit a finished reply through the same write (devdoc/reply-redraw.md Part B): they hand an edit
 // in (mvu_helper_reply_edit), or offer one at the last call that comes before every text write
 // (mvu_helper_reply_last_call). Their edits run as one chain on the latest text, and the reply is written once.
 // The four-step write is sillytavern/reply-text-write.js, and this file is its only caller
-// (tests/reply-text-write-core.test.js). Rules for an edit: devdoc/editing-a-finished-reply.md. Decisions:
+// (tests/reply-text-write-core.test.js). Rules for an edit: devdoc/reply-redraw.md Part A. Decisions:
 // reply-redraw-core.js.
 
 import { eventSource } from '../../../../../../../script.js';
@@ -43,7 +43,7 @@ import {
 
 const log = createModuleLog('reply-redraw');
 
-// The two ways other extensions edit a finished reply (devdoc/reply-redraw-api.md). Public names: renaming one
+// The two ways other extensions edit a finished reply (devdoc/reply-redraw.md Part B). Public names: renaming one
 // breaks every extension that uses it.
 const EDIT_REQUEST_EVENT = 'mvu_helper_reply_edit';
 const LAST_CALL_EVENT = 'mvu_helper_reply_last_call';

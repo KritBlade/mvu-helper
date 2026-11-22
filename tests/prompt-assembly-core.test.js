@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import {
-    composeImagePrompt, sanitizeComposition, validateCharSlots, decideExplicitBlock, classifyDeclaredPathRead, declaredPathWarning,
+    composeImagePrompt, sanitizeComposition, validateCharSlots, decideExplicitBlock, decideReplyExplicitBlock, classifyDeclaredPathRead, declaredPathWarning,
     imageDuties, placeNarratorPictureParts, isPictureWriterOffered, isHarvestTargetOffered, writerPairRuledOut, INSERT_TYPE, NARRATOR_TAG_ACTION, HISTORY_PICTURES, picSlots, maincharOf, fitPeopleToCeiling, bustValueFor, bustMacroValue, sceneRosterText, oneOffNamesOf, drawnPeopleOf, isLastPictureOf,
     resolveStatPath, maincharNamedButNotDrawn, cameraOf, withCamera,
 } from '../src/features/imagegen/prompt-assembly-core.js';
@@ -995,6 +995,56 @@ describe('decideExplicitBlock — the EXPLICIT/H gate', () => {
         for (const r of reasons) {
             expect(r).not.toMatch(/Intimacy|World_Calc|PendingState|Classmate|Mainchar/i);
         }
+    });
+});
+
+describe('decideReplyExplicitBlock — the gate for a POST call that writes a reply\'s pictures after it', () => {
+    const PATH = 'A.B';
+    const open = { value: true, hasState: true };
+    const closed = { value: false, hasState: true };
+
+    // The reply that finishes an intimate scene closes the latch. Read only after it, its picture of her undressed is
+    // written without the block: no nudity stated, so the image model dresses her.
+    it('a reply that ENDS the scene (open at its start, closed at its end) gets the block', () => {
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: open, atEnd: closed }))
+            .toEqual({ inject: true, reason: "gate-open at the reply's start, gate-closed at its end" });
+    });
+
+    it('a reply that STARTS the scene (closed at its start, open at its end) gets the block', () => {
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: closed, atEnd: open }))
+            .toEqual({ inject: true, reason: "gate-closed at the reply's start, gate-open at its end" });
+    });
+
+    it('closed at both ends: withheld', () => {
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: closed, atEnd: closed }))
+            .toEqual({ inject: false, reason: 'gate-closed' });
+    });
+
+    it('open at both ends: injected', () => {
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: open, atEnd: open }))
+            .toEqual({ inject: true, reason: 'gate-open' });
+    });
+
+    it('no gate, or the always-on checkbox, injects whatever either state holds', () => {
+        expect(decideReplyExplicitBlock({ latchPath: '', atStart: closed, atEnd: closed })).toEqual({ inject: true, reason: 'no-gate' });
+        expect(decideReplyExplicitBlock({ alwaysOn: true, latchPath: PATH, atStart: closed, atEnd: closed })).toEqual({ inject: true, reason: 'always-on' });
+    });
+
+    it('a path that resolves in neither state FAILS CLOSED, as decideExplicitBlock does', () => {
+        const missing = { value: undefined, hasState: true };
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: missing, atEnd: missing }))
+            .toEqual({ inject: false, reason: 'gate-unresolvable' });
+    });
+
+    it('the first reply of a chat (no state before it) goes by the state it ended in', () => {
+        const none = { value: undefined, hasState: false };
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: none, atEnd: closed }).inject).toBe(false);
+        expect(decideReplyExplicitBlock({ latchPath: PATH, atStart: none, atEnd: open }).inject).toBe(true);
+    });
+
+    it('stays genre-blind: no consumer field name appears in the reason', () => {
+        const reason = decideReplyExplicitBlock({ latchPath: 'PendingState.IntimacyActive', atStart: open, atEnd: closed }).reason;
+        expect(reason).not.toMatch(/Intimacy|PendingState/i);
     });
 });
 

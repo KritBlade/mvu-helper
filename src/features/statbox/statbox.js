@@ -132,7 +132,7 @@ function settleAwaitedBox() {
 
 // MVU's parse of a reply ended: the box from the state MVU just read. The text edit lands before this
 // returns, and MVU's write-back after its listeners keeps an edit made while they ran
-// (devdoc/editing-a-finished-reply.md, MVU1). Which parses build it: statbox-core shouldBuildStatBoxOnParse.
+// (devdoc/reply-redraw.md, MVU1). Which parses build it: statbox-core shouldBuildStatBoxOnParse.
 function buildBoxOnParse(mvuData, variablesBefore) {
     if (!isStatBoxDeclared()) return;
     // The parse's writer label is on the stack only while the event's listeners run synchronously.

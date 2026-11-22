@@ -627,6 +627,18 @@ export function decideExplicitBlock({ alwaysOn = false, latchPath = '', latchVal
     return { inject: latchValue !== false, reason: latchValue === false ? 'gate-closed' : 'gate-open' };
 }
 
+// The gate for a POST call that writes a reply's pictures after the reply: decideExplicitBlock on the state the reply
+// started from and on the state it ended in, and the block goes in when either injects. The reply's text runs between
+// the two, so a reply that ends an intimate scene (open at its start, closed at its end) and one that starts it (closed
+// at its start, open at its end) both show the scene, and their pictures both get the block. `atStart` and `atEnd`
+// are reads of the latch, { value, hasState }, as decideExplicitBlock takes them.
+export function decideReplyExplicitBlock({ alwaysOn = false, latchPath = '', atStart = {}, atEnd = {} } = {}) {
+    const start = decideExplicitBlock({ alwaysOn, latchPath, latchValue: atStart.value, hasState: atStart.hasState });
+    const end = decideExplicitBlock({ alwaysOn, latchPath, latchValue: atEnd.value, hasState: atEnd.hasState });
+    if (start.reason === end.reason) return end;
+    return { inject: start.inject || end.inject, reason: `${start.reason} at the reply's start, ${end.reason} at its end` };
+}
+
 // Classify one read of a CARD-DECLARED stat_data path. 'unset', 'no-state' and 'unresolvable' all
 // hand the caller `undefined`, but only 'unresolvable' is a defect of the path: state exists and the
 // path is not in it — a root renamed while the card's [Initmvuhelper] kept the old path, or a path typed
