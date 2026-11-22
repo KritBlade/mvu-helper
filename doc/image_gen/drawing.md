@@ -45,7 +45,7 @@ A swipe, a chat switch and a delete drop every job still waiting in the queue. A
 
 ## Building the prompt
 
-The prompt is built when the job RUNS, not when the tag was seen. So what each person wore in their last picture is current, even for a job that waited in the queue.
+The prompt is built when the job RUNS, not when the tag was seen. So the clothes each person last wore in a picture are current, even for a job that waited in the queue.
 
 ```
 <prefix>, <camera words>, <composition>. <each person's look> <the main character's look>

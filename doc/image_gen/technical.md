@@ -31,7 +31,7 @@ The image model is whatever SillyTavern's Image Generation is set to. The built-
 | a look (DNA) | one person's body, outfits and bust | `stat_data.$mvuhelper.character_registry`, seeded from the card's `[InitVar]` |
 | the prefix preset | quality and style tags | your PC's settings, picked per card |
 | the trace | the tag, kept invisibly where it stood | the reply, in `data-rawtag` |
-| `worn_outfit` | what each person wore in their last picture | `stat_data.$mvuhelper.worn_outfit` |
+| `worn_outfit` | the last clothes each person's pictures drew them in, and whether their last picture showed them undressed | `stat_data.$mvuhelper.worn_outfit` |
 | `/sd` | the drawing | SillyTavern's Image Generation |
 
 ## One picture, start to finish

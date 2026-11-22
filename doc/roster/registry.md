@@ -119,7 +119,7 @@ When the story changes someone's clothes, the picture names them as `outfit="new
 
 The picture is drawn in those clothes. They're not saved to her entry, because her first clothes are already on file.
 
-Instead, MVU Helper remembers what each character wore in their last picture, in the game state:
+Instead, MVU Helper remembers the last clothes each character's pictures drew them in, in the game state:
 
 ```json
 "mvuhelper": {
@@ -129,7 +129,7 @@ Instead, MVU Helper remembers what each character wore in their last picture, in
 }
 ```
 
-It's written at the end of every reply that draws pictures. MVU saves the game state with every single reply and every swipe, so this record follows the chat by itself. Delete the reply, and the one-off is gone with it. Swipe, and each swipe has its own. Nothing is left behind to show up in a later picture.
+A picture that shows her undressed keeps those clothes and adds `"was_undressed_in_last_picture": true` to her entry, so her line in `<reply_cast>` can say so. It's written at the end of every reply that draws pictures. MVU saves the game state with every single reply and every swipe, so this record follows the chat by itself. Delete the reply, and the one-off is gone with it. Swipe, and each swipe has its own. Nothing is left behind to show up in a later picture.
 
 Someone no picture has drawn in more than 100 replies is dropped, so the record doesn't keep everyone ever drawn in a long chat.
 
@@ -150,7 +150,7 @@ After the story, write one record for EVERY named character present in this repl
 - Every reply, even when nobody is new.
 ON FILE — characters whose look is stored. Each line names one or more of them, then the outfit= choices a picture of any of them picks from. Never write body= for them; their stored look is used:
 - Mitsuki, Haruka, Iori: school-uniform, school-gym, school-swimsuit
-"same-as-last-picture" is also a choice for these, and draws what they wore in their last picture — the outfit or clothes after their name:
+"same-as-last-picture" is also a choice for these, and draws the outfit or clothes after their name: the last clothes a picture drew them in. It never undresses them — a shot of them without their clothes is "undressed", whatever their last picture showed:
 - Mitsuki: white frilled blouse, light blue denim skirt, white ankle socks, white sneakers, small straw shoulder bag
 - {{user}} (mainchar=): town-casual
 Anyone this reply names who is not on this list has no outfit on file, however often the story has met them before — this list is all that is on file: a picture of them is "newclothes" or "undressed".
@@ -175,7 +175,7 @@ For every person in a picture, the AI picks one:
 | `outfit=` | Draws them in |
 | --- | --- |
 | an outfit on their line, like `school-uniform` | those saved clothes |
-| `same-as-last-picture` | what they wore in their last picture, listed after their name |
+| `same-as-last-picture` | the last clothes a picture drew them in, listed after their name. After an undressed picture their line ends "(their last picture showed them undressed)", and a shot where they're still undressed is `undressed` |
 | `newclothes` | clothes none of the above are. Described on their record in the same reply |
 | `undressed` | no clothes. The picture says how |
 

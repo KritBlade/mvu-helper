@@ -99,7 +99,7 @@ Every slot names what that person wears in this shot:
 | --- | --- |
 | an outfit on file, like `school-uniform` | those stored clothes |
 | `default` | their `default` outfit |
-| `same-as-last-picture` | what they wore in their last picture, from `worn_outfit` |
+| `same-as-last-picture` | the last clothes a picture drew them in, from `worn_outfit`. It never undresses them |
 | `newclothes` | clothes none of the above are, because the story just changed them. The clothes are written down in the same reply |
 | `undressed` | no clothes. It outranks every other value, and the composition then says how |
 

@@ -63,12 +63,12 @@ These used to exist. A card that still carries one gets it named in the console 
 
 ## The state MVU Helper keeps
 
-What each person wore in their last picture lives in your card's own state, under MVU Helper's root. The same root holds every character's look, `character_registry`, which your card seeds from its `[InitVar]` (see [How the character registry works](../roster/registry.md)):
+The last clothes each person's pictures drew them in live in your card's own state, under MVU Helper's root. The same root holds every character's look, `character_registry`, which your card seeds from its `[InitVar]` (see [How the character registry works](../roster/registry.md)):
 
 ```json
 "$mvuhelper": {
   "worn_outfit": {
-    "Mitsuki":  { "outfit": "school-uniform", "clothes": "", "last_picture_message": 42 },
+    "Mitsuki":  { "outfit": "school-uniform", "clothes": "", "last_picture_message": 42, "was_undressed_in_last_picture": true },
     "Mainchar": { "outfit": "school-uniform", "clothes": "", "last_picture_message": 42 }
   }
 }
@@ -79,10 +79,11 @@ What each person wore in their last picture lives in your card's own state, unde
 | `outfit` | an outfit on file, or `newclothes` for a one-off |
 | `clothes` | the one-off's clothes. Empty for an outfit on file |
 | `last_picture_message` | the message of their last picture |
+| `was_undressed_in_last_picture` | `true` when their last picture showed them undressed. Left out otherwise. Their clothes stay what they wore |
 
 It's written at the end of every reply while pictures are drawn, and the Roster's **Wearing now** line edits it. Clothes MVU Helper saves into a character's look from a reply are held here by their outfit name, so editing that outfit in the Roster reaches the next picture. MVU saves the state with every message and every swipe, so a swipe, a regenerate, a deleted reply and a reload are all right by themselves. Nothing reads old reply text to rebuild it.
 
-That's what `same-as-last-picture` draws. Someone no picture has drawn in more than 100 replies is dropped at the end of a reply, so the record never keeps everyone ever drawn in a long chat.
+That's what `same-as-last-picture` draws: the clothes, never a copy of the last picture. After an undressed picture, their line in `<reply_cast>` says their last picture showed them undressed, so a shot where they're still undressed is `undressed` again. Someone no picture has drawn in more than 100 replies is dropped at the end of a reply, so the record never keeps everyone ever drawn in a long chat.
 
 **Declare it open in your Zod schema:** `$mvuhelper: z.record(z.string(), z.any()).prefault({})`. A schema that strips roots it doesn't list strips `$mvuhelper` too, and so does one that declares it with only some parts: then nothing anyone wore is ever offered back, and every look registered in play is lost. The console says so once per chat. A schema that keeps the record but strips `last_picture_message` loses every entry at the end of the reply, and the console names that field.
 
