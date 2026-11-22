@@ -218,7 +218,7 @@ Pick portrait, landscape, closeup, scene or square. The sizes are in [Resolution
 
 The explicit rules are a big block. They teach the AI how to describe an adult scene, so the image model gets it right. A normal school day doesn't need them, and sending them every reply wastes tokens.
 
-So the card names a true/false value in its game state that flips on during an intimate scene. ArtificKoi's is `PendingState.IntimacyActive`. The rules are sent unless it reads `false`.
+So the card names a true/false value in its game state that flips on during an intimate scene. ArtificKoi's is `PendingState.IntimacyActive`. The rules are sent unless it reads `false`. When a separate call writes the pictures, it reads the value as the reply began and as it ended, so the reply that starts or ends the scene still gets them.
 
 The card normally sets this in its own config. Set it here only to override.
 

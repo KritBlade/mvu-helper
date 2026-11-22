@@ -97,6 +97,8 @@ A card that wants its own camera recipes per position adds them itself, gated on
 
 The block is big, and a normal reply doesn't need it. So it's gated on a true/false value in the card's game state, the **Intimacy latch path**. ArtificKoi's is `PendingState.IntimacyActive`.
 
+The AI that writes the reply reads the latch as the reply begins. A separate call that writes the pictures after the reply reads it twice, as the reply began and as it ended, and gets the block when either reads open. The reply that ends an intimate scene closes the latch, but its text still shows the scene, so its pictures still need the block.
+
 | State | `<explicit_rules>` |
 | --- | --- |
 | **Always inject H guidance** on | sent, the latch isn't even read |
