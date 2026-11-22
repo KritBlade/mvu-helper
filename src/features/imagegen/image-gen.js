@@ -51,7 +51,7 @@ import {
     readCharLook, listCharEntries, listOutfitVariants, listAliases, resolveCharEntry,
     RESERVED_OUTFIT_NAMES, hasStoredAppearance, lookSourceFor, lookWaitsForReply, lookWaitsForRegistration,
     harvestCastRegistrations, keepFirstClothesFromReply, registerPlaceholderCharDna, readCastRecords, replyCastNames, classifyReplyCast,
-    OUTFIT_NEW_CLOTHES, wornReportsOf, drawnOneOffClothesOf, nextWornOutfit, WORN_OUTFIT_PART, LAST_PICTURE_MESSAGE, shownForRegen, pickCharEntry,
+    OUTFIT_NEW_CLOTHES, wornReportsOf, drawnOneOffClothesOf, nextWornOutfit, WORN_OUTFIT_PART, LAST_PICTURE_MESSAGE, UNDRESSED_IN_LAST_PICTURE, shownForRegen, pickCharEntry,
 } from '../character-roster/index.js';
 import { registerLlmTask, applyTaskRouting, initLlmTaskRouter, isTaskTargetAvailable } from '../llm-task-router/index.js';
 import {
@@ -203,7 +203,7 @@ function replyCastRecordsOf(mesId) {
 // stat_data.$mvuhelper.worn_outfit (character-roster nextWornOutfit). MVU stores the state with every message and
 // swipe, so a swipe, a regenerate, a deleted reply and a reload are right by construction, and no reply text is
 // read back as a record. A picture that names "same-as-last-picture", or slips, is drawn in what the store says she
-// wears.
+// wears; one that names "undressed" leaves her clothes there and marks that it showed her undressed.
 //
 // WORKED OUT ONCE PER REPLY TEXT, AND WRITTEN INTO EVERY COPY OF ITS STATE THAT IS SAVED. The value is the state
 // before the reply, carried through the reply's own pictures (wornOutfitAfterReply). wornOutfitWriteTask writes it, as
@@ -252,11 +252,12 @@ function wornOutfitAfterReply(mesId) {
     return value;
 }
 
-// The store as one log line: who wears what, and the message of her last picture.
+// The store as one log line: who wears what, the message of her last picture, and whether it showed her undressed.
 function describeWornOutfit(worn) {
     const entries = Object.entries(worn || {});
     if (!entries.length) return '(nobody)';
-    const stampOf = (w) => (Number.isInteger(w[LAST_PICTURE_MESSAGE]) ? `last picture msg ${w[LAST_PICTURE_MESSAGE]}` : 'no stamp');
+    const undressedOf = (w) => (w[UNDRESSED_IN_LAST_PICTURE] === true ? ', undressed in it' : '');
+    const stampOf = (w) => (Number.isInteger(w[LAST_PICTURE_MESSAGE]) ? `last picture msg ${w[LAST_PICTURE_MESSAGE]}${undressedOf(w)}` : 'no stamp');
     return entries.map(([key, w]) => `${key} ${w.outfit === OUTFIT_NEW_CLOTHES ? `one-off "${w.clothes}"` : w.outfit} (${stampOf(w)})`).join(', ');
 }
 

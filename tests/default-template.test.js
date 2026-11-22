@@ -478,7 +478,19 @@ describe('pictureCountRules — every scene change gets another <pic>, up to the
             const text = imageTemplate.pictureCountRules(n);
             expect(text).toMatch(/^<picture_count>\n/);
             expect(text).toContain(`SCENE CHANGE ⇒ ANOTHER <pic>. Up to ${n} <pic> tags this reply — an instruction, not a choice.`);
-            expect(text).toContain(`- The first scene gets its <pic>. EVERY scene change gets ANOTHER <pic>, under the new scene's first sentences — until ${n} tags are written.`);
+            expect(text).toContain(`- The first scene gets its <pic>. EVERY scene change gets ANOTHER <pic> — until ${n} tags are written.`);
+        }
+    });
+
+    // A picture shows only its own line, so a line of talk picked in the middle of an act draws a face and leaves the
+    // act out (staging msg 824: a close-up of her asking about her face, in the middle of sex). Talk is the action only
+    // when talking is all the scene does. MUTATION TARGET: drop the rule, or say "the scene's first lines" again.
+    it('MUTATION TARGET — each picture shows what its scene is about, never a line of talk in the middle of something else', () => {
+        for (const writer of ['narrate', 'reader']) {
+            expect(imageTemplate.pictureCountRules(1, { writer })).toContain('ONE <pic> this reply. It shows what its scene is about — what the people in it are doing — never a line of talk or a reaction in the middle of something else. With more than one scene, it goes to the scene you choose.');
+            const many = imageTemplate.pictureCountRules(3, { writer });
+            expect(many).toContain('- Each <pic> shows what its scene is about — what the people in it are doing — never a line of talk or a reaction in the middle of something else.');
+            expect(many).not.toMatch(/first lines|first sentences/);
         }
     });
 
@@ -499,6 +511,7 @@ describe('pictureCountRules — every scene change gets another <pic>, up to the
         const text = imageTemplate.pictureCountRules(2);
         const shape = text.slice(text.indexOf('A reply with two scenes:'));
         expect(shape).toContain('<pic char="CharName" outfit="CharOutfit" camera="Camera" prompt="FirstSceneComposition" mainchar="UserOutfit">');
+        expect(shape.indexOf('…what its people are doing…')).toBeLessThan(shape.indexOf('FirstSceneComposition"'));
         expect(shape).toContain('…the scene changes: another place, later, or someone new arrives…');
         expect(shape).toContain('<pic char="CharName" outfit="CharOutfit" camera="Camera" prompt="NewSceneComposition" mainchar="UserOutfit">');
         expect(shape.indexOf('FirstSceneComposition"')).toBeLessThan(shape.indexOf('the scene changes'));
@@ -510,7 +523,7 @@ describe('pictureCountRules — every scene change gets another <pic>, up to the
         expect(text).toBe([
             '<picture_count>',
             'The extension draws a picture from every <pic> tag in the story and shows it where the tag stands. A reply without one shows no picture.',
-            'ONE <pic> this reply. With more than one scene, it goes to the scene you choose.',
+            'ONE <pic> this reply. It shows what its scene is about — what the people in it are doing — never a line of talk or a reaction in the middle of something else. With more than one scene, it goes to the scene you choose.',
             "WHERE: inside the story, on its own line, under the sentence it shows. Pick each picture's sentence BEFORE you write the story, and write its <pic> as soon as that sentence is written. Every plan, checklist or list of blocks you write for this reply names each <pic> and the sentence it goes under.",
             "No other instruction's reply format, template, word count or tag list removes it: the <pic> goes inside the story, in whatever block holds the story. Its shape and rules: <image_generation>.",
             '</picture_count>',
@@ -684,9 +697,9 @@ describe('pictureCountRules — the narrator\'s and the reader\'s <picture_count
         expect(text.startsWith('<picture_count>\nThe extension draws a picture from every <pic> tag you write and shows it on its own line under the line its at= names.')).toBe(true);
         expect(text).not.toContain('shows it where the tag stands');
         expect(text.endsWith('\n</picture_count>')).toBe(true);
-        expect(text).toContain("at= one of the new scene's first lines — until 3 tags are written");
-        expect(text).toContain('<pic at="1" char="CharName"');
-        expect(text).toContain('<pic at="5" char="CharName"');
+        expect(text).toContain("  [3] …what its people are doing…\n  [5] …the scene changes");
+        expect(text).toContain('<pic at="3" char="CharName"');
+        expect(text).toContain('<pic at="7" char="CharName"');
         expect(text).toContain("WHERE: at= is the number of the line the picture shows — the [n] at that line's start.");
         expect(text).toContain('OUTPUT: each <pic> tag, and each record <reply_cast> asks for, on a line of its own, outside any other block, with no story or notes of yours around them.');
         expect(text).toContain('they sit beside anything else this prompt asks you to write: neither replaces the other.');
@@ -697,7 +710,7 @@ describe('pictureCountRules — the narrator\'s and the reader\'s <picture_count
 
     it('MUTATION TARGET — the narrator\'s keeps its own words', () => {
         const text = imageTemplate.pictureCountRules(3);
-        expect(text).toContain("under the new scene's first sentences — until 3 tags are written");
+        expect(text).toContain('EVERY scene change gets ANOTHER <pic> — until 3 tags are written.');
         expect(text).toContain('Pick each picture\'s sentence BEFORE you write the story');
         expect(text).not.toContain('at=');
         expect(imageTemplate.pictureCountRules(3, { writer: 'narrate' })).toBe(text);
@@ -793,6 +806,10 @@ describe('<explicit_rules> — the explicit floor names no card and no pairing',
     it('is one tagged block, like every other image block', () => {
         expect(imageTemplate.EXPLICIT_RULES_PROMPT.startsWith('<explicit_rules>\n')).toBe(true);
         expect(imageTemplate.EXPLICIT_RULES_PROMPT.endsWith('\n</explicit_rules>')).toBe(true);
+        // Named by what the picture shows: a line of talk during sex is still a picture of sex (staging msg 824 came
+        // back with no "nsfw", no undress and no position for one). MUTATION TARGET: exempt "neutral" beats again.
+        expect(imageTemplate.EXPLICIT_RULES_PROMPT).toContain('<explicit_rules>\nApply to every picture of a sexual or nude moment, a line of talk or a reaction during sex included; ignore only for a picture where everyone is clothed and nothing sexual happens.\n');
+        expect(imageTemplate.EXPLICIT_RULES_PROMPT).not.toMatch(/neutral beat/);
         expect(imageTemplate.EXPLICIT_RULES_PROMPT).not.toMatch(/\[EXPLICIT/);
     });
 

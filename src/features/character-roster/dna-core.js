@@ -344,15 +344,18 @@ export function listOutfitVariants(content) {
 // registry keeps it only as a character's first clothes — her [Clothes] when she has none on file
 // (registrationClothesTarget).
 export const OUTFIT_NEW_CLOTHES = 'newclothes';
-// `same-as-last-picture` says she wears what her last picture showed: an outfit she has on file, or a one-off. Her ON
-// FILE line offers it while the worn-outfit store holds either for her, with what it draws after her name, so the
-// narrator reads what she wears instead of remembering it, and a one-off is described once and picked after that. The
-// main character takes it in mainchar= the same way. The value names the relation, never a kind of clothes, and its
-// unit is her last picture, because that is what the store holds.
+// `same-as-last-picture` says she wears the last clothes a picture drew her in: an outfit she has on file, or a one-off.
+// Her ON FILE line offers it while the worn-outfit store holds either for her, with what it draws after her name, so
+// the narrator reads what she wears instead of remembering it, and a one-off is described once and picked after that.
+// The main character takes it in mainchar= the same way. The value names the relation, never a kind of clothes. It
+// never undresses her: a picture that shows her undressed leaves her clothes in the store, and her ON FILE line then
+// says her last picture showed her undressed (lastPictureWearOf), so a shot where she is still undressed is
+// "undressed" again.
 export const OUTFIT_SAME_AS_LAST_PICTURE = 'same-as-last-picture';
 // `undressed` says the shot shows her without her clothes: none are attached, and the composition says what is
-// bared. A state of the shot, never a change of clothes: the worn-outfit store keeps what she wore. Never "none" —
-// models read "none" as nobody or no outfit.
+// bared. A state of the shot, never a change of clothes: the worn-outfit store keeps what she wore, and marks that her
+// last picture showed her undressed (UNDRESSED_IN_LAST_PICTURE). Never "none" — models read "none" as nobody or no
+// outfit.
 export const OUTFIT_UNDRESSED = 'undressed';
 
 // What a slot that selects no clothes said — the start of its warning. PURE.
@@ -448,20 +451,32 @@ export function replyRecordOf(records, name, entry = null) {
 
 // ── what each character wears now: the worn-outfit store ─────────────────────
 // The store is one entry per character, keyed by her registry entry's key (the name as written when she has
-// none), so a character called by an alias never splits in two: { [key]: { outfit, clothes, last_picture_message } }.
-//   outfit                an outfit she has on file, or "newclothes": a one-off
-//   clothes               the one-off's garments; '' for an outfit on file
-//   last_picture_message  the message index of the reply whose picture last drew her, which the streetcleaner ages
-//                         her entry by (wornOutfitCleaningMission)
+// none), so a character called by an alias never splits in two:
+// { [key]: { outfit, clothes, last_picture_message, was_undressed_in_last_picture } }.
+//   outfit                         an outfit she has on file, or "newclothes": a one-off
+//   clothes                        the one-off's garments; '' for an outfit on file
+//   last_picture_message           the message index of the reply whose picture last drew her, which the
+//                                  streetcleaner ages her entry by (wornOutfitCleaningMission)
+//   was_undressed_in_last_picture  true when her last picture showed her undressed; left out otherwise. Her clothes
+//                                  stay what she wore, and her ON FILE line says her last picture showed her undressed.
 // Every reply's state holds the store as that reply leaves it: the state before the reply, carried through
 // nextWornOutfit with the reply's own pictures (wornReportsOf). The host keeps it in the card's state, as the
 // WORN_OUTFIT_PART part of mvu-helper's own root.
 export const WORN_OUTFIT_PART = 'worn_outfit';
 export const LAST_PICTURE_MESSAGE = 'last_picture_message';
+export const UNDRESSED_IN_LAST_PICTURE = 'was_undressed_in_last_picture';
 const isPlainRecord = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
 const isSameKey = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
 const isMessageIndex = (value) => Number.isInteger(value) && value >= 0;
 const withStamp = (entry, stamp) => (isMessageIndex(stamp) ? { ...entry, [LAST_PICTURE_MESSAGE]: stamp } : entry);
+// The entry with UNDRESSED_IN_LAST_PICTURE set when `isUndressed`, and without it otherwise.
+const withUndressedMark = (entry, isUndressed) => {
+    const next = { ...entry };
+    if (isUndressed) next[UNDRESSED_IN_LAST_PICTURE] = true;
+    else delete next[UNDRESSED_IN_LAST_PICTURE];
+    return next;
+};
+const isMarkedUndressed = (entry) => isPlainRecord(entry) && entry[UNDRESSED_IN_LAST_PICTURE] === true;
 // The key the store holds her under: `key` itself, else the one equal to it without regard to case.
 const heldKeyOf = (worn, key) => (Object.prototype.hasOwnProperty.call(worn, key) ? key : Object.keys(worn).find((k) => isSameKey(k, key)));
 
@@ -473,26 +488,28 @@ const heldKeyOf = (worn, key) => (Object.prototype.hasOwnProperty.call(worn, key
 //   her record's clothes= in this reply (a one-off, or a newcomer's look)  → { key, outfit: "newclothes", clothes }
 //   anything else — "undressed", "same-as-last-picture", a slip: she is drawn in what the store holds, or in no
 //   clothes, so what she wears does not change                             → { key, outfit: '', clothes: '' }
+// Every report carries `isUndressed`: true for "undressed", which nextWornOutfit marks on her entry.
 export function wornReportsOf(people, records, entries) {
     const reports = [];
     for (const person of Array.isArray(people) ? people : []) {
         const name = String((person && person.name) || '').trim();
         if (!name) continue;
         const outfit = String(person.outfit || '').trim().toLowerCase();
+        const isUndressed = outfit === OUTFIT_UNDRESSED;
         const { entry } = pickCharEntry(entries, name);
         const key = entry ? entry.key : name;
         const attributes = (replyRecordOf(records, name, entry) || {}).attributes || {};
         const replyClothes = String(attributes.clothes || '').trim();
         if (entry && hasStoredAppearance(entry.content)) {
             const picked = selectClothesForOutfit(parseDnaSections(entry.content), outfit, { replyClothes, replyOutfit: String(attributes.outfit || '') });
-            if (picked.clothesSource === 'stored') reports.push({ key, outfit, clothes: '' });
-            else if (picked.clothesSource === 'reply') reports.push({ key, outfit: OUTFIT_NEW_CLOTHES, clothes: picked.clothes });
-            else reports.push({ key, outfit: '', clothes: '' });
+            if (picked.clothesSource === 'stored') reports.push({ key, outfit, clothes: '', isUndressed });
+            else if (picked.clothesSource === 'reply') reports.push({ key, outfit: OUTFIT_NEW_CLOTHES, clothes: picked.clothes, isUndressed });
+            else reports.push({ key, outfit: '', clothes: '', isUndressed });
             continue;
         }
         // A look from her record, or none (chooseLook): the record's clothes=, unless the shot undresses her.
-        if (outfit !== OUTFIT_UNDRESSED && replyClothes) reports.push({ key, outfit: OUTFIT_NEW_CLOTHES, clothes: replyClothes });
-        else reports.push({ key, outfit: '', clothes: '' });
+        if (!isUndressed && replyClothes) reports.push({ key, outfit: OUTFIT_NEW_CLOTHES, clothes: replyClothes, isUndressed });
+        else reports.push({ key, outfit: '', clothes: '', isUndressed });
     }
     return reports;
 }
@@ -523,35 +540,37 @@ export function drawnClothesFor(drawn, entry, name) {
 // The store after one reply — PURE. `previous` is the store the reply starts from (the state before it), `reports`
 // the reply's own (wornReportsOf), in text order, and `replyIndex` the reply's message index. An entry no report
 // touches is carried as it was. A report with an outfit replaces her entry, the last one winning; every report
-// stamps her entry with `replyIndex`, the message of her last picture. A report without an outfit never creates an
-// entry: she wears what the store holds, and with nothing held there is nothing to stamp.
+// stamps her entry with `replyIndex`, the message of her last picture, and marks whether that picture showed her
+// undressed (UNDRESSED_IN_LAST_PICTURE). A report without an outfit never creates an entry: she wears what the store
+// holds, and with nothing held there is nothing to stamp.
 export function nextWornOutfit(previous, { reports = [], replyIndex = null } = {}) {
     const next = {};
     for (const [key, worn] of Object.entries(isPlainRecord(previous) ? previous : {})) {
         if (key === '__proto__' || !isPlainRecord(worn)) continue;
         const outfit = String(worn.outfit || '').trim().toLowerCase();
         if (!outfit) continue;
-        next[key] = withStamp({ outfit, clothes: String(worn.clothes || '').trim() }, worn[LAST_PICTURE_MESSAGE]);
+        next[key] = withUndressedMark(withStamp({ outfit, clothes: String(worn.clothes || '').trim() }, worn[LAST_PICTURE_MESSAGE]), isMarkedUndressed(worn));
     }
     for (const report of Array.isArray(reports) ? reports : []) {
         const key = String((report && report.key) || '').trim();
         if (!key || key === '__proto__') continue;
         const outfit = String(report.outfit || '').trim().toLowerCase();
+        const isUndressed = report.isUndressed === true;
         if (!outfit) {
             const held = heldKeyOf(next, key);
-            if (held !== undefined) next[held] = withStamp(next[held], replyIndex);
+            if (held !== undefined) next[held] = withUndressedMark(withStamp(next[held], replyIndex), isUndressed);
             continue;
         }
         for (const held of Object.keys(next)) if (held !== key && isSameKey(held, key)) delete next[held];
-        next[key] = withStamp({ outfit, clothes: String(report.clothes || '').trim() }, replyIndex);
+        next[key] = withUndressedMark(withStamp({ outfit, clothes: String(report.clothes || '').trim() }, replyIndex), isUndressed);
     }
     return next;
 }
 
 // What the store holds for her — PURE: her entry in `worn`, the store as the picture sees it (nextWornOutfit from the
 // state before its reply, with the reply's pictures ahead of it), matched by her entry's key without regard to case,
-// as every registry key is. { outfit, clothes, lastPictureMessage } (lastPictureMessage null when the entry carries
-// no stamp), or null when the store holds nothing for her.
+// as every registry key is. { outfit, clothes, lastPictureMessage, wasUndressedInLastPicture } (lastPictureMessage null
+// when the entry carries no stamp), or null when the store holds nothing for her.
 export function wornOutfitOn(worn, key) {
     const want = String(key || '').trim();
     if (!want || !isPlainRecord(worn)) return null;
@@ -561,28 +580,40 @@ export function wornOutfitOn(worn, key) {
     const outfit = String(entry.outfit || '').trim().toLowerCase();
     if (!outfit) return null;
     const stamp = entry[LAST_PICTURE_MESSAGE];
-    return { outfit, clothes: String(entry.clothes || '').trim(), lastPictureMessage: isMessageIndex(stamp) ? stamp : null };
+    return {
+        outfit,
+        clothes: String(entry.clothes || '').trim(),
+        lastPictureMessage: isMessageIndex(stamp) ? stamp : null,
+        wasUndressedInLastPicture: isMarkedUndressed(entry),
+    };
 }
 
-// What each character's last picture showed, as the store holds it — PURE: [{ key, outfit, clothes }], one per entry
-// that can be drawn again: an outfit she has on file by name (clothes ''), or "newclothes" with her one-off's clothes.
-// These are the characters "same-as-last-picture" is offered for, the main character among them (reply-cast-core
-// lastPictureWearOf says what each one's offer draws).
+// The last clothes each character's pictures drew her in, as the store holds them — PURE:
+// [{ key, outfit, clothes, wasUndressedInLastPicture }], one per entry that can be drawn again: an outfit she has on
+// file by name (clothes ''), or "newclothes" with her one-off's clothes. These are the characters "same-as-last-picture"
+// is offered for, the main character among them (reply-cast-core lastPictureWearOf says what each one's offer draws).
 export function lastPictureOutfitsIn(worn) {
     if (!isPlainRecord(worn)) return [];
     return Object.keys(worn)
         .map((key) => ({ key, held: wornOutfitOn(worn, key) }))
         .filter(({ held }) => !!held && (held.outfit !== OUTFIT_NEW_CLOTHES || !!held.clothes))
-        .map(({ key, held }) => ({ key, outfit: held.outfit, clothes: held.outfit === OUTFIT_NEW_CLOTHES ? held.clothes : '' }));
+        .map(({ key, held }) => ({
+            key,
+            outfit: held.outfit,
+            clothes: held.outfit === OUTFIT_NEW_CLOTHES ? held.clothes : '',
+            wasUndressedInLastPicture: held.wasUndressedInLastPicture,
+        }));
 }
 
 // ── edits of the worn-outfit store (plans/reply-cast.md §11) ─────────────────
 // An edit changes one character's entry from outside a reply's pictures. Three kinds:
 //   wornOutfitSet         "Wearing now" (D38): she wears an outfit on file, by name, or one-off clothes. Her entry keeps
-//                         its stamp; an entry made where she had none, or had one with no stamp, takes `newStamp`.
+//                         its stamp; an entry made where she had none, or had one with no stamp, takes `newStamp`. She
+//                         wears those clothes now, so her entry no longer says her last picture showed her undressed.
 //   wornOutfitCleared     "Wearing now" (D38), nothing recorded: her entry is removed.
 //   wornOutfitKeptByName  the harvest saved clothes from the reply into her record (D37): her entry, while it is the
-//                         one-off holding exactly those clothes, becomes that outfit by name, its stamp kept. `names` are
+//                         one-off holding exactly those clothes, becomes that outfit by name, its stamp and its
+//                         UNDRESSED_IN_LAST_PICTURE mark kept. `names` are
 //                         every name the store may hold her under — her entry's key, her aliases, the name the record
 //                         wrote — because a picture drawn before she was registered keyed her by the name it drew.
 // Applying an edit the store already holds changes nothing, so one reply's edits can be applied to every copy of its
@@ -636,7 +667,7 @@ function nameKeptOutfit(worn, edit) {
     for (const key of keysNamedBy(worn, edit)) {
         const entry = worn[key];
         if (!isOneOffEntry(entry) || oneLine(entry.clothes) !== clothes) continue;
-        worn[key] = withStamp({ outfit, clothes: '' }, entry[LAST_PICTURE_MESSAGE]);
+        worn[key] = withUndressedMark(withStamp({ outfit, clothes: '' }, entry[LAST_PICTURE_MESSAGE]), isMarkedUndressed(entry));
     }
 }
 

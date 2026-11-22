@@ -1089,10 +1089,13 @@ describe('OUTFIT_RULES_PROMPT — what outfit= may say', () => {
         expect(OUTFIT_RULES_PROMPT).not.toMatch(/normal clothes|usual clothes/i);
     });
 
-    // What her last picture showed is a choice on her line, so a one-off is described once and picked after; the
-    // outfit or clothes it draws are listed after her name, so the pick is the story compared with them, never a memory.
-    it('MUTATION TARGET — "same-as-last-picture" is offered by <reply_cast>, as what she wore in her last picture', () => {
-        expect(OUTFIT_RULES_PROMPT).toMatch(/a choice on the ON FILE line in <reply_cast> that names THAT character: an outfit on file draws those stored clothes; "same-as-last-picture", when <reply_cast> offers it for them, draws what they wore in their last picture, the outfit or clothes it lists after their name — pick it only while the story still has them in those clothes\./);
+    // The last clothes a picture drew her in are a choice on her line, so a one-off is described once and picked after;
+    // the outfit or clothes it draws are listed after her name, so the pick is the story compared with them, never a
+    // memory. It names clothes, never her last picture: an "undressed" picture keeps her clothes in the store, and a
+    // rule that promised "what they wore in their last picture" drew a naked girl dressed (staging msg 824).
+    it('MUTATION TARGET — "same-as-last-picture" is offered by <reply_cast>, as the clothes it lists, worn in the story', () => {
+        expect(OUTFIT_RULES_PROMPT).toMatch(/a choice on the ON FILE line in <reply_cast> that names THAT character: an outfit on file draws those stored clothes; "same-as-last-picture", when <reply_cast> offers it for them, draws the outfit or clothes it lists after their name, the last clothes a picture drew them in — pick it only while the story has them wearing those clothes\./);
+        expect(OUTFIT_RULES_PROMPT).not.toMatch(/what they wore in their last picture/);
     });
 
     // An observation of its own story, never a comparison with outfits it cannot see.

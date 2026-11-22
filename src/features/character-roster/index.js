@@ -11,7 +11,7 @@ export { wireRoster, refreshRosterUI, updateRosterUI } from './roster-ui.js';
 export { getRosterProfile, onRouteChange } from './roster-settings.js';
 export { rosterProfileDefaults } from './roster-settings-core.js';
 export { readCharLook, listCharEntries, listOutfitVariants, listAliases, resolveCharEntry, registerPlaceholderCharDna, characterRegistryJournalTask, resetCharacterRegistryForChat } from './character-registry.js';
-export { RESERVED_OUTFIT_NAMES, OUTFIT_NEW_CLOTHES, hasStoredAppearance, lookSourceFor, lookWaitsForReply, lookWaitsForRegistration, wornReportsOf, drawnOneOffClothesOf, nextWornOutfit, WORN_OUTFIT_PART, LAST_PICTURE_MESSAGE, wornOutfitCleaningMission, shownForRegen, pickCharEntry } from './dna-core.js';
+export { RESERVED_OUTFIT_NAMES, OUTFIT_NEW_CLOTHES, hasStoredAppearance, lookSourceFor, lookWaitsForReply, lookWaitsForRegistration, wornReportsOf, drawnOneOffClothesOf, nextWornOutfit, WORN_OUTFIT_PART, LAST_PICTURE_MESSAGE, UNDRESSED_IN_LAST_PICTURE, wornOutfitCleaningMission, shownForRegen, pickCharEntry } from './dna-core.js';
 export { harvestCastRegistrations, keepFirstClothesFromReply } from './harvest.js';
 export { wornOutfitEditJournalTask, resetWornOutfitEditsForChat } from './worn-outfit-edits.js';
 export { readCastRecords } from './cast-record-format-core.js';

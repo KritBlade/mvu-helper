@@ -41,6 +41,7 @@ import {
     wornOutfitOn,
     lastPictureOutfitsIn,
     LAST_PICTURE_MESSAGE,
+    UNDRESSED_IN_LAST_PICTURE,
     WORN_OUTFIT_PART,
     WORN_OUTFIT_KEEP_REPLIES,
     wornOutfitCleaningMission,
@@ -274,21 +275,23 @@ describe('wornReportsOf — what one reply\'s pictures say about each person the
     const main = { key: 'Mainchar', content: '[Body]\nm\n[Clothes:school-uniform]\nblazer' };
     const entries = [mitsuki, main];
     const hoodie = [{ name: 'Mitsuki', attributes: { outfit: 'newclothes', clothes: 'grey hoodie' } }];
-    const drawnOnly = (key) => ({ key, outfit: '', clothes: '' });
+    const drawnOnly = (key) => ({ key, outfit: '', clothes: '', isUndressed: false });
+    const undressedOnly = (key) => ({ key, outfit: '', clothes: '', isUndressed: true });
 
     it('MUTATION TARGET — an outfit she has on file is reported by name, under her entry\'s key', () => {
-        expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'School-Gym' }], [], entries)).toEqual([{ key: 'Mitsuki', outfit: 'school-gym', clothes: '' }]);
+        expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'School-Gym' }], [], entries)).toEqual([{ key: 'Mitsuki', outfit: 'school-gym', clothes: '', isUndressed: false }]);
     });
 
     it('MUTATION TARGET — "newclothes" with clothes= on her record is reported as a one-off', () => {
-        expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'newclothes' }], hoodie, entries)).toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'grey hoodie' }]);
+        expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'newclothes' }], hoodie, entries)).toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'grey hoodie', isUndressed: false }]);
     });
 
     // What the picture is drawn in is what the store keeps, so a value drawn from the store — "undressed",
-    // "same-as-last-picture", a slip — reports her drawn and her clothes unchanged.
+    // "same-as-last-picture", a slip — reports her drawn and her clothes unchanged; "undressed" says so.
     it('MUTATION TARGET — "undressed", "same-as-last-picture" and a slip report her drawn, with no clothes', () => {
         const towel = [{ name: 'Mitsuki', attributes: { clothes: 'bath towel' } }];
-        expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'undressed' }], towel, entries)).toEqual([drawnOnly('Mitsuki')]);
+        expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'undressed' }], towel, entries)).toEqual([undressedOnly('Mitsuki')]);
+        expect(wornReportsOf([{ name: 'Mitsuki', outfit: ' Undressed ' }], [], entries)).toEqual([undressedOnly('Mitsuki')]);
         expect(wornReportsOf([{ name: 'Mitsuki', outfit: OUTFIT_SAME_AS_LAST_PICTURE }], hoodie, entries)).toEqual([drawnOnly('Mitsuki')]);
         expect(wornReportsOf([{ name: 'Mitsuki', outfit: '' }, { name: 'Mitsuki', outfit: 'default' }, { name: 'Mitsuki', outfit: 'newclothes' }], [], entries))
             .toEqual([drawnOnly('Mitsuki'), drawnOnly('Mitsuki'), drawnOnly('Mitsuki')]);
@@ -303,27 +306,27 @@ describe('wornReportsOf — what one reply\'s pictures say about each person the
     // A newcomer drawn from the look her record described: those clothes are what she wears.
     it('a look from her record reports its clothes=, under the name as written, unless the shot undresses her', () => {
         const aria = [{ name: 'Aria', attributes: { body: 'elf woman', clothes: 'plate armor' } }];
-        expect(wornReportsOf([{ name: 'Aria', outfit: 'newclothes' }], aria, entries)).toEqual([{ key: 'Aria', outfit: 'newclothes', clothes: 'plate armor' }]);
-        expect(wornReportsOf([{ name: 'Aria', outfit: 'undressed' }], aria, entries)).toEqual([drawnOnly('Aria')]);
+        expect(wornReportsOf([{ name: 'Aria', outfit: 'newclothes' }], aria, entries)).toEqual([{ key: 'Aria', outfit: 'newclothes', clothes: 'plate armor', isUndressed: false }]);
+        expect(wornReportsOf([{ name: 'Aria', outfit: 'undressed' }], aria, entries)).toEqual([undressedOnly('Aria')]);
     });
 
     // An outfit her record saves this reply is drawn from the record; the store keeps those clothes as a one-off.
     it('an outfit her record defines this reply reports the record\'s clothes as a one-off', () => {
         const waitress = [{ name: 'Mitsuki', attributes: { outfit: 'cafe-waitress', clothes: 'black dress, white apron' } }];
         expect(wornReportsOf([{ name: 'Mitsuki', outfit: 'cafe-waitress' }], waitress, entries))
-            .toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'black dress, white apron' }]);
+            .toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'black dress, white apron', isUndressed: false }]);
     });
 
     // The story calls her 美月 or Mitsuki: one entry, one key — the store never splits her in two.
     it('MUTATION TARGET — a name her entry answers to reports under her entry\'s key', () => {
-        expect(wornReportsOf([{ name: '美月', outfit: 'school-gym' }], [], entries)).toEqual([{ key: 'Mitsuki', outfit: 'school-gym', clothes: '' }]);
-        expect(wornReportsOf([{ name: '美月', outfit: 'newclothes' }], hoodie, entries)).toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'grey hoodie' }]);
-        expect(wornReportsOf([{ name: '美月', outfit: 'undressed' }], [], entries)).toEqual([drawnOnly('Mitsuki')]);
+        expect(wornReportsOf([{ name: '美月', outfit: 'school-gym' }], [], entries)).toEqual([{ key: 'Mitsuki', outfit: 'school-gym', clothes: '', isUndressed: false }]);
+        expect(wornReportsOf([{ name: '美月', outfit: 'newclothes' }], hoodie, entries)).toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'grey hoodie', isUndressed: false }]);
+        expect(wornReportsOf([{ name: '美月', outfit: 'undressed' }], [], entries)).toEqual([undressedOnly('Mitsuki')]);
     });
 
     // He never has a record: the outfit his picture named is all there is.
     it('the main character reports under his entry\'s key, by the outfit his picture named', () => {
-        expect(wornReportsOf([{ name: 'Mainchar', outfit: 'school-uniform' }], [], entries)).toEqual([{ key: 'Mainchar', outfit: 'school-uniform', clothes: '' }]);
+        expect(wornReportsOf([{ name: 'Mainchar', outfit: 'school-uniform' }], [], entries)).toEqual([{ key: 'Mainchar', outfit: 'school-uniform', clothes: '', isUndressed: false }]);
     });
 
     it('every picture reports, in text order', () => {
@@ -431,20 +434,62 @@ describe('nextWornOutfit — the store after one reply', () => {
     it('the stamp is the persisted field last_picture_message', () => {
         expect(LAST_PICTURE_MESSAGE).toBe('last_picture_message');
     });
+
+    // An "undressed" picture keeps her clothes, and her entry says that picture showed her undressed, so her ON FILE
+    // line can say it (reply-cast-core lastPictureWearOf).
+    const undressedAt = (outfit, clothes, at) => ({ ...stamped(outfit, clothes, at), was_undressed_in_last_picture: true });
+    it('MUTATION TARGET — an undressed picture keeps her clothes and marks her entry', () => {
+        const next = nextWornOutfit({ Mana: stamped('newclothes', 'white t-shirt, beige shorts', 816) },
+            { reports: [{ key: 'Mana', outfit: '', clothes: '', isUndressed: true }], replyIndex: 818 });
+        expect(next).toEqual({ Mana: undressedAt('newclothes', 'white t-shirt, beige shorts', 818) });
+    });
+
+    it('MUTATION TARGET — the mark carries through a reply that does not draw her', () => {
+        const store = { Mana: undressedAt('newclothes', 'white t-shirt', 818) };
+        expect(nextWornOutfit(store, { reports: [report('Yuki', 'school-gym')], replyIndex: 820 }).Mana).toEqual(store.Mana);
+        expect(nextWornOutfit(store, { replyIndex: 820 })).toEqual(store);
+    });
+
+    it('MUTATION TARGET — a picture that draws her clothes clears the mark', () => {
+        const store = { Mana: undressedAt('newclothes', 'white t-shirt', 818) };
+        expect(nextWornOutfit(store, { reports: [report('Mana')], replyIndex: 824 })).toEqual({ Mana: stamped('newclothes', 'white t-shirt', 824) });
+        expect(nextWornOutfit(store, { reports: [report('Mana', 'school-gym')], replyIndex: 824 })).toEqual({ Mana: stamped('school-gym', '', 824) });
+    });
+
+    it('the last picture of hers in the reply decides the mark', () => {
+        const store = { Mana: stamped('school-gym', '', 10) };
+        const undressed = { key: 'Mana', outfit: '', clothes: '', isUndressed: true };
+        expect(nextWornOutfit(store, { reports: [report('Mana', 'school-uniform'), undressed], replyIndex: 12 })).toEqual({ Mana: undressedAt('school-uniform', '', 12) });
+        expect(nextWornOutfit(store, { reports: [undressed, report('Mana')], replyIndex: 12 })).toEqual({ Mana: stamped('school-gym', '', 12) });
+    });
+
+    it('an undressed picture of someone with nothing held creates no entry', () => {
+        expect(nextWornOutfit({}, { reports: [{ key: 'Mana', outfit: '', clothes: '', isUndressed: true }], replyIndex: 9 })).toEqual({});
+    });
+
+    it('the mark is the persisted field was_undressed_in_last_picture, kept only when it is true', () => {
+        expect(UNDRESSED_IN_LAST_PICTURE).toBe('was_undressed_in_last_picture');
+        expect(nextWornOutfit({ Mana: { ...stamped('school-gym', '', 3), was_undressed_in_last_picture: 'yes' } })).toEqual({ Mana: stamped('school-gym', '', 3) });
+    });
 });
 
 describe('wornOutfitOn — what the store holds for her', () => {
     const store = {
         Mitsuki: { outfit: 'newclothes', clothes: 'white sundress', last_picture_message: 12 },
         Yuki: { outfit: 'school-gym', clothes: '' },
+        Mana: { outfit: 'school-gym', clothes: '', last_picture_message: 14, was_undressed_in_last_picture: true },
     };
 
     it('MUTATION TARGET — her entry, with the message of her last picture', () => {
-        expect(wornOutfitOn(store, 'Mitsuki')).toEqual({ outfit: 'newclothes', clothes: 'white sundress', lastPictureMessage: 12 });
+        expect(wornOutfitOn(store, 'Mitsuki')).toEqual({ outfit: 'newclothes', clothes: 'white sundress', lastPictureMessage: 12, wasUndressedInLastPicture: false });
+    });
+
+    it('MUTATION TARGET — her entry says whether her last picture showed her undressed', () => {
+        expect(wornOutfitOn(store, 'Mana')).toEqual({ outfit: 'school-gym', clothes: '', lastPictureMessage: 14, wasUndressedInLastPicture: true });
     });
 
     it('an entry with no stamp reads no message', () => {
-        expect(wornOutfitOn(store, 'Yuki')).toEqual({ outfit: 'school-gym', clothes: '', lastPictureMessage: null });
+        expect(wornOutfitOn(store, 'Yuki')).toEqual({ outfit: 'school-gym', clothes: '', lastPictureMessage: null, wasUndressedInLastPicture: false });
     });
 
     it('her key is matched without regard to case', () => {
@@ -452,7 +497,7 @@ describe('wornOutfitOn — what the store holds for her', () => {
     });
 
     it('nothing for her ⇒ null', () => {
-        expect(wornOutfitOn(store, 'Mana')).toBeNull();
+        expect(wornOutfitOn(store, 'Kana')).toBeNull();
         expect(wornOutfitOn(store, '')).toBeNull();
         expect(wornOutfitOn(null, 'Mitsuki')).toBeNull();
         expect(wornOutfitOn({ Mitsuki: { outfit: '' } }, 'Mitsuki')).toBeNull();
@@ -464,16 +509,16 @@ describe('lastPictureOutfitsIn — who is offered "same-as-last-picture", and wh
     it('MUTATION TARGET — every outfit on file by name, every one-off with clothes, and nothing else', () => {
         const store = {
             Mitsuki: { outfit: 'newclothes', clothes: 'white sundress' },
-            Yuki: { outfit: 'School-Gym', clothes: '' },
+            Yuki: { outfit: 'School-Gym', clothes: '', was_undressed_in_last_picture: true },
             Mana: { outfit: 'newclothes', clothes: '' },
             // an outfit on file draws its registered clothes, whatever text its entry carries: never a one-off
             Kana: { outfit: 'school-gym', clothes: 'stray text' },
             Rin: { outfit: '', clothes: 'x' },
         };
         expect(lastPictureOutfitsIn(store)).toEqual([
-            { key: 'Mitsuki', outfit: 'newclothes', clothes: 'white sundress' },
-            { key: 'Yuki', outfit: 'school-gym', clothes: '' },
-            { key: 'Kana', outfit: 'school-gym', clothes: '' },
+            { key: 'Mitsuki', outfit: 'newclothes', clothes: 'white sundress', wasUndressedInLastPicture: false },
+            { key: 'Yuki', outfit: 'school-gym', clothes: '', wasUndressedInLastPicture: true },
+            { key: 'Kana', outfit: 'school-gym', clothes: '', wasUndressedInLastPicture: false },
         ]);
     });
 
@@ -535,7 +580,7 @@ describe('the worn-outfit store end to end — a one-off, picked again, then rep
 
     it('MUTATION TARGET — Saturday\'s one-off is offered and drawn again by name; Monday\'s uniform replaces it', () => {
         const saturday = nextWornOutfit({}, { reports: wornReportsOf([{ name: '美月', outfit: 'newclothes' }], sundress, entries), replyIndex: 20 });
-        expect(lastPictureOutfitsIn(saturday)).toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'white sundress' }]);
+        expect(lastPictureOutfitsIn(saturday)).toEqual([{ key: 'Mitsuki', outfit: 'newclothes', clothes: 'white sundress', wasUndressedInLastPicture: false }]);
         // The next reply picks it from her line, and its picture is drawn from the store, mid-stream or not.
         expect(selectClothesForOutfit(sections, OUTFIT_SAME_AS_LAST_PICTURE, { carried: wornOutfitOn(saturday, 'Mitsuki') }))
             .toMatchObject({ clothes: 'white sundress', clothesSource: 'carried', warning: '' });
@@ -544,12 +589,22 @@ describe('the worn-outfit store end to end — a one-off, picked again, then rep
         // Monday's class names the uniform: the one-off is gone, and her line offers the uniform instead.
         const monday = nextWornOutfit(later, { reports: wornReportsOf([{ name: 'Mitsuki', outfit: 'school-uniform' }], [], entries), replyIndex: 30 });
         expect(monday).toEqual({ Mitsuki: { outfit: 'school-uniform', clothes: '', last_picture_message: 30 } });
-        expect(lastPictureOutfitsIn(monday)).toEqual([{ key: 'Mitsuki', outfit: 'school-uniform', clothes: '' }]);
+        expect(lastPictureOutfitsIn(monday)).toEqual([{ key: 'Mitsuki', outfit: 'school-uniform', clothes: '', wasUndressedInLastPicture: false }]);
         // A picture without her, then one that picks it: still the uniform, and only her stamp moves.
         expect(selectClothesForOutfit(sections, OUTFIT_SAME_AS_LAST_PICTURE, { carried: wornOutfitOn(monday, 'Mitsuki') }))
             .toMatchObject({ clothes: 'brown uniform', clothesSource: 'carried', warning: '' });
         const tuesday = nextWornOutfit(monday, { reports: wornReportsOf([{ name: 'Mitsuki', outfit: OUTFIT_SAME_AS_LAST_PICTURE }], [], entries), replyIndex: 34 });
         expect(tuesday).toEqual({ Mitsuki: { outfit: 'school-uniform', clothes: '', last_picture_message: 34 } });
+    });
+
+    it('MUTATION TARGET — undressed, her line says so and still offers her clothes; dressed again, the mark is gone', () => {
+        const uniform = { Mitsuki: { outfit: 'school-uniform', clothes: '', last_picture_message: 30 } };
+        const undressed = nextWornOutfit(uniform, { reports: wornReportsOf([{ name: '美月', outfit: 'undressed' }], [], entries), replyIndex: 32 });
+        expect(lastPictureOutfitsIn(undressed)).toEqual([{ key: 'Mitsuki', outfit: 'school-uniform', clothes: '', wasUndressedInLastPicture: true }]);
+        expect(selectClothesForOutfit(sections, OUTFIT_SAME_AS_LAST_PICTURE, { carried: wornOutfitOn(undressed, 'Mitsuki') }))
+            .toMatchObject({ clothes: 'brown uniform', clothesSource: 'carried', warning: '' });
+        const dressed = nextWornOutfit(undressed, { reports: wornReportsOf([{ name: 'Mitsuki', outfit: OUTFIT_SAME_AS_LAST_PICTURE }], [], entries), replyIndex: 34 });
+        expect(dressed).toEqual({ Mitsuki: { outfit: 'school-uniform', clothes: '', last_picture_message: 34 } });
     });
 });
 
@@ -626,9 +681,9 @@ describe('chooseLook — one drawn person: stored, else this reply, else none', 
     it('nothing stored: the worn-outfit report names the clothes her picture drew', () => {
         const records = [{ name: '英妮', attributes: { outfit: 'newclothes', clothes: 'black latex nun habit' } }];
         expect(wornReportsOf([{ name: '英妮', outfit: 'newclothes' }], records, []))
-            .toEqual([{ key: '英妮', outfit: 'newclothes', clothes: 'black latex nun habit' }]);
+            .toEqual([{ key: '英妮', outfit: 'newclothes', clothes: 'black latex nun habit', isUndressed: false }]);
         expect(wornReportsOf([{ name: '英妮', outfit: 'undressed' }], records, []))
-            .toEqual([{ key: '英妮', outfit: '', clothes: '' }]);
+            .toEqual([{ key: '英妮', outfit: '', clothes: '', isUndressed: true }]);
     });
 
     // The picture log prints both, so a one-off on a stored look never reads as stored clothes. MUTATION TARGET:
@@ -1565,6 +1620,15 @@ describe('applyWornOutfitEdits — edits of the worn-outfit store from outside a
             .toEqual({ Yuki: stamped('default', '', 50) });
     });
 
+    // "Wearing now" says what she wears now, so the mark that her last picture showed her undressed goes with it.
+    it('MUTATION TARGET — a set drops the undressed mark; a kept outfit keeps it', () => {
+        const undressed = (outfit, clothes, stamp) => ({ ...stamped(outfit, clothes, stamp), [UNDRESSED_IN_LAST_PICTURE]: true });
+        expect(applyWornOutfitEdits({ Mitsuki: undressed('newclothes', 'grey hoodie', 41) }, [wornOutfitSet('Mitsuki', 'school-gym', '', 50)]))
+            .toEqual({ Mitsuki: stamped('school-gym', '', 41) });
+        expect(applyWornOutfitEdits({ 薇拉: undressed('newclothes', 'pink gothic short dress', 2622) }, [wornOutfitKeptByName(['薇拉'], 'default', 'pink gothic short dress')]))
+            .toEqual({ 薇拉: undressed('default', '', 2622) });
+    });
+
     it('a set of one-off clothes with no clothes, or of no outfit, changes nothing', () => {
         const worn = { Mitsuki: stamped('default', '', 41) };
         expect(applyWornOutfitEdits(worn, [wornOutfitSet('Mitsuki', 'newclothes', '   ', 50)])).toEqual(worn);
@@ -1651,7 +1715,7 @@ describe('shownForRegen — what a regen draws her in from the store saved with 
     const saved = { Mitsuki: { outfit: 'school-gym', clothes: '', [LAST_PICTURE_MESSAGE]: 41 } };
 
     it('MUTATION TARGET — her entry, when it is stamped with the reply and this is her last picture in it', () => {
-        expect(shownForRegen(saved, 'mitsuki', { replyIndex: 41, isLastPicture: true })).toEqual({ outfit: 'school-gym', clothes: '', lastPictureMessage: 41 });
+        expect(shownForRegen(saved, 'mitsuki', { replyIndex: 41, isLastPicture: true })).toEqual({ outfit: 'school-gym', clothes: '', lastPictureMessage: 41, wasUndressedInLastPicture: false });
     });
 
     it('MUTATION TARGET — nothing for an earlier picture of hers, an entry another reply stamped, or no entry', () => {

@@ -180,28 +180,38 @@ const PICTURE_OVER_FORMATS = "No other instruction's reply format, template, wor
 const READER_PICTURE_PURPOSE = 'The extension draws a picture from every <pic> tag you write and shows it on its own line under the line its at= names. An answer without one leaves the reply without a picture.';
 const READER_PICTURE_PLACE = "WHERE: at= is the number of the line the picture shows — the [n] at that line's start. char= is whoever acts or speaks in that line.";
 const READER_PICTURE_OUTPUT = 'OUTPUT: each <pic> tag, and each record <reply_cast> asks for, on a line of its own, outside any other block, with no story or notes of yours around them. The extension reads them wherever they stand in your answer, so they sit beside anything else this prompt asks you to write: neither replaces the other. Their shape and rules: <image_generation> above.';
+// WHICH LINE A PICTURE SHOWS: what its scene is about, what the people in it are doing. A picture shows only its
+// own line (char= is that line's actor), so a line of talk or a reaction picked in the middle of an act draws a face
+// and leaves the act out of the picture. Talk is the scene's action only when talking is all it does, so a
+// conversation is still drawn. The rule is said here, beside the count, for both writers; where the tag goes for
+// that line is each writer's WHERE.
+const SCENE_MAIN_ACTION = 'what its scene is about — what the people in it are doing — never a line of talk or a reaction in the middle of something else';
 export function pictureCountRules(maxImages, { writer = 'narrate' } = {}) {
     const budget = Math.max(1, parseInt(maxImages) || 1);
     const isReader = writer === 'reader';
     const example = isReader ? [
         'A reply with two scenes:',
-        '  [1] …the first scene…',
+        '  [1] …the first scene begins…',
+        '  [3] …what its people are doing…',
         '  [5] …the scene changes: another place, later, or someone new arrives…',
+        "  [7] …what the new scene's people are doing…",
         'Your answer:',
-        '  <pic at="1" char="CharName" outfit="CharOutfit" camera="Camera" prompt="FirstSceneComposition" mainchar="UserOutfit">',
-        '  <pic at="5" char="CharName" outfit="CharOutfit" camera="Camera" prompt="NewSceneComposition" mainchar="UserOutfit">',
+        '  <pic at="3" char="CharName" outfit="CharOutfit" camera="Camera" prompt="FirstSceneComposition" mainchar="UserOutfit">',
+        '  <pic at="7" char="CharName" outfit="CharOutfit" camera="Camera" prompt="NewSceneComposition" mainchar="UserOutfit">',
     ] : [
         'A reply with two scenes:',
-        '  …the first scene…',
+        '  …the first scene begins…',
+        '  …what its people are doing…',
         '  <pic char="CharName" outfit="CharOutfit" camera="Camera" prompt="FirstSceneComposition" mainchar="UserOutfit">',
         '  …the scene changes: another place, later, or someone new arrives…',
+        "  …what the new scene's people are doing…",
         '  <pic char="CharName" outfit="CharOutfit" camera="Camera" prompt="NewSceneComposition" mainchar="UserOutfit">',
     ];
-    const newScenePlace = isReader ? "at= one of the new scene's first lines" : "under the new scene's first sentences";
-    const count = budget === 1 ? ['ONE <pic> this reply. With more than one scene, it goes to the scene you choose.'] : [
+    const count = budget === 1 ? [`ONE <pic> this reply. It shows ${SCENE_MAIN_ACTION}. With more than one scene, it goes to the scene you choose.`] : [
         `SCENE CHANGE ⇒ ANOTHER <pic>. Up to ${budget} <pic> tags this reply — an instruction, not a choice.`,
         '- The SCENE CHANGES when the story moves to another place · time jumps (later, that night, the next morning, falling asleep, a dream) · someone new arrives.',
-        `- The first scene gets its <pic>. EVERY scene change gets ANOTHER <pic>, ${newScenePlace} — until ${budget} tags are written.`,
+        `- The first scene gets its <pic>. EVERY scene change gets ANOTHER <pic> — until ${budget} tags are written.`,
+        `- Each <pic> shows ${SCENE_MAIN_ACTION}.`,
         `- The LAST scene ALWAYS gets one: with more scenes than ${budget}, skip a middle scene, never the last.`,
         '- No scene change ⇒ no extra tag: a new pose or more talk in the same scene adds nothing.',
         ...example,
@@ -353,12 +363,14 @@ export function castRules(maxCharacters, { userOutfits = [] } = {}) {
 // EVERY SLOT NAMES WHAT THAT PERSON WEARS IN THIS SHOT, PICKED FROM A LIST: a choice on her ON FILE line (her
 // outfits on file, and "same-as-last-picture" while the worn-outfit store holds what she wore), "newclothes" or
 // "undressed". The narrator observes this shot; it never judges whether anything changed since her last picture,
-// and nothing is left out to mean something. mvu-helper remembers: what each picture drew — an outfit on file, or a
-// one-off it described — is kept in the card's state (stat_data.$mvuhelper.worn_outfit) and offered back as
+// and nothing is left out to mean something. mvu-helper remembers: the clothes each picture drew — an outfit on file,
+// or a one-off it described — are kept in the card's state (stat_data.$mvuhelper.worn_outfit) and offered back as
 // "same-as-last-picture", the outfit's name or the one-off's clothes listed on a line of their own under the ON FILE
 // lines, so the narrator compares the story with them instead of recalling her last picture (a swimsuit offered for
-// a classroom is visibly not what she wears). The main character's mainchar= takes it the same way, on a line of
-// his own. "default" is only a name, listed for the characters who have one. A STATE of the clothes (pushed up, torn) changes nothing — it stays
+// a classroom is visibly not what she wears). An "undressed" picture keeps her clothes there, and her line says her
+// last picture showed her undressed, so the rule names the clothes it draws and asks for them on her, never "her last
+// picture again". The main character's mainchar= takes it the same way, on a line of his own. "default" is only a
+// name, listed for the characters who have one. A STATE of the clothes (pushed up, torn) changes nothing — it stays
 // in the composition, where the explicit block's exposure rule puts it.
 //
 // UNDRESSED OUTRANKS EVERYTHING: "undressed" is legal for anyone, ON FILE or not — the explicit block's own
@@ -388,7 +400,7 @@ export function castRecordAsks(duties) {
 export const OUTFIT_RULES_PROMPT = `<outfit_rules>
 WHY: the extension, not the image model, dresses each person in the picture. It reads the outfit= of their slot (outfit2=, outfit3= … for the others) word for word and draws the clothes that value names, so every slot needs one, written exactly as shown here — in English, whatever language the story is in. A value it cannot recognise draws the wrong clothes. Your prose may be in any language. mainchar= works the same way, with the values [CAST] lists for {{user}}.
 The values:
-- a choice on the ON FILE line in <reply_cast> that names THAT character: an outfit on file draws those stored clothes; "same-as-last-picture", when <reply_cast> offers it for them, draws what they wore in their last picture, the outfit or clothes it lists after their name — pick it only while the story still has them in those clothes. Never a choice from a line that does not name them.
+- a choice on the ON FILE line in <reply_cast> that names THAT character: an outfit on file draws those stored clothes; "same-as-last-picture", when <reply_cast> offers it for them, draws the outfit or clothes it lists after their name, the last clothes a picture drew them in — pick it only while the story has them wearing those clothes. Never a choice from a line that does not name them.
 - "newclothes" — they wear clothes that none of those choices are: the story changed their clothes, or they have no ON FILE line — whoever the list leaves out has nothing on file, however often the story has met them before. It draws the clothes on their record, as <reply_cast> asks.
 - "undressed" — the shot shows them without their clothes. Legal for anyone, and it OUTRANKS every other value: the [Composition] then states the actual state of undress.
 outfit= names WHICH clothes, never how they sit right now: pushed up, torn or soaked is still the same outfit, and the [Composition] states it.
@@ -416,9 +428,11 @@ Only draw someone actually in the scene right now.
 // Injected only while the card's intimacy latch allows it (decideExplicitBlock, prompt-assembly-core.js).
 // It is the story-agnostic floor every card needs: geometry, exposure, plain anatomy. A card that keeps
 // per-position camera recipes supplies them itself, gated on the same latch, and this block defers to
-// them for the camera only.
+// them for the camera only. Its first line names the pictures it is for by what the picture shows, never by the
+// kind of line: a line of talk during sex is still a picture of sex, so it carries "nsfw", the undress and the
+// position like any other.
 export const EXPLICIT_RULES_PROMPT = `<explicit_rules>
-Apply to any sexual or nude beat; ignore for a clothed or neutral beat in the same scene.
+Apply to every picture of a sexual or nude moment, a line of talk or a reaction during sex included; ignore only for a picture where everyone is clothed and nothing sexual happens.
 - Header +"nsfw" ("explicit" for penetration) — the safety tag is a real signal.
 - EXPOSURE: the image model cannot infer nudity — name exactly what is bared ("fully nude", "breasts exposed, skirt pushed up", "panties pulled aside"). outfit="undressed" ⇒ [Composition] MUST state the undress.
 - POSITION AS GEOMETRY (the position lock): render a position by body ARRANGEMENT, never its name — who is over/under/behind, which limb where, exact contact/insertion state. Translations (same pattern for any act):

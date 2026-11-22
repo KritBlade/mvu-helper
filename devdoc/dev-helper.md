@@ -394,8 +394,10 @@ Storing looks is independent of the Image tab: harvest runs with images off, and
 > to their key or an alias, so the reply that brings them in already lists them), each with their `outfit=` choices —
 > their outfits on file ("no outfit on file" when they have none). Characters with the same set of outfits share one line, so a cast in one set of school outfits is one line.
 > A character named in the last 10 messages or present is also offered `same-as-last-picture` while the store below
-> holds what their last picture showed, on a line of its own after the groups with what it draws: an outfit's name,
-> or a one-off's clothes. The main character gets the same line for `mainchar=`, `- {{user}} (mainchar=): town-casual`,
+> holds the last clothes a picture drew them in, on a line of its own after the groups with what it draws: an outfit's
+> name, or a one-off's clothes. It draws those clothes, never a copy of the last picture: a picture with `undressed`
+> leaves the clothes in the store and marks the entry, and the line then ends `(their last picture showed them
+> undressed)`. The main character gets the same line for `mainchar=`, `- {{user}} (mainchar=): town-casual`,
 > whenever the store holds what he wore, and every outfit on his entry is ON FILE on a line of his own after the groups
 > (`- {{user}} (mainchar=): school-uniform, …, town-casual`); he still never takes a record.
 > A character ON FILE is written by name only; anyone else who needs a look gets `body=` and `clothes=` on their
@@ -406,8 +408,9 @@ Storing looks is independent of the Image tab: harvest runs with images off, and
 > (a newcomer, or an entry holding only their `[Body]`) keeps the clothes their record gives them, under its outfit
 > name when a place or role fixes them (`cafe-waitress`), else as their `[Clothes]`, listed as `default`. After that a
 > one-off outfit is `outfit="newclothes"` with `clothes=` on the record, and is never saved to the registry: mvu-helper
-> keeps it in the card's state, `stat_data.$mvuhelper.worn_outfit`, keyed by registry entry and stamped with the message of their last
-> picture, and offers it back as `same-as-last-picture`, so a swipe, a regenerate, a deleted reply or a new chat is
+> keeps it in the card's state, `stat_data.$mvuhelper.worn_outfit`, keyed by registry entry, stamped with the message of their last
+> picture (`last_picture_message`) and marked when that picture showed them undressed (`was_undressed_in_last_picture`),
+> and offers it back as `same-as-last-picture`, so a swipe, a regenerate, a deleted reply or a new chat is
 > always right. Clothes the registry keeps from a reply's record (first clothes, a new saved outfit) are the clothes
 > the reply's picture drew them in, when it drew them in a one-off, whichever call wrote the record; they are held in
 > the store by the outfit's name, never as a copy of the text, so editing that outfit in the Roster reaches the next

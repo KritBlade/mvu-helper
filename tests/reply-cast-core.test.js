@@ -243,6 +243,22 @@ describe('onFileCast — who the narrator is told has a stored look', () => {
         expect(lastPictureWearOf({ key: 'A', outfit: 'newclothes', clothes: '' }, ['newclothes'])).toBe('');
     });
 
+    // An "undressed" picture keeps her clothes in the store; her line says that picture showed her undressed, so a
+    // shot where she is still undressed is not drawn in them (staging msg 824: the casual clothes drawn on a naked girl).
+    // MUTATION TARGET: drop the note and her line reads as her last picture's look again.
+    it('MUTATION TARGET — her last picture showed her undressed: the clothes, then the note', () => {
+        const undressed = (held) => ({ ...held, wasUndressedInLastPicture: true });
+        expect(lastPictureWearOf(undressed(oneOff('A', 'white t-shirt, beige shorts')), ['gym'])).toBe('white t-shirt, beige shorts (their last picture showed them undressed)');
+        expect(lastPictureWearOf(undressed(wore('A', 'gym')), ['gym'])).toBe('gym (their last picture showed them undressed)');
+        expect(lastPictureWearOf(undressed(wore('A', 'gym')), [])).toBe('');
+        expect(lastPictureWearOf({ ...wore('A', 'gym'), wasUndressedInLastPicture: 'yes' }, ['gym'])).toBe('gym');
+        const ann = { key: 'Ann', names: ['Ann'], variants: ['pajama'] };
+        expect(cast({ entries: [ann], recentTexts: ['Ann'], lastPictures: [undressed(oneOff('Ann', 'red coat'))] })[0].lastPictureWear)
+            .toBe('red coat (their last picture showed them undressed)');
+        expect(replyCastInstruction([{ key: 'Ann', variants: ['pajama'], lastPictureWear: 'red coat (their last picture showed them undressed)' }]))
+            .toContain(SAME_AS_HEADING + '\n- Ann: red coat (their last picture showed them undressed)\n');
+    });
+
     // They are printed on one line of their own, so a line break in the stored text would break the ON FILE list.
     it('MUTATION TARGET — the one-off\'s clothes are one line, and a one-off with no clothes is none', () => {
         const ann = { key: 'Ann', names: ['Ann'], variants: ['pajama'] };
@@ -259,7 +275,7 @@ describe('onFileCast — who the narrator is told has a stored look', () => {
     // "same-as-last-picture" is per character, so it never joins a group line: it goes on lines of its own after the
     // groups, each naming what it draws, so the narrator compares the story with it instead of recalling her last
     // picture.
-    const SAME_AS_HEADING = '"same-as-last-picture" is also a choice for these, and draws what they wore in their last picture — the outfit or clothes after their name:';
+    const SAME_AS_HEADING = '"same-as-last-picture" is also a choice for these, and draws the outfit or clothes after their name: the last clothes a picture drew them in. It never undresses them — a shot of them without their clothes is "undressed", whatever their last picture showed:';
     it('MUTATION TARGET — "same-as-last-picture" is offered after the groups, each with what it draws', () => {
         expect(replyCastInstruction([{ key: 'Mitsuki', variants: ['school-uniform', 'school-gym'], lastPictureWear: 'white sundress, straw hat' }]))
             .toContain('- Mitsuki: school-uniform, school-gym\n' + SAME_AS_HEADING + '\n- Mitsuki: white sundress, straw hat\n');
@@ -289,6 +305,8 @@ describe('onFileCast — who the narrator is told has a stored look', () => {
         const girl = { key: 'Mitsuki', names: ['Mitsuki'], variants: ['town-casual'] };
         const entries = [girl, mainchar];
         expect(userLastPictureWear({ entries, uncastKeys: ['mainchar'], lastPictures: [wore('Mitsuki', 'town-casual'), wore('MAINCHAR', 'town-casual')] })).toBe('town-casual');
+        expect(userLastPictureWear({ entries, uncastKeys: ['Mainchar'], lastPictures: [{ ...wore('Mainchar', 'town-casual'), wasUndressedInLastPicture: true }] }))
+            .toBe('town-casual (their last picture showed them undressed)');
         expect(userLastPictureWear({ entries, uncastKeys: ['Mainchar'], lastPictures: [wore('Mitsuki', 'town-casual')] })).toBe('');
         expect(userLastPictureWear({ entries, uncastKeys: [], lastPictures: [wore('Mainchar', 'town-casual')] })).toBe('');
         expect(userLastPictureWear({ entries: [girl], uncastKeys: ['Mainchar'], lastPictures: [wore('Mainchar', 'town-casual')] })).toBe('');

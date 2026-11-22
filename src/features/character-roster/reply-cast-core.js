@@ -15,9 +15,10 @@ import { mentionsName } from '../../shared/name-mention.js';
 // of what the registry holds, so the narrator never judges who is registered; it reads the list. It does two jobs:
 //   • a character on it is never described again (describe once — her <cast> record is the name);
 //   • it gives each one's outfit= choices: her outfits on file, and "same-as-last-picture" while the worn-outfit
-//     store holds what her last picture showed and the story is with her (named in the recent chat, or present),
-//     with what it draws after her name: the outfit on file she wore, or her one-off's clothes. The narrator then
-//     compares the story with what is in front of it instead of remembering what her last picture showed.
+//     store holds the last clothes a picture drew her in and the story is with her (named in the recent chat, or
+//     present), with what it draws after her name: the outfit on file she wore, or her one-off's clothes, and a note
+//     when her last picture showed her undressed. The narrator then compares the story with what is in front of it
+//     instead of remembering what her last picture showed.
 // It is also the INFORMED set: the characters whose look this prompt showed, which decides whether a later
 // narrator registration may replace her clothes (dna-core mayStoryReplaceClothes).
 //
@@ -31,9 +32,9 @@ import { mentionsName } from '../../shared/name-mention.js';
 // `uncastKeys`    registry keys that never take a cast record — the user's own character's entry. It is
 //                 never listed, however often its key appears in the chat (state paths name it every turn); his
 //                 outfits are printed ON FILE on a line of his own instead (userOutfitsOnFile), which casts nobody.
-// `lastPictures`  [{ key, outfit, clothes }] what the worn-outfit store holds, in the state the reply starts from
-//                 (dna-core lastPictureOutfitsIn): `lastPictureWear` carries what "same-as-last-picture" draws for a
-//                 recent or present character (lastPictureWearOf).
+// `lastPictures`  [{ key, outfit, clothes, wasUndressedInLastPicture }] what the worn-outfit store holds, in the state
+//                 the reply starts from (dna-core lastPictureOutfitsIn): `lastPictureWear` carries what
+//                 "same-as-last-picture" draws for a recent or present character (lastPictureWearOf).
 //
 // SCOPED BY THE WHOLE CHAT, because a list scoped any shorter leaves out exactly the characters the narrator still
 // remembers: one the story brings back after a gap is off the list, so the narrator either copies an outfit= earlier
@@ -84,15 +85,18 @@ function findByKey(list, key) {
 }
 
 // What "same-as-last-picture" draws for one character, as printed after her name — PURE: her one-off's clothes, or
-// the name of the outfit on file she wore. '' when nothing she can be drawn in is held: no entry, a one-off with no
-// clothes, or an outfit name her entry no longer has (`variants`, her outfits on file), which would draw a slip.
-// Printed on one line, so any run of whitespace in the stored text is one space.
+// the name of the outfit on file she wore, then LAST_PICTURE_UNDRESSED_NOTE when her last picture showed her undressed
+// (`held.wasUndressedInLastPicture`), so the narrator sees, where it picks, that these clothes are not what that
+// picture showed. '' when nothing she can be drawn in is held: no entry, a one-off with no clothes, or an outfit name
+// her entry no longer has (`variants`, her outfits on file), which would draw a slip. Printed on one line, so any run
+// of whitespace in the stored text is one space.
+const LAST_PICTURE_UNDRESSED_NOTE = '(their last picture showed them undressed)';
 export function lastPictureWearOf(held, variants) {
     if (!held) return '';
     const outfit = String(held.outfit || '').trim().toLowerCase();
-    if (outfit === OUTFIT_NEW_CLOTHES) return String(held.clothes || '').replace(/\s+/g, ' ').trim();
     const name = (Array.isArray(variants) ? variants : []).find((v) => String(v || '').trim().toLowerCase() === outfit);
-    return name ? String(name) : '';
+    const wear = outfit === OUTFIT_NEW_CLOTHES ? String(held.clothes || '').replace(/\s+/g, ' ').trim() : (name ? String(name) : '');
+    return wear && held.wasUndressedInLastPicture === true ? `${wear} ${LAST_PICTURE_UNDRESSED_NOTE}` : wear;
 }
 
 // The user's own character's entries in `entries` (as onFileCast takes them), one per uncast key that has one, in key order.
@@ -235,12 +239,14 @@ const USER_ON_FILE_NOTE = `The ${USER_MAINCHAR_LABEL} line is the user's own cha
 
 // "SAME-AS-LAST-PICTURE" IS PER CHARACTER, so it goes on lines of its own after the groups, each with what it draws —
 // an outfit's name or a one-off's clothes — and the user's own character last, when the store holds what he wore.
-// [] when nobody is offered it.
+// THE HEADING SAYS IT DRAWS CLOTHES, never a copy of the last picture: a picture that shows someone undressed keeps
+// their clothes in the store, so for someone still undressed "same as their last picture" reads as undressed again
+// and draws them dressed. Their line then carries LAST_PICTURE_UNDRESSED_NOTE. [] when nobody is offered it.
 function sameAsLastPictureLines(onFile, userWear) {
     const lines = onFile.filter((e) => e.lastPictureWear).map((e) => `- ${e.key}: ${e.lastPictureWear}`);
     if (userWear) lines.push(`- ${USER_MAINCHAR_LABEL}: ${userWear}`);
     return lines.length
-        ? [`"${OUTFIT_SAME_AS_LAST_PICTURE}" is also a choice for these, and draws what they wore in their last picture — the outfit or clothes after their name:`, ...lines]
+        ? [`"${OUTFIT_SAME_AS_LAST_PICTURE}" is also a choice for these, and draws the outfit or clothes after their name: the last clothes a picture drew them in. It never undresses them — a shot of them without their clothes is "undressed", whatever their last picture showed:`, ...lines]
         : [];
 }
 
