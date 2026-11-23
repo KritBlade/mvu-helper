@@ -119,7 +119,7 @@ Not everything travels the same way:
 
 The card carries which calls exist and what they read. It never carries which server runs them. That's always the player's.
 
-Every chat load compares the card's `[Initmvuhelper]` with what this card last imported. A changed entry, from a card or pack upgrade, is imported again. An unchanged one is left alone, so a field you changed in the tab stays changed until the card's setup changes.
+Every chat load compares the card's `[Initmvuhelper]` with what this card last imported. So does every pack install, right after it writes the card's entries. A changed entry, from a card or pack upgrade, is imported again. An unchanged one is left alone, so a field you changed in the tab stays changed until the card's setup changes.
 
 2 more ways to take the card's setup in again:
 

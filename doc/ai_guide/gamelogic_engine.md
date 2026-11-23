@@ -91,7 +91,7 @@ Create these 3 before any engine logic. The blank pack ships none of them. The l
 | `roster` | `route`, `charCollection`, `presenceField` |
 | `logicEngine` | `{ "enabled": true }` |
 
-ArtificKoi ships `extraLlmCalls`, `imagegen`, `statBox` and `leadText` (`["<gametxt>", "<maintext>"]`). A key not in this table is reported as unknown and ignored. A call's connection profile never travels (a `profileId` is dropped and reported): the user picks each call's Connection in the Extra LLM Calls tab, and a call with none does not run. MVU Helper imports this entry on chat load when its content changed since the last import. After a dev-loop save, reopen the chat or use Main tab > Card config > Re-import. The first lorebook entry whose comment contains `[Initmvuhelper]` is the one read, so keep exactly one. Never use Export to card while the pack carries it: export overwrites that first match, and the next dev-loop apply puts the pack's text back.
+ArtificKoi ships `extraLlmCalls`, `imagegen`, `statBox` and `leadText` (`["<gametxt>", "<maintext>"]`). A key not in this table is reported as unknown and ignored. A call's connection profile never travels (a `profileId` is dropped and reported): the user picks each call's Connection in the Extra LLM Calls tab, and a call with none does not run. MVU Helper imports this entry when its content changed since the last import, on every chat load and on every install of the pack (each dev-loop apply of its entries included), so a dev-loop save of it takes effect at once. The first lorebook entry whose comment contains `[Initmvuhelper]` is the one read, so keep exactly one. Never use Export to card while the pack carries it: export overwrites that first match, and the next dev-loop apply puts the pack's text back.
 
 ### 3.3 The schema syntax: Zod for MVU, a vocabulary for the models
 
@@ -381,7 +381,7 @@ Filter the console by `[mvu-helper]` for the whole turn, by `[RES]` for the engi
 | `resolveTurn` ran but nothing saved | `applied: false`, or the changed `statData` not returned | return `{ statData, applied: true, log }` |
 | `getvar('X')` empty in a PRE / POST entry | short path | `getvar('stat_data.X')` |
 | A `{{...}}` comparison in EJS is always false | EJS runs before macros | `MvuHelper.engineInfo()` |
-| `[Initmvuhelper] is not valid JSON` toast, or edits not taking effect | `#` lines inside the wrapper, or no re-import yet | comments outside the wrapper, reopen the chat or Re-import |
+| `[Initmvuhelper] is not valid JSON` toast, or edits not taking effect | `#` lines inside the wrapper, or the entry was edited by hand in the lorebook, which only a chat load or an install imports | comments outside the wrapper, and after a hand edit, reopen the chat or Re-import |
 | A changed seed value never shows in the open chat | `[InitVar]` is create-only | a new chat; for old saves, `state.forceFromInitVar` (or `state.force`) with a `state.version` bump |
 | A boolean the model wrote as `"false"` reads `true` | `z.coerce.boolean` | JSON `true` / `false` in the vocabulary |
 | A die in the reply is not in the dealt pool | the narrator invented it, or EJS rolled it without `rollPool` | deal with `rollPool`, check `ctx.dice` |
