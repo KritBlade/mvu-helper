@@ -430,6 +430,86 @@ describe('DRIFT GUARD — the vendored copy vs the REAL engine parseToken', () =
         expect(warned).toEqual([]);
     });
 
+    // A `*` path is an ANY-match in every token kind, not only contains()/has(): the gate "a girl is with
+    // him" is `Cast.*.Here==true`. Read as ONE path, it would name a member literally called `*`.
+    it('a `*` path in a comparison or `in {}` holds when ANY entry matches, and never in an empty collection', () => {
+        const get = (t, d) => (Array.isArray(t) && t.length === 2 && typeof t[1] === 'string') ? t[0] : (t === undefined ? d : t);
+        const adapter = { get, warn: () => {}, triggerRoot: 'Story.triggers', aliases: { 'Aff(*)': 'Cast.*.Affection' } };
+        const sd = {
+            Cast: {
+                Mitsuki: { Here: [true, 'H'], Affection: [35, 'A'], Mood: ['Happy', 'M'] },
+                Mana: { Here: [false, 'H'], Affection: [80, 'A'], Mood: ['Calm', 'M'] },
+            },
+            Empty: {},
+        };
+        expect(engine.evalOne(sd, 'Cast.*.Here==true', adapter)).toBe(true);
+        expect(engine.evalOne(sd, 'Cast.*.Affection>=80', adapter)).toBe(true);
+        expect(engine.evalOne(sd, 'Cast.*.Affection>80', adapter)).toBe(false);
+        expect(engine.evalOne(sd, 'Aff(*)>=80', adapter)).toBe(true);                        // an alias that expands to a `*` path
+        expect(engine.evalOne(sd, 'Cast.*.Mood in {Excited,Happy}', adapter)).toBe(true);
+        expect(engine.evalOne(sd, 'Cast.*.Mood in {Angry}', adapter)).toBe(false);
+        expect(engine.evalOne(sd, '!Cast.*.Here==true', adapter)).toBe(false);               // negated: holds only when NO entry matches
+        expect(engine.evalOne(sd, '!Cast.*.Mood in {Angry}', adapter)).toBe(true);
+        expect(engine.evalOne(sd, 'Empty.*.Here==true', adapter)).toBe(false);               // zero entries is false, never vacuously true
+        expect(engine.evalOne(sd, 'Aff(Mitsuki)>=30', adapter)).toBe(true);                  // a path without `*` still reads one value
+        expect(engine.evalOne(sd, 'Happy=Happy', adapter)).toBe(true);                       // and a missing path still reads as its literal
+    });
+
+    // contains() and has() read their LHS in the same order as a compare: a shortcut expands first, even one
+    // spelled like a raw path (`Loc`, `MC.Bag`), a computed form is honoured, and a `*` fans out.
+    it('contains() and has() expand shortcuts, honour a computed form, and fan out a `*` the same way a compare does', () => {
+        const get = (t, d) => (Array.isArray(t) && t.length === 2 && typeof t[1] === 'string') ? t[0] : (t === undefined ? d : t);
+        const adapter = {
+            get, warn: () => {}, triggerRoot: 'Story.triggers',
+            aliases: { Loc: 'World.Location', 'MC.*': 'Hero.*', 'Trait(*).*': 'Cast.*.*' },
+            resolveScalar: (sd, lhs) => (lhs === 'Party' ? ['Mitsuki', 'Mana', 'Yuki'] : lhs),   // 3 names: a 2-string list reads as a [value, label] pair
+        };
+        const sd = {
+            World: { Location: ['Outskirts_AncientRuins', 'L'] },
+            Hero: { Bag: { camera: [1, 'n'] } },
+            Cast: { Mitsuki: { Mood: ['Excited', 'M'] }, Mana: { Mood: ['Calm', 'M'] } },
+            Notes: ['a quiet day', 'N'],
+        };
+        expect(engine.evalOne(sd, 'contains(Loc, "Ruins")', adapter)).toBe(true);
+        expect(engine.evalOne(sd, 'has(MC.Bag, "camera")', adapter)).toBe(true);
+        expect(engine.evalOne(sd, 'has(MC.Bag, "phone")', adapter)).toBe(false);
+        expect(engine.evalOne(sd, 'contains(Trait(*).Mood, "Excit")', adapter)).toBe(true);   // a shortcut that expands to a `*` path
+        expect(engine.evalOne(sd, 'contains(Trait(*).Mood, "Angry")', adapter)).toBe(false);
+        expect(engine.evalOne(sd, 'has(Party, "Mana")', adapter)).toBe(true);                  // a computed collection
+        expect(engine.evalOne(sd, 'contains(Notes, "quiet")', adapter)).toBe(true);            // a raw path reads as before
+        expect(engine.evalOne(sd, 'contains(Missing.Path, "Path")', adapter)).toBe(false);     // a path holding nothing has no text
+        expect(engine.evalOne(sd, 'has(Missing.Path, "x")', adapter)).toBe(false);
+    });
+
+    it('DaysSince() over a `*` path reads every entry\'s stamp, ANY-match, and an empty collection reads nothing', () => {
+        const get = (t, d) => (Array.isArray(t) && t.length === 2 && typeof t[1] === 'string') ? t[0] : (t === undefined ? d : t);
+        const warned = [];
+        const adapter = {
+            get, warn: (m) => warned.push(m), triggerRoot: 'Story.triggers',
+            daysSince: (sd, stamp) => engine.civilDaysSince('2026-04-10 12:00', stamp),
+        };
+        const sd = { Quests: { a: { Seen: '2026-04-09' }, b: { Seen: '2026-04-01' } }, Empty: {} };
+        expect(engine.evalOne(sd, 'DaysSince(Quests.*.Seen)<=1', adapter)).toBe(true);        // a: 1 day
+        expect(engine.evalOne(sd, 'DaysSince(Quests.*.Seen)>=9', adapter)).toBe(true);        // b: 9 days
+        expect(engine.evalOne(sd, 'DaysSince(Quests.*.Seen)>=10', adapter)).toBe(false);
+        expect(engine.evalOne(sd, 'DaysSince(Empty.*.Seen)>=1', adapter)).toBe(false);        // no entry is not "never"
+        expect(engine.evalOne(sd, 'DaysSince(Quests.a.Seen)<=1', adapter)).toBe(true);        // a plain path still reads one stamp
+        expect(warned).toEqual([]);
+    });
+
+    it('the sweep shows no "now" for a `*` token, which reads one value per entry', () => {
+        const get = (t, d) => (Array.isArray(t) && t.length === 2 && typeof t[1] === 'string') ? t[0] : (t === undefined ? d : t);
+        const adapter = { get, warn: () => {}, triggerRoot: 'Story.triggers', getArmed: () => '', setArmed: () => {} };
+        const sd = {
+            Cast: { Mitsuki: { Here: [false, 'H'], Affection: [25, 'A'] } },
+            Story: { triggers: { anyone: { when: 'Cast.*.Here==true' }, her: { when: 'Cast.Mitsuki.Affection>=30' } } },
+        };
+        expect(engine.sweepCandidateLines(sd, adapter)).toEqual([
+            'anyone · need Cast.*.Here==true',
+            'her · need Cast.Mitsuki.Affection>=30 · now 25',
+        ]);
+    });
+
     it('the engine file still names when-dsl-grammar.js as its consumer, so a future editor is warned', () => {
         const src = readFileSync(ENGINE, 'utf8');
         expect(src).toMatch(/parseToken/);

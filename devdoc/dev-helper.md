@@ -572,7 +572,7 @@ and the CARD declares the real path in its `[Initmvuhelper]` config block. (Scho
 | **configured but does NOT resolve** in the loaded state | **withheld (fail-closed)** + a console warning naming the path |
 
 > ⚠ **A path that is not in the card's state stops its feature.** The card declares the path in `[Initmvuhelper]`, and a
-> card upgrade that changes it reaches your setup on the next chat load (§5.2). A path typed here, or a card that renamed
+> card or pack upgrade that changes it reaches your setup by itself (§5.2). A path typed here, or a card that renamed
 > a state root while its `[Initmvuhelper]` kept the old path, points at nothing: the read emits an ungated `[imagegen]`
 > warning naming the failing path. Fix the path here, or in the card.
 >
@@ -645,11 +645,14 @@ what travels is `features/card-config/card-config-sections.js`, and every field 
 | **never travels** | — | — | each call's connection; the /sd prompt-prefix pick; every global setting |
 
 - **Export config → card**: writes the setup into a `[Initmvuhelper]` lorebook entry (mirrors MVU's `[InitVar]`).
-- **Every chat load** compares the card's entry with the config this card's profile last imported (a fingerprint of the
-  parsed config, so the entry's comments and whitespace do not count). A card opened for the first time is installed. A
-  changed entry — a card or pack upgrade rewrote it — is re-imported, the same merge as the button. An unchanged entry
-  is left alone, so a card-owned field edited in the panel stands until the card's config next changes. A card-owned
-  field the card carried before and has dropped goes back to its built-in default; one it never carried stays yours.
+- **Every chat load, and every GameLogic Pack activate, upgrade or repair that writes the card's entries** (a dev-loop
+  apply of `entries/` included; `writeActivation` runs the same `importCardConfig()` before its data sync), compares the
+  card's entry with the config this card's profile last imported (a fingerprint of the parsed config, so the entry's
+  comments and whitespace do not count). A card opened for the first time is installed. A changed entry — a card or
+  pack upgrade rewrote it — is re-imported, the same merge as the button, so a pack upgrade's config is in place from
+  the install on. An unchanged entry is left alone, so a card-owned field edited in the panel stands until the card's
+  config next changes. A card-owned field the card carried before and has dropped goes back to its built-in default;
+  one it never carried stays yours.
 - **Re-import from card**: the same re-import, on demand — calls and groups the card has and the profile lacks are added
   (a call you deleted comes back), card-owned fields are refreshed, and every connection assignment and preference is
   kept. It also deletes profile keys mvu-helper no longer reads. First it re-seeds this chat from the card's `[InitVar]`,

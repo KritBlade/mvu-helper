@@ -7,8 +7,9 @@
 // the section registry; this file is the I/O glue (lorebook + per-card profile).
 // See devdoc/dev-helper.md §5.2.
 //
-// WHEN IT IMPORTS (card-config-core planCardImport). Every chat load reads the card's entry and compares
-// its fingerprint with the one this card's profile stored when it last imported:
+// WHEN IT IMPORTS (card-config-core planCardImport). Every chat load, and every GameLogic Pack install once it
+// has written the card's entries (gamelogic-pack-activation writeActivation), reads the card's entry and
+// compares its fingerprint with the one this card's profile stored when it last imported:
 //   • a fresh profile                     → INSTALL: the card seeds everything it carries
 //   • another config (a card or pack upgrade rewrote the entry) → RE-IMPORT, the same merge the button runs
 //   • the same config                     → nothing
@@ -99,9 +100,10 @@ function logReimport(summary, lines, trigger) {
     log.lifecycle(`re-import from card (${trigger}) — ${parts.length ? parts.join(' · ') : 'nothing to change (profile already matches the card)'}`);
 }
 
-// IMPORT — runs on every chat load; {force:true} is the "Re-import from card" button. What happens is
-// decided in card-config-core planCardImport (skip-no-card / skip-snapshot / skip-none / install / reimport /
-// unchanged); this writes the plan into the profile, logs it and toasts. Returns the decision, or 'error'.
+// IMPORT — runs on every chat load and after a GameLogic Pack install writes the card's entries; {force:true}
+// is the "Re-import from card" button. What happens is decided in card-config-core planCardImport
+// (skip-no-card / skip-snapshot / skip-none / install / reimport / unchanged); this writes the plan into the
+// profile, logs it and toasts. Returns the decision, or 'error'.
 // `isSeedChanged`: the button's seed pass, run just before, changed this chat's state — so a re-import that changed no
 // setting does not report "Nothing to restore".
 // The no-op decisions log at verbose: the initial-load retry repeats them several times per page load.
@@ -148,7 +150,7 @@ export async function importCardConfig({ force = false, isSeedChanged = false } 
         for (const [key, value] of Object.entries(plan.values)) profile[key] = value;
         saveSettingsDebounced();
         const trigger = force ? 'Re-import from card'
-            : decision === 'install' ? 'first load of this card'
+            : decision === 'install' ? 'no config imported for this card yet'
                 : importedFingerprint ? `the card's config changed: ${importedFingerprint} → ${plan.cardFingerprint}`
                     : `this profile predates import fingerprints; the card's config is ${plan.cardFingerprint}`;
 

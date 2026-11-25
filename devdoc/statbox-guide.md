@@ -66,9 +66,10 @@ per reply, each refreshing the box already there:
 - **at the end of the post-reply phase**, from the turn's final state after POST and RES2, when that phase
   waited for the turn's own work: at least one POST call ran, or a GameLogic engine resolves turns.
 
-**A changed `statBox` reaches existing players on its own.** Every chat load compares the card's
-`[Initmvuhelper]` with the config the player last imported, and a changed one is re-imported, so the new
-box arrives with the card upgrade. **Re-import from card** (Main tab) does the same on demand.
+**A changed `statBox` reaches existing players on its own.** Every chat load, and every GameLogic Pack
+install that writes the card's entries, compares the card's `[Initmvuhelper]` with the config the player
+last imported, and a changed one is re-imported, so the new box arrives with the card or pack upgrade.
+**Re-import from card** (Main tab) does the same on demand.
 
 ---
 

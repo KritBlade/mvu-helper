@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import {
     iconButton, button, statusPill, listRow, recordCard, grid, stack, field, fieldLabel, controlRow, hint, detail, codeChip, input,
-    textarea, select, selectOption, switchInput, checkList, emptyState, notice, groupTitle, resultList, pager,
+    textarea, select, selectOption, switchInput, checkList, emptyState, notice, groupTitle, resultList, pager, subTabs,
     isNeedUnmet, panelThemeOf,
 } from '../src/features/settings-panel/gui-dna-core.js';
 
@@ -298,6 +298,41 @@ describe('emptyState and pager', () => {
         expect(last).toContain('<span>3 / 3</span>');
         expect(last).toMatch(/title="Next page" disabled/);
         expect(last).not.toMatch(/title="Previous page" disabled/);
+    });
+});
+
+describe('subTabs', () => {
+    const TABS = [
+        { tab: 'main', icon: 'fa-sliders', text: 'Main', body: '<section class="mvuh-card">A</section>' },
+        { tab: 'tester', icon: 'fa-flask', text: 'Tester', body: '<section class="mvuh-card">B</section>' },
+    ];
+
+    it('is a strip of keyed tabs over a panel per tab, the tab shown marked, its panel alone shown, each naming the other', () => {
+        expect(subTabs({ id: 'mvuh_lore_tabs', tabs: TABS, activeTab: 'tester' })).toBe('<div class="mvuh-subtabs" data-mvuh-subtabs="mvuh_lore_tabs">'
+            + '<nav class="mvuh-subtab-list" role="tablist">'
+            + '<button type="button" class="mvuh-subtab" role="tab" id="mvuh_lore_tabs_tab_main" aria-controls="mvuh_lore_tabs_panel_main" aria-selected="false" tabindex="-1" data-mvuh-subtab="main">'
+            + '<i class="fa-solid fa-sliders"></i><span data-i18n="Main">Main</span></button>'
+            + '<button type="button" class="mvuh-subtab is-active" role="tab" id="mvuh_lore_tabs_tab_tester" aria-controls="mvuh_lore_tabs_panel_tester" aria-selected="true" tabindex="0" data-mvuh-subtab="tester">'
+            + '<i class="fa-solid fa-flask"></i><span data-i18n="Tester">Tester</span></button>'
+            + '</nav>'
+            + '<div class="mvuh-subtab-panel" role="tabpanel" id="mvuh_lore_tabs_panel_main" aria-labelledby="mvuh_lore_tabs_tab_main" data-mvuh-subtab-panel="main" hidden>'
+            + '<section class="mvuh-card">A</section></div>'
+            + '<div class="mvuh-subtab-panel" role="tabpanel" id="mvuh_lore_tabs_panel_tester" aria-labelledby="mvuh_lore_tabs_tab_tester" data-mvuh-subtab-panel="tester">'
+            + '<section class="mvuh-card">B</section></div>'
+            + '</div>');
+    });
+
+    it('shows the first tab when the tab asked for is none of its own, and escapes the values it writes', () => {
+        const html = subTabs({ id: 'mvuh_tabs', tabs: TABS, activeTab: 'gone' });
+        expect(html).toContain('class="mvuh-subtab is-active" role="tab" id="mvuh_tabs_tab_main"');
+        expect(html).toContain('data-mvuh-subtab-panel="main">');
+        expect(html).toContain('data-mvuh-subtab-panel="tester" hidden>');
+        expect(subTabs({ id: 'mvuh_tabs', tabs: TABS })).toContain('class="mvuh-subtab is-active" role="tab" id="mvuh_tabs_tab_main"');
+        const hostile = subTabs({ id: 'mvuh_tabs', tabs: [{ tab: HOSTILE, icon: 'fa-sliders', text: HOSTILE }] });
+        expect(hostile).toContain(`data-mvuh-subtab="${HOSTILE_ESCAPED}"`);
+        expect(hostile).toContain(`id="mvuh_tabs_tab_${HOSTILE_ESCAPED}"`);
+        expect(hostile).toContain(`<span data-i18n="${HOSTILE_ESCAPED}">${HOSTILE_ESCAPED}</span>`);
+        expect(hostile).not.toContain('<b>');
     });
 });
 

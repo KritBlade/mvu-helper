@@ -2,7 +2,7 @@
 <!--
   tools/gui-dna-specimen.html — every GUI-DNA gene rendered from the real stylesheets (palette.css + gui-dna.css), at desktop width and
   at phone width side by side (the phone frame is a 390px box, so the shell's container query switches it
-  to the phone layout), in both nav placements: the rail with a page of cards, in a box that scrolls like the
+  to the phone layout), in both nav placements: the rail with a page of cards on sub-tabs, in a box that scrolls like the
   panel's dialog, and the top bar with a workbench page and a dialog. Repo-only: open it straight from disk to review the palette and the genes; it is never
   deployed. The markup here is the canonical markup each gene uses.
 -->
@@ -77,6 +77,11 @@
             </header>
 
             <div class="mvuh-notice is-warning"><i class="fa-solid fa-triangle-exclamation"></i><p class="mvuh-notice-text">MVU is not installed — every state feature is off until it is.</p><button type="button" class="mvuh-btn mvuh-btn-primary">Install MVU</button></div>
+
+            <!-- Sub-tabs: the strip, then a panel per tab. The Genes tab holds every card below, to its closing tag. -->
+            <div class="mvuh-subtabs" data-mvuh-subtabs="specimen_tabs">
+            <nav class="mvuh-subtab-list" role="tablist"><button type="button" class="mvuh-subtab is-active" role="tab" id="specimen_tabs_tab_genes" aria-controls="specimen_tabs_panel_genes" aria-selected="true" tabindex="0" data-mvuh-subtab="genes"><i class="fa-solid fa-dna"></i><span>Genes</span></button><button type="button" class="mvuh-subtab" role="tab" id="specimen_tabs_tab_empty" aria-controls="specimen_tabs_panel_empty" aria-selected="false" tabindex="-1" data-mvuh-subtab="empty"><i class="fa-solid fa-inbox"></i><span>Empty</span></button></nav>
+            <div class="mvuh-subtab-panel" role="tabpanel" id="specimen_tabs_panel_genes" aria-labelledby="specimen_tabs_tab_genes" data-mvuh-subtab-panel="genes">
 
             <section class="mvuh-card">
                 <header class="mvuh-card-header">
@@ -295,6 +300,20 @@
                 <div><p class="mvuh-danger-title">Card setup</p><p class="mvuh-danger-desc">Destructive actions. Requires confirmation.</p></div>
                 <div class="mvuh-danger-actions"><button type="button" class="mvuh-btn mvuh-btn-danger"><i class="fa-solid fa-rotate-left"></i>Reset from card</button><button type="button" class="mvuh-btn mvuh-btn-danger"><i class="fa-solid fa-broom"></i>Reset every card</button></div>
             </div>
+
+            </div>
+            <div class="mvuh-subtab-panel" role="tabpanel" id="specimen_tabs_panel_empty" aria-labelledby="specimen_tabs_tab_empty" data-mvuh-subtab-panel="empty" hidden>
+                <section class="mvuh-card">
+                    <header class="mvuh-card-header">
+                        <span class="mvuh-badge"><i class="fa-solid fa-inbox"></i></span>
+                        <h3 class="mvuh-card-title">Second tab</h3>
+                        <p class="mvuh-card-desc">A panel lays its cards out as a page does.</p>
+                        <button type="button" class="mvuh-collapse" aria-expanded="true" title="Show or hide"><i class="fa-solid fa-chevron-up"></i></button>
+                    </header>
+                    <div class="mvuh-card-body"><div class="mvuh-empty"><i class="fa-solid fa-box-open"></i><span>Nothing on this tab yet.</span></div></div>
+                </section>
+            </div>
+            </div>
         </div>
     </main>
 </div>
@@ -414,15 +433,40 @@
         divider.addEventListener('pointermove', move);
         divider.addEventListener('pointerup', stop);
     });
+    // Sub-tabs: a click or an arrow key shows a tab's panel and hides the others; the tab shown is the strip's one tab stop.
+    const SUBTAB_KEYS = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    function showSubtab(tab) {
+        const gene = tab.closest('[data-mvuh-subtabs]');
+        for (const each of gene.querySelectorAll(':scope > [role="tablist"] > [data-mvuh-subtab]')) {
+            const isShown = each === tab;
+            each.classList.toggle('is-active', isShown);
+            each.setAttribute('aria-selected', String(isShown));
+            each.tabIndex = isShown ? 0 : -1;
+        }
+        for (const panel of gene.querySelectorAll(':scope > [data-mvuh-subtab-panel]')) panel.hidden = panel.dataset.mvuhSubtabPanel !== tab.dataset.mvuhSubtab;
+    }
     document.addEventListener('keydown', (event) => {
+        const tab = event.target.closest?.('[data-mvuh-subtab]');
+        if (tab && SUBTAB_KEYS.includes(event.key)) {
+            const tabs = [...tab.parentElement.querySelectorAll('[data-mvuh-subtab]')];
+            const at = { ArrowLeft: tabs.indexOf(tab) - 1, ArrowRight: tabs.indexOf(tab) + 1, Home: 0, End: tabs.length - 1 }[event.key];
+            const next = tabs[(at + tabs.length) % tabs.length];
+            showSubtab(next);
+            next.focus();
+            event.preventDefault();
+            return;
+        }
         const divider = event.target.closest?.('.mvuh-split-divider');
         if (!divider || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
         const start = divider.previousElementSibling.getBoundingClientRect().width;
         divider.parentElement.style.setProperty('--mvuh-split-start', `${start + (event.key === 'ArrowRight' ? 16 : -16)}px`);
         event.preventDefault();
     });
-    // The panel's shared behaviours, mirrored so the specimen can be clicked: the theme switch, (?) detail, collapse, slider.
+    // The panel's shared behaviours, mirrored so the specimen can be clicked: the theme switch, sub-tabs, (?) detail,
+    // collapse, slider.
     document.addEventListener('click', (event) => {
+        const subtab = event.target.closest('[data-mvuh-subtab]');
+        if (subtab) { showSubtab(subtab); return; }
         const themeOption = event.target.closest('[data-mvuh-theme-option]');
         if (themeOption) {
             const theme = themeOption.dataset.mvuhThemeOption;

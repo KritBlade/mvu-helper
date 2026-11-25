@@ -45,6 +45,7 @@ import { regexUninstallExactness } from '../../sillytavern/tavern-regex-core.js'
 import { dialogLineText } from '../../sillytavern/popup-core.js';
 import { writeEngineCode, clearEngineCode, loadLogicEngine, readMenuEngineExportsInWorker } from '../logic-engine/index.js';
 import { syncCardData } from '../card-sync/index.js';
+import { importCardConfig } from '../card-config/index.js';
 import { createModuleLog } from '../../sillytavern/log.js';
 import {
     SCHEMA_SCRIPT_NAME,
@@ -381,6 +382,12 @@ async function writeActivation(pack, state, action, sections = null) {
         enabled: false, type: 'constant', keys: [],
     });
     if (!wroteReg) return { ok: false, action, reasons: ['the registry entry could not be written — the pack is PARTIALLY installed (re-activate to repair)'] };
+
+    // The card's [Initmvuhelper] is one of the entries just written, so the profile takes a changed config
+    // NOW, through the import every chat load runs first. The chat reloads below only when the regexes
+    // changed, so without this the card-owned settings (the stat box among them) would wait for the next
+    // chat load. The import is fingerprint-gated: an unchanged config imports nothing.
+    if (writesEntries) await importCardConfig();
 
     // Init the CURRENT chat immediately (activating mid-chat must not read as "the pack did nothing").
     // Rides the same sync pass every later chat load uses, so install-time and load-time init cannot

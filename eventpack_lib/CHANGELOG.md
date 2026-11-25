@@ -10,7 +10,7 @@ The file carries 3 numbers, and each one tells you something different.
 
 | Number | Now | Where you see it | What it covers |
 | --- | --- | --- | --- |
-| Library version | 1.0.5 | the file's first comment line | this file's own release |
+| Library version | 1.0.6 | the file's first comment line | this file's own release |
 | WHEN-DSL grammar | 1.7.0 | the same line, `(WHEN-DSL grammar v1.7.0)` | the condition language a pack's `prereq`, `when` and `whenAny` are written in |
 | Pack format | 1.2 | `FORMAT` inside the file. Your engine re-exports it as `EVENT_PACK_FORMAT` | what a pack may hold and still run |
 
@@ -25,6 +25,19 @@ The library version tells you how much work an update is.
 - **Patch** (like 1.0.5): nothing to do. It's a fix, or a new OPTIONAL feature.
 
 It's like a game console update. A patch you install and forget. A minor one means some new cartridges need it. A major one means read the notes before you play.
+
+## 1.0.6 (2026-11-22)
+
+WHEN-DSL grammar 1.7.0 · pack format 1.2
+
+A fix. Every token now reads its left side the same way, in the order [The left side](../doc/eventpack_engine/dsl.md#the-left-side-what-a-name-means) describes, and a `*` means "any entry" everywhere. Before this, these tokens were never true, so an event gated on one never fired:
+
+- **A `*` in a compare or an `in`.** `Classmate.*.Is_present==true` now holds when any classmate is present, and `Classmate.*.Mood in {Happy,Excited}` when any classmate has one of those moods.
+- **A `*` in `DaysSince()`.** `DaysSince(Mainchar.Quests.*.LastUpdated)<=1` now holds when any quest was updated in the last day. An empty collection is false, the same as any other `*`.
+- **A shortcut in `contains()` or `has()`.** `contains(Loc, "Ruins")` and `has(MC.Inventory, "camera")` now read the path the shortcut stands for. A shortcut that expands to a `*` path, like `contains(Trait(*).Mood, "Excited")`, checks every entry.
+- **A computed value in `contains()` or `has()`.** A name your game computes is now read even when it looks like a path.
+
+With `!` in front, a `*` token holds only when no entry matches. A `sweepCandidateLines` line no longer shows a `now` value for a `*` token, because it has one per entry. Nothing to do: replace your copy, and the gates start working.
 
 ## 1.0.5 (2026-11-16)
 

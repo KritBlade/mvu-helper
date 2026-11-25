@@ -100,7 +100,7 @@ and the choice is the global setting `panelTheme`.
 | `--mvuh-accent` | graphics: switch on, slider, checked box, primary action card border, a dragged split divider |
 | `--mvuh-accent-fill`, `--mvuh-accent-fill-hover` | fills under on-accent text (primary button, badge); the slider thumb's outer edge |
 | `--mvuh-on-accent` | text and icons on the accent or its fill; a checkbox's tick |
-| `--mvuh-accent-ink` | accent text and icons on a surface: links, chip, row and action icons, secondary-button icons, quiet button, an open (?); the focus ring |
+| `--mvuh-accent-ink` | accent text and icons on a surface: links, chip, row and action icons, secondary-button icons, quiet button, an open (?); the focus ring; the shown sub-tab's underline |
 | `--mvuh-accent-soft` | detail panel, icon toggle on, quiet button hover |
 | `--mvuh-control-off`, `--mvuh-switch-knob` | a control's off or unfilled part: the switch track while off, the slider's track, an unchecked box's edge; the switch's knob |
 | `--mvuh-check-empty` | an unchecked box's fill: in a dark theme a step lighter than the card, so the box never reads as a hole |
@@ -206,6 +206,7 @@ it.
     └── .mvuh-page  (one per tab)
         ├── header.mvuh-page-header       icon tile · eyebrow · title · subtitle | chip · pills
         ├── .mvuh-notice …                conditions
+        ├── .mvuh-subtabs                 optional: the strip, then each tab's panel holding its cards
         ├── section.mvuh-card × n
         └── .mvuh-danger-zone             at most one, always last
 ```
@@ -265,6 +266,15 @@ foot (under the last item on a rail only as tall as its items) and at the end of
 **Page header** `.mvuh-page-header`: icon tile, eyebrow "<group> / <tab>", title, subtitle (one line); on the right,
 the scope chip and the tab's status pill. Static markup per page; the tab fills its pill. Phone: chip and pills wrap
 under the subtitle.
+
+**Sub-tabs** `.mvuh-subtabs`: a page's own tabs under its header, for a page whose cards fall into a few groups the
+user opens one at a time. The strip, `nav.mvuh-subtab-list` with `role="tablist"`, holds one `button.mvuh-subtab`
+(`role="tab"`) per tab, icon + label, its tab in `data-mvuh-subtab`. Each tab's cards sit in its panel,
+`.mvuh-subtab-panel` (`role="tabpanel"`), its tab in `data-mvuh-subtab-panel`, laid out as a page. The tab shown
+carries `.is-active`, `aria-selected="true"` and the strip's one tab stop (`tabindex="0"`), underlined in the accent
+ink; every other panel carries `hidden`. A tab names its panel (`aria-controls`) and a panel its tab
+(`aria-labelledby`), by ids made from the gene's own. The strip sits on the canvas and wraps on a narrow page.
+`subTabs` in `gui-dna-core.js` builds it; switching is §7's.
 
 **Card** `section.mvuh-card`: its header sits on a tinted band. Header: badge, title, one-line description, a
 header-actions slot (icon buttons, one compact select, or a master switch), collapse chevron. `.is-collapsed` hides
@@ -448,7 +458,11 @@ A form is a stack of field genes. Fixed sentences are keyed; values stay outside
   build does not know always waits. A button a renderer builds outside a declared region declares its own, and a
   delegated handler that acts on the card selects only declared controls (`[data-mvuh-needs]`).
 - (?) opens the detail inline, and a list row's flag its words, which works on touch; never a hover tooltip alone.
-- Cards and advanced rows collapse, and a split's divider moves; neither state is saved.
+- Sub-tabs: a click on a tab, or an arrow key on the strip (Left and Right to the next tab, Home and End to its ends),
+  shows that tab's panel, hides the others, and moves `.is-active`, `aria-selected` and the tab stop with it. The gene
+  then fires `mvuh-subtab-change`, which bubbles, its tab in `event.detail.tab`, so a page can draw a panel as it
+  opens: a hidden panel has no size to measure. A page opens on its first tab.
+- Cards and advanced rows collapse, a split's divider moves and sub-tabs switch; none of these is saved.
 - After any repaint, sliders re-sync, and in an adopter that translates the locale is re-applied.
 - A file picker's input is created for each pick and never joins the page: a dismissed picker fires a `cancel` that
   bubbles, and the dialog the panel sits in closes on it.
@@ -477,6 +491,7 @@ These bind an adopter that ships more than one language (mvu-helper). One that s
 - Icon-only buttons carry a translated `title`, which is also their accessible name; icon toggles carry
   `aria-pressed`.
 - A split divider is a focusable separator the arrow keys move.
+- Sub-tabs are a `tablist` with one tab stop: the arrow keys move along it, Home and End to its ends.
 
 ## 10. Code genes
 

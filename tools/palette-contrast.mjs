@@ -151,7 +151,7 @@ const GRID_STEPS = 48;
 // Where a surface can sit over the canvas, in fractions of the pane: [x from, y from, x to, y to].
 const REGIONS = {
     anywhere: [0, 0, 1, 1],      // a card, a notice and a danger zone scroll over every point of the pane
-    pageHeader: [0, 0, 1, 0.2],  // the page header and its chips and pills: the top of the page, above the first card
+    pageHeader: [0, 0, 1, 0.2],  // the page header, its chips and pills, and the sub-tabs strip under it: the top of the page, above the first card
     rail: [0, 0, 0.13, 1],       // the rail: a 200px column at the start of a desktop pane
     topBar: [0, 0, 1, 0.08],     // the top bar: one row across the pane's top
 };
@@ -228,6 +228,7 @@ const PAIRS = [
     { ink: 'text-faint', minimum: GRAPHIC, on: ['card', 'row or tile'], use: 'an icon' },
     { ink: 'accent-ink', minimum: TEXT, on: ['page header', 'chip in the page header', 'card', 'card header band', 'row or tile', 'button on a card', 'field', 'dialog'] },
     { ink: 'accent-ink', minimum: GRAPHIC, on: EVERY_PANEL_SURFACE, use: 'the focus ring' },
+    { ink: 'accent-ink', minimum: GRAPHIC, on: ['page header'], use: "the shown sub-tab's underline" },
     { ink: 'accent', minimum: GRAPHIC, on: ['card', 'row or tile'], use: 'a switch on' },
     { ink: 'control-off', minimum: GRAPHIC, on: ['card', 'row or tile'], use: 'a switch off, a slider track, an unchecked box' },
     { ink: 'danger-ink', minimum: TEXT, on: ['danger zone', 'danger notice'] },

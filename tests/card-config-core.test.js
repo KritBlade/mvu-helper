@@ -1039,3 +1039,24 @@ describe('SOURCE GATE — imagegen as the card-config feature needs it', () => {
         expect(imageGenSrc).toContain('const str = getImagegenProfile().promptRegex || DEFAULT_REGEX;');
     });
 });
+
+// gamelogic-pack-activation.js imports the ST host and cannot load here, so its install tail is read as source.
+describe('SOURCE GATE — a GameLogic Pack install imports the card config it wrote', () => {
+    const activationSrc = readFileSync(new URL('../src/features/gamelogic-pack/gamelogic-pack-activation.js', import.meta.url), 'utf8');
+    const writeActivation = activationSrc.slice(activationSrc.indexOf('async function writeActivation('), activationSrc.indexOf('async function warnIfMvuSchemaLagged('));
+
+    // The chat reloads after an install only when its regexes changed, so a pack that changed only its
+    // [Initmvuhelper] reaches the profile through this call or not until the next chat load.
+    it('MUTATION TARGET — once the entries and the registry are written, the chat-load import runs before the data sync', () => {
+        const registryAt = writeActivation.indexOf('const wroteReg = await upsertLorebookEntryFields(');
+        const importAt = writeActivation.indexOf('if (writesEntries) await importCardConfig();');
+        const syncAt = writeActivation.indexOf('await syncCardData();');
+        expect(registryAt).toBeGreaterThan(-1);
+        expect(importAt).toBeGreaterThan(registryAt);
+        expect(syncAt).toBeGreaterThan(importAt);
+    });
+
+    it("the call is card-config's own importCardConfig, through its barrel", () => {
+        expect(activationSrc).toContain("import { importCardConfig } from '../card-config/index.js';");
+    });
+});

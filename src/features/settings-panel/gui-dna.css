@@ -318,6 +318,57 @@
     display: none;
 }
 
+/* ── Sub-tabs ─────────────────────────────────────────────────────────────────────────────────── */
+/* A page's own tabs under its header: the strip, then each tab's panel, which lays its cards out as a page does. A
+   panel not shown carries `hidden`, kept here, as the panel's own display would show it. */
+.mvuh-ui .mvuh-subtabs,
+.mvuh-ui .mvuh-subtab-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mvuh-gap);
+}
+
+.mvuh-ui .mvuh-subtab-panel[hidden] {
+    display: none;
+}
+
+/* The strip sits on the canvas and wraps on a narrow page. The tab shown is underlined over its line in the accent ink,
+   which clears 3:1 on the canvas in both themes, where the accent itself does not. */
+.mvuh-ui .mvuh-subtab-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid var(--mvuh-border);
+}
+
+.mvuh-ui .mvuh-subtab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    margin: 0 0 -1px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--mvuh-radius-control) var(--mvuh-radius-control) 0 0;
+    background: none;
+    color: var(--mvuh-text-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: color var(--mvuh-motion), border-color var(--mvuh-motion), background-color var(--mvuh-motion);
+}
+
+.mvuh-ui .mvuh-subtab:hover {
+    background-color: var(--mvuh-surface-raised);
+    color: var(--mvuh-text);
+}
+
+.mvuh-ui .mvuh-subtab.is-active {
+    border-bottom-color: var(--mvuh-accent-ink);
+    color: var(--mvuh-text);
+    font-weight: 600;
+}
+
 /* ── Card (section) ───────────────────────────────────────────────────────────────────────────── */
 .mvuh-ui .mvuh-card {
     position: relative;
@@ -1602,7 +1653,7 @@ dialog.mvuh-ui.mvuh-dialog::backdrop {
 
 /* ── Focus and motion ─────────────────────────────────────────────────────────────────────────── */
 /* The ring takes the accent ink: a text colour, it clears 3:1 on every surface, a status fill included. */
-.mvuh-ui :is(.mvuh-nav-item, .mvuh-theme-option, .mvuh-btn, .mvuh-input, .mvuh-select, .mvuh-textarea, .mvuh-switch, .mvuh-check, .mvuh-range, .mvuh-help-toggle, .mvuh-collapse, .mvuh-more, .mvuh-split-divider, .mvuh-tree-toggle):focus-visible {
+.mvuh-ui :is(.mvuh-nav-item, .mvuh-theme-option, .mvuh-subtab, .mvuh-btn, .mvuh-input, .mvuh-select, .mvuh-textarea, .mvuh-switch, .mvuh-check, .mvuh-range, .mvuh-help-toggle, .mvuh-collapse, .mvuh-more, .mvuh-split-divider, .mvuh-tree-toggle):focus-visible {
     outline: 2px solid var(--mvuh-accent-ink);
     outline-offset: 2px;
 }

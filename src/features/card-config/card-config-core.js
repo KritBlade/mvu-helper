@@ -91,9 +91,10 @@ export function carriedCardOwnedFields(cfg) {
 }
 
 // What a profile keeps about the config it last imported (by install, re-import or export): the
-// fingerprint, which tells the next chat load whether the card's config changed, and the card-owned
-// fields it carried, which tells the next re-import which of them the card has dropped since.
-// Returned for the caller to assign — they live at the top of the profile, beside the sections.
+// fingerprint, which tells the next import (a chat load or a pack install) whether the card's config
+// changed, and the card-owned fields it carried, which tells the next re-import which of them the card
+// has dropped since. Returned for the caller to assign — they live at the top of the profile, beside the
+// sections.
 export function lastImportOf(cfg) {
     return { importedConfigFingerprint: cardConfigFingerprint(cfg), importedCardOwnedFields: carriedCardOwnedFields(cfg) };
 }
@@ -118,7 +119,7 @@ export function installCardConfigSections(profile, cfg) {
     return next;
 }
 
-// RE-IMPORT — the "Re-import from card" button, or a chat load that finds the card's config changed.
+// RE-IMPORT — the "Re-import from card" button, or a chat load or pack install that finds the card's config changed.
 // MERGE, never replace: card-owned fields are refreshed, calls and groups the profile lacks are added,
 // and every connection assignment, user preference and hand-added row is kept.
 //
