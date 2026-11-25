@@ -4,7 +4,7 @@ The Roster is MVU Helper's character registry. Every named NPC gets their look w
 
 ## What it does
 
-The first time the story names a new character, the AI describes them once: their body, and what they're wearing. MVU Helper saves that as an entry in your card's lorebook. That saved look is what I call the character's DNA.
+The first time the story names a new character, the AI describes them once: their body, and what they're wearing. MVU Helper saves that in the chat's MVU variables, right next to the rest of the game. That saved look is what I call the character's DNA.
 
 After that, the AI never describes them again. It only writes their name, and MVU Helper adds the saved look to every picture of them. So Mitsuki has the same plum-purple hair and the same golden eyes on reply 5 and on reply 500.
 
@@ -123,9 +123,15 @@ It only works on **Predefined + auto-harvest new**, with **Harvest via** picked.
 
 ## Where the looks live
 
-Every entry is a lorebook entry in your card's own lorebook, named `[mvu-helper-char-image] <name>`. It's disabled, so your main AI never reads it as part of the story. MVU Helper reads it only when it builds a picture.
+Every look is kept in the chat's MVU variables, the same place your card keeps its game, under `$mvuhelper.character_registry`. MVU saves those variables with every single reply and every swipe, so the looks follow the chat by themselves.
 
-So you can also see and edit every look in SillyTavern's own World Info editor, like any other entry.
+That means each chat has its own Roster. A new chat starts with the characters the card brings, and everyone the story meets after that is saved in that chat only. Think of save slots in a console game. Every slot starts with the same party, but who you meet along the way is saved in that slot.
+
+Your edits on the Roster tab stick too. Swipe or regenerate the newest reply, and the edit is still there.
+
+The looks themselves never go into the prompt. The AI only sees names and outfit names, and MVU Helper reads a look only when it draws a picture of that character.
+
+You won't find them in SillyTavern's World Info editor. The pen on the Roster tab is the one place to edit them. If your lorebook still has `[mvu-helper-char-image]` entries from an older version, MVU Helper doesn't read them anymore.
 
 ## When something goes wrong
 

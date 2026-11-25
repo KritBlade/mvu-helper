@@ -2,11 +2,11 @@
 
 > This page applies to any card. ArtificKoi shows up as a real example, not as a rule.
 
-Every character on file is one lorebook entry: who they are, and the clothes they own. The AI is told who's on file and which clothes each one has, and it picks from that list for every picture. Clothes the story puts them in for one scene are kept in the game state instead.
+Every character on file is one entry in the chat's game state: who they are, and the clothes they own. The AI is told who's on file and which clothes each one has, and it picks from that list for every picture. Clothes the story puts them in for one scene are kept apart from the entry, in a record of their own.
 
 ## The entry
 
-An entry is a disabled lorebook entry named `[mvu-helper-char-image] <name>`, in the card's own lorebook. Its text is a few labelled sections. Here's ArtificKoi's Mitsuki, shortened:
+An entry is one record in the chat's game state, under `$mvuhelper.character_registry`, keyed by the character's name. The pen on the Roster tab shows it as text, a few labelled sections. Here's ArtificKoi's Mitsuki, shortened:
 
 ```
 [Body]
@@ -26,18 +26,44 @@ Mitsuki Tachibana
 美月
 ```
 
-| Section | What it holds |
-| --- | --- |
-| `[Body]` | who they are on ANY day: what they are, face, hair, eyes, build. Never clothes, never a wound or a blush from one scene |
-| `[Clothes]` | their default outfit. Picked as `default` |
-| `[Clothes:<name>]` | a named outfit, like `school-uniform`. Picked by its name |
-| `[Alias]` | other names for the same character, one per line. The story can write any of them |
-| `[Bust]` | a number for the breast slider LoRA, see [Auto Image Generation](../image_gen/README.md#send-bust-multiplier). Never part of the prompt |
-| `[AllowUpdate]` | `true` lets the story correct their saved clothes. Absent means `false` |
+| Section | Field in the record | What it holds |
+| --- | --- | --- |
+| `[Body]` | `body` | who they are on ANY day: what they are, face, hair, eyes, build. Never clothes, never a wound or a blush from one scene |
+| `[Clothes]` | `clothes.default` | their default outfit. Picked as `default` |
+| `[Clothes:<name>]` | `clothes.<name>` | a named outfit, like `school-uniform`. Picked by its name |
+| `[Alias]` | `aliases` | other names for the same character, one per line. The story can write any of them |
+| `[Bust]` | `bust` | a number for the breast slider LoRA, see [Auto Image Generation](../image_gen/README.md#send-bust-multiplier). Never part of the prompt |
+| `[AllowUpdate]` | `allow_update` | `true` lets the story correct their saved clothes. Absent means `false` |
 
 The name in the entry is the story's own spelling, in the story's own script. `[Body]` and the clothes are always English tags, whatever language the story is in, because the image model only reads English.
 
 Mitsuki has no plain `[Clothes]`, only named outfits. So `default` means nothing for her, and the AI is never offered it.
+
+### How a card brings its cast
+
+A card ships its characters in its `[InitVar]`, under `$mvuhelper.character_registry`, so every new chat starts with them on file. Here's the same Mitsuki as the card writes her:
+
+```json
+"$mvuhelper": {
+  "character_registry": {
+    "Mitsuki": {
+      "body": "slim, adult hourglass figure, long legs, (golden eyes:1.1), warm honey-colored eyes, fair skin, …",
+      "bust": 1.7,
+      "aliases": ["Tachibana", "Mitsuki Tachibana", "橘美月", "美月"],
+      "clothes": {
+        "school-uniform": "brown academy uniform, cream short-sleeve sailor blouse, …",
+        "school-gym": "academy gym uniform, white short-sleeve athletic shirt, …",
+        "school-swimsuit": "navy one-piece classic academy swimsuit, …"
+      },
+      "allow_update": false
+    }
+  }
+}
+```
+
+On every chat load, MVU Helper applies the card's `[InitVar]` to the chat again. So a character or an outfit you add to the card later reaches chats that are already going. A value the chat changed itself, like a Roster-tab edit, is kept.
+
+Your card's Zod schema has to keep `$mvuhelper` open, the same as for one-off clothes, see [One-off clothes live in the game state](#one-off-clothes-live-in-the-game-state).
 
 ## How a character gets on file
 
@@ -90,7 +116,7 @@ That means every NPC gets their first clothes saved automatically, the moment th
 
 The AI's first description is a good start, not always what you pictured. So check the Roster list, and edit whatever you don't like. What you save is what they wear from then on.
 
-A card built for MVU Helper usually ships its main cast with their outfits already written. ArtificKoi ships every classmate with `school-uniform`, `school-gym` and `school-swimsuit`.
+A card built for MVU Helper usually ships its main cast with their outfits already written, see [How a card brings its cast](#how-a-card-brings-its-cast). ArtificKoi ships every classmate with `school-uniform`, `school-gym` and `school-swimsuit`.
 
 ### Corrections: `[AllowUpdate]`
 
