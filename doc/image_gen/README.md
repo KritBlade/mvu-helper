@@ -45,15 +45,35 @@ Test `/sd` first, whichever workflow you use. Type `/sd a cat sitting on a desk`
 
 ## Quick start
 
-1. Open a chat with your card.
-2. Open MVU Helper > **Image Generation**.
-3. Set **Image insert type** to **Inline replace mode**.
-4. Pick a **/sd prompt prefix** that fits your checkpoint, or just use the Default one.
-5. Send a message.
+Open a chat with your card first. These settings are saved per card, so with no chat open there's no card to save them to.  I assumed you have already  [Set up ComfyUI](comfyui_setup.md).
 
-![The Image Generation tab on ArtificKoi: Image insert type on Inline replace mode, and Strip <pic> tag on](../../image/image_gen/image_gen_quickstart.jpg)
+MVU Helper opens from SillyTavern's Extensions panel, the cubes icon at the top. Unfold **MVU Helper** and click **Open MVU Helper**.
 
-That's it. The picture shows up right under the sentence it belongs to, with a small redraw button next to it.  **You can stop reading below if you are not interested in knowing what each of the field means**.
+![SillyTavern's Extensions panel: the MVU Helper drawer unfolded, with the Open MVU Helper button](../../image/image_gen/quickstart_open.jpg)
+
+1. **Turn on harvesting in Roster.** Set **Appearance route** to **Predefined + auto-harvest new**, and **Harvest via** to **narrate (main reply)**. Harvest via starts on Off, and while it's Off nobody new gets saved.
+
+   ![The Roster tab's Registration section: Appearance route on Predefined + auto-harvest new, Harvest via on narrate (main reply)](../../image/image_gen/quickstart_harvest.jpg)
+
+2. **Turn on pictures in Image Generation.** Set **Image insert type** to **Inline replace mode**. Leave **Pictures written by** on **narrate (main reply)**. With Harvest via on narrate, it's the only choice anyway.
+
+   ![The Image Generation tab's Rendering section: Image insert type on Inline replace mode, Pictures written by on narrate (main reply)](../../image/image_gen/quickstart_insert.jpg)
+
+3. **Send one message with a named NPC from the card's main cast in the scene.** Say Mitsuki sits next to you at lunch. The AI describes her once at the end of its reply, and her picture shows up right under the sentence it belongs to.
+
+4. **Go back to Roster.** Mitsuki's name is now in the **Character registry**, with the look the AI just wrote for her. A card built for MVU Helper, like ArtificKoi, already brings its main cast on file. On a card like that, a new name only shows up when the story meets someone who isn't on the list yet.
+
+5. **Make her look your own.** Click the pen on her row, change her body and outfits however you like, and save. Do it INSIDE MVU Helper > Roster. Her look lives in the chat's MVU variables, so that's the one place to edit it.
+
+   ![The Roster tab: the red arrow points at the pen on a Character registry row](../../image/image_gen/quickstart_edit.jpg)
+
+   My screenshot has Harvest via on a POST call. For the quick start, keep it on narrate.
+
+That's it. From now on, every picture of Mitsuki uses the look you saved. Hit the small redraw button on her picture, and you see the new look right away.
+
+The **/sd prompt prefix** is on the Default preset, which is anime style. Pick another one only if your checkpoint wants different tags, see [/sd prompt prefix](#sd-prompt-prefix).
+
+**You can stop reading below if you are not interested in knowing what each of the fields means.**
 
 ## Per card, or for your whole PC
 
